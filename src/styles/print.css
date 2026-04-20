@@ -1,0 +1,39 @@
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Forcer l'affichage des couleurs */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Masquer les éléments non nécessaires */
+  header,
+  footer,
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Optimiser l'affichage du CV */
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+
+  /* Éviter les sauts de page au milieu des sections */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  /* Garder les éléments ensemble */
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+}
