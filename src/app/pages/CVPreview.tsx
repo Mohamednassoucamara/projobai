@@ -46,38 +46,28 @@ export default function CVPreview() {
       ]);
 
       const element = cvRef.current;
+      const cvWidth = element.offsetWidth;
 
-      // Cloner uniquement le div CV dans un conteneur hors-écran isolé
-      // → aucun élément extérieur (sidebar, banner, bouton WhatsApp, overlay)
-      //   ne peut s'imprimer, même s'il est en position fixed/absolute
-      const clone = element.cloneNode(true) as HTMLElement;
-      const offscreen = document.createElement("div");
-      offscreen.style.cssText = [
-        "position:absolute",
-        "left:-99999px",
-        "top:0",
-        `width:${element.scrollWidth}px`,
-        "background:white",
-        "z-index:-9999",
-      ].join(";");
-      offscreen.appendChild(clone);
-      document.body.appendChild(offscreen);
-
-      let canvas: HTMLCanvasElement;
-      try {
-        canvas = await html2canvas(clone, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#ffffff",
-          logging: false,
-          windowWidth: element.scrollWidth,
-          windowHeight: element.scrollHeight,
-        });
-      } finally {
-        // Toujours nettoyer le clone, même en cas d'erreur
-        document.body.removeChild(offscreen);
-      }
+      // onclone : avant le rendu html2canvas, on vide le body cloné et on
+      // n'y place QUE le div CV → aucun navbar / banner / sidebar /
+      // bouton fixed ne peut apparaître dans le PDF.
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        onclone: (_clonedDoc, clonedElement) => {
+          const body = _clonedDoc.body;
+          body.style.cssText = "margin:0;padding:0;background:#fff;";
+          // Vider entièrement le body
+          while (body.firstChild) body.removeChild(body.firstChild);
+          // Ne garder que l'élément CV, sans aucun positionnement résiduel
+          clonedElement.style.cssText =
+            `position:static;margin:0;width:${cvWidth}px;box-shadow:none;`;
+          body.appendChild(clonedElement);
+        },
+      });
 
       // Phase 2 : afficher l'overlay seulement après la capture
       setIsGenerating(true);
