@@ -37,7 +37,6 @@ export default function CVPreview() {
     if (!cvRef.current || isCapturing || isGenerating) return;
 
     // Phase 1 : désactiver le bouton sans afficher l'overlay
-    // (l'overlay serait capturé par html2canvas sinon)
     setIsCapturing(true);
 
     try {
@@ -48,19 +47,39 @@ export default function CVPreview() {
 
       const element = cvRef.current;
 
-      // Capture haute résolution AVANT l'overlay (scale 2 = qualité retina)
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        ignoreElements: (el) => el.hasAttribute("data-pdf-ignore"),
-      });
+      // Cloner uniquement le div CV dans un conteneur hors-écran isolé
+      // → aucun élément extérieur (sidebar, banner, bouton WhatsApp, overlay)
+      //   ne peut s'imprimer, même s'il est en position fixed/absolute
+      const clone = element.cloneNode(true) as HTMLElement;
+      const offscreen = document.createElement("div");
+      offscreen.style.cssText = [
+        "position:absolute",
+        "left:-99999px",
+        "top:0",
+        `width:${element.scrollWidth}px`,
+        "background:white",
+        "z-index:-9999",
+      ].join(";");
+      offscreen.appendChild(clone);
+      document.body.appendChild(offscreen);
 
-      // Phase 2 : maintenant on peut afficher l'overlay (capture déjà faite)
+      let canvas: HTMLCanvasElement;
+      try {
+        canvas = await html2canvas(clone, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight,
+        });
+      } finally {
+        // Toujours nettoyer le clone, même en cas d'erreur
+        document.body.removeChild(offscreen);
+      }
+
+      // Phase 2 : afficher l'overlay seulement après la capture
       setIsGenerating(true);
 
       const imgData = canvas.toDataURL("image/jpeg", 0.98);

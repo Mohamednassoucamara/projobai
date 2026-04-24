@@ -7,7 +7,7 @@ export default function WhatsAppButton() {
   const location = useLocation();
 
   // Cacher le bouton WhatsApp sur certaines pages
-  const excludedPaths = ["/cv-assistant", "/interview-prep", "/cover-letter"];
+  const excludedPaths = ["/cv-assistant", "/interview-prep", "/cover-letter", "/cv-preview", "/cover-letter-preview"];
 
   if (excludedPaths.includes(location.pathname)) {
     return null;
