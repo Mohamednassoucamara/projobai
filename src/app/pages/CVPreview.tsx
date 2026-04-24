@@ -8,6 +8,7 @@ import { useCVData } from "../contexts/CVDataContext";
 
 export default function CVPreview() {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const { cvData } = useCVData();
   const cvRef = useRef<HTMLDivElement | null>(null);
@@ -33,8 +34,11 @@ export default function CVPreview() {
   };
 
   const handleDownload = async () => {
-    if (!cvRef.current || isGenerating) return;
-    setIsGenerating(true);
+    if (!cvRef.current || isCapturing || isGenerating) return;
+
+    // Phase 1 : désactiver le bouton sans afficher l'overlay
+    // (l'overlay serait capturé par html2canvas sinon)
+    setIsCapturing(true);
 
     try {
       const [html2canvas, { default: jsPDF }] = await Promise.all([
@@ -44,7 +48,7 @@ export default function CVPreview() {
 
       const element = cvRef.current;
 
-      // Capture haute résolution (scale 2 = qualité retina)
+      // Capture haute résolution AVANT l'overlay (scale 2 = qualité retina)
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -53,7 +57,11 @@ export default function CVPreview() {
         logging: false,
         windowWidth: element.scrollWidth,
         windowHeight: element.scrollHeight,
+        ignoreElements: (el) => el.hasAttribute("data-pdf-ignore"),
       });
+
+      // Phase 2 : maintenant on peut afficher l'overlay (capture déjà faite)
+      setIsGenerating(true);
 
       const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
@@ -125,9 +133,9 @@ export default function CVPreview() {
       setTimeout(() => setShowSuccess(false), 4000);
     } catch (error) {
       console.error("Erreur génération PDF:", error);
-      // Fallback sur window.print
       window.print();
     } finally {
+      setIsCapturing(false);
       setIsGenerating(false);
     }
   };
@@ -155,10 +163,10 @@ export default function CVPreview() {
             </Link>
             <button
               onClick={handleDownload}
-              disabled={isGenerating}
+              disabled={isCapturing || isGenerating}
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all font-bold disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {isGenerating ? (
+              {isCapturing || isGenerating ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /><span>Génération...</span></>
               ) : (
                 <><Download className="h-4 w-4" /><span>Télécharger PDF</span></>
@@ -171,6 +179,7 @@ export default function CVPreview() {
       <div className="mx-auto max-w-7xl px-6 py-12 flex-1">
         {!cvData.fullName && (
           <motion.div
+            data-pdf-ignore
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 bg-gradient-to-r from-[#003087] to-[#0047b3] rounded-2xl p-6 text-white flex items-center justify-between"
@@ -388,7 +397,7 @@ export default function CVPreview() {
           </div>
 
           {/* Conseils IA */}
-          <div className="lg:col-span-1">
+          <div data-pdf-ignore className="lg:col-span-1">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
