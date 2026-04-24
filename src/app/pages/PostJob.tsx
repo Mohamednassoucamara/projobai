@@ -5,6 +5,7 @@ import { useState } from "react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 import { supabase } from "../../lib/supabase";
+import { sanitizeText } from "../../lib/security";
 
 export default function PostJob() {
   const navigate = useNavigate();
@@ -36,6 +37,23 @@ export default function PostJob() {
       setError("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+    if (form.title.length > 150) {
+      setError("L'intitulé du poste ne peut pas dépasser 150 caractères.");
+      return;
+    }
+    if (form.description.length > 5000) {
+      setError("La description ne peut pas dépasser 5 000 caractères.");
+      return;
+    }
+    if (form.salary_min && form.salary_max &&
+        parseInt(form.salary_min) > parseInt(form.salary_max)) {
+      setError("Le salaire minimum ne peut pas être supérieur au maximum.");
+      return;
+    }
+    if (form.deadline && new Date(form.deadline) <= new Date()) {
+      setError("La date limite doit être dans le futur.");
+      return;
+    }
 
     setIsLoading(true);
     setError("");
@@ -53,9 +71,9 @@ export default function PostJob() {
 
       const jobPayload: Record<string, any> = {
         company_id: user.id,
-        title: form.title,
-        description: form.description,
-        location: form.location,
+        title: sanitizeText(form.title, 150),
+        description: sanitizeText(form.description, 5000),
+        location: sanitizeText(form.location, 200),
         job_type: form.job_type,
         experience_level: form.experience_level,
         education_level: form.education_level,

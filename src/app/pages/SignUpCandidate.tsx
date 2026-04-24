@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import { isValidEmail, validatePassword } from "../../lib/security";
 
 export default function SignUpCandidate() {
   const { signUp, isAuthenticated, user } = useAuth();
@@ -26,8 +27,13 @@ export default function SignUpCandidate() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+    if (!isValidEmail(email)) {
+      setError("Adresse email invalide.");
+      return;
+    }
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) {
+      setError(pwCheck.error);
       return;
     }
     if (password !== confirmPassword) {
@@ -205,7 +211,7 @@ export default function SignUpCandidate() {
                     type="password"
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                    placeholder="••••••••  (min. 6 caractères)"
+                    placeholder="••••••••  (min. 8 car., 1 maj., 1 chiffre)"
                     required
                     disabled={isLoading}
                     className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50"

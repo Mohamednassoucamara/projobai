@@ -341,9 +341,18 @@ CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH C
 DROP POLICY IF EXISTS "Candidates can view their own profile" ON candidate_profiles;
 CREATE POLICY "Candidates can view their own profile" ON candidate_profiles FOR SELECT USING (auth.uid() = id);
 
+-- Companies can only view candidates who applied to one of their jobs
 DROP POLICY IF EXISTS "Companies can view candidate profiles" ON candidate_profiles;
 CREATE POLICY "Companies can view candidate profiles" ON candidate_profiles FOR SELECT
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND user_type = 'company'));
+  USING (
+    auth.uid() = id
+    OR EXISTS (
+      SELECT 1 FROM applications a
+      JOIN jobs j ON j.id = a.job_id
+      WHERE a.candidate_id = candidate_profiles.id
+        AND j.company_id = auth.uid()
+    )
+  );
 
 DROP POLICY IF EXISTS "Candidates can update their own profile" ON candidate_profiles;
 CREATE POLICY "Candidates can update their own profile" ON candidate_profiles FOR UPDATE USING (auth.uid() = id);

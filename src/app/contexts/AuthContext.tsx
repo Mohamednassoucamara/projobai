@@ -61,6 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!email || !password) return false;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error || !data.session) return false;
+      // Remove legacy localStorage CV data if any
+      localStorage.removeItem("cvData");
       setUser({
         name: data.user.user_metadata?.full_name || data.user.email,
         email: data.user.email,

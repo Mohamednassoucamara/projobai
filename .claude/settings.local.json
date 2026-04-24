@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/hp/Desktop/Projobai-main/.claude/worktrees/nifty-mendel-cdf75e/src/app/routes* -type f)",
+      "Bash(grep -E \"^.+:[^:]+$\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx supabase *)",
+      "Bash(npm run *)"
+    ]
+  }
+}

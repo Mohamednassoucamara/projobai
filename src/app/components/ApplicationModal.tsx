@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { X, Upload, FileText, CheckCircle } from "lucide-react";
+import { X, Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { validateUploadedFile } from "../../lib/security";
 
 interface ApplicationModalProps {
   isOpen: boolean;
@@ -18,9 +19,15 @@ export default function ApplicationModal({
   const [step, setStep] = useState<"form" | "success">("form");
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!cvFile) {
+      setFileError("Veuillez joindre votre CV (PDF).");
+      return;
+    }
+    setFileError("");
     setStep("success");
     setTimeout(() => {
       onClose();
@@ -31,15 +38,21 @@ export default function ApplicationModal({
   };
 
   const handleCvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCvFile(e.target.files[0]);
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const check = validateUploadedFile(file);
+    if (!check.valid) { setFileError(check.error); e.target.value = ""; return; }
+    setFileError("");
+    setCvFile(file);
   };
 
   const handleCoverLetterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCoverLetterFile(e.target.files[0]);
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const check = validateUploadedFile(file);
+    if (!check.valid) { setFileError(check.error); e.target.value = ""; return; }
+    setFileError("");
+    setCoverLetterFile(file);
   };
 
   return (
@@ -80,6 +93,13 @@ export default function ApplicationModal({
                     </button>
                   </div>
 
+                  {fileError && (
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 mb-4">
+                      <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                      <p className="text-sm text-red-800 font-medium">{fileError}</p>
+                    </div>
+                  )}
+
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <label className="block text-sm font-bold text-[#003087] mb-3">
@@ -88,6 +108,7 @@ export default function ApplicationModal({
                       <input
                         type="text"
                         required
+                        maxLength={100}
                         placeholder="Votre nom et prénom"
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
                       />
@@ -100,6 +121,7 @@ export default function ApplicationModal({
                       <input
                         type="email"
                         required
+                        maxLength={254}
                         placeholder="votre.email@exemple.com"
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
                       />
@@ -112,6 +134,7 @@ export default function ApplicationModal({
                       <input
                         type="tel"
                         required
+                        maxLength={20}
                         placeholder="+224 XXX XX XX XX"
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
                       />
@@ -174,6 +197,7 @@ export default function ApplicationModal({
                       </label>
                       <textarea
                         rows={4}
+                        maxLength={1000}
                         placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce poste..."
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all resize-none"
                       />

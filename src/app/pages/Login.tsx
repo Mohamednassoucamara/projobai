@@ -2,9 +2,16 @@ import { Link, useNavigate, useLocation, Navigate } from "react-router";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
-import { ArrowRight, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, AlertCircle, Loader2, Lock } from "lucide-react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import {
+  isRateLimited,
+  recordLoginAttempt,
+  rateLimitSecondsRemaining,
+  safeRedirectUrl,
+  isValidEmail,
+} from "../../lib/security";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,12 +21,27 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
-  const userType = new URLSearchParams(location.search).get("type") as "candidate" | "company" || "candidate";
-  const fromParam = new URLSearchParams(location.search).get("from");
-  const from = fromParam ? decodeURIComponent(fromParam) : (userType === "company" ? "/company/dashboard" : "/dashboard");
+  const params = new URLSearchParams(location.search);
+  const rawType = params.get("type");
+  const userType: "candidate" | "company" =
+    rawType === "company" ? "company" : "candidate";
+  const defaultPath = userType === "company" ? "/company/dashboard" : "/dashboard";
+  const from = safeRedirectUrl(params.get("from"), defaultPath);
 
-  // Rediriger si déjà connecté
+  // Countdown timer when locked out
+  useEffect(() => {
+    if (!isRateLimited()) return;
+    setLockoutSeconds(rateLimitSecondsRemaining());
+    const id = setInterval(() => {
+      const rem = rateLimitSecondsRemaining();
+      setLockoutSeconds(rem);
+      if (rem <= 0) clearInterval(id);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
   if (isAuthenticated && user) {
     const redirectPath = user.type === "company" ? "/company/dashboard" : "/dashboard";
     return <Navigate to={redirectPath} replace />;
@@ -28,20 +50,33 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
 
+    if (isRateLimited()) {
+      setLockoutSeconds(rateLimitSecondsRemaining());
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Adresse email invalide.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
+      recordLoginAttempt();
       const success = await login(email, password, userType);
 
       if (success) {
-        // Petit délai pour l'animation
-        setTimeout(() => {
-          navigate(from, { replace: true });
-        }, 300);
+        setTimeout(() => navigate(from, { replace: true }), 300);
       } else {
-        setError("Email ou mot de passe incorrect");
+        if (isRateLimited()) {
+          setLockoutSeconds(rateLimitSecondsRemaining());
+          setError(`Trop de tentatives. Réessayez dans ${rateLimitSecondsRemaining()} secondes.`);
+        } else {
+          setError("Identifiants incorrects. Veuillez réessayer.");
+        }
       }
-    } catch (err) {
+    } catch {
       setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
@@ -76,12 +111,26 @@ export default function Login() {
             </p>
 
             <AnimatePresence mode="wait">
-              {error && (
+              {lockoutSeconds > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-orange-50 border border-orange-200 mb-4"
+                >
+                  <Lock className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                  <p className="text-sm text-orange-800 font-medium">
+                    Trop de tentatives. Réessayez dans{" "}
+                    <span className="font-black">{lockoutSeconds}s</span>.
+                  </p>
+                </motion.div>
+              )}
+              {error && !lockoutSeconds && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200 mb-4"
                 >
                   <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                   <p className="text-sm text-red-800 font-medium">{error}</p>
@@ -124,7 +173,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || lockoutSeconds > 0}
               className="group w-full bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isLoading ? (

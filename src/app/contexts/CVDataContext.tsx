@@ -50,21 +50,20 @@ const CVDataContext = createContext<CVDataContextType | undefined>(undefined);
 export function CVDataProvider({ children }: { children: ReactNode }) {
   const [cvData, setCVData] = useState<CVData>(defaultCVData);
 
-  // Charger les données depuis localStorage au montage
+  // sessionStorage : effacé à la fermeture de l'onglet (plus sûr que localStorage)
   useEffect(() => {
-    const savedData = localStorage.getItem("cvData");
+    const savedData = sessionStorage.getItem("cvData");
     if (savedData) {
       try {
         setCVData(JSON.parse(savedData));
-      } catch (error) {
-        console.error("Error loading CV data:", error);
+      } catch {
+        sessionStorage.removeItem("cvData");
       }
     }
   }, []);
 
-  // Sauvegarder les données dans localStorage à chaque modification
   useEffect(() => {
-    localStorage.setItem("cvData", JSON.stringify(cvData));
+    sessionStorage.setItem("cvData", JSON.stringify(cvData));
   }, [cvData]);
 
   const updateCVData = (data: Partial<CVData>) => {
@@ -73,7 +72,7 @@ export function CVDataProvider({ children }: { children: ReactNode }) {
 
   const resetCVData = () => {
     setCVData(defaultCVData);
-    localStorage.removeItem("cvData");
+    sessionStorage.removeItem("cvData");
   };
 
   return (
