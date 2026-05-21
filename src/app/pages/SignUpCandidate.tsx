@@ -1,14 +1,15 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Shield, ArrowRight, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 import { isValidEmail, validatePassword } from "../../lib/security";
+import { redirectAfterSignup } from "../../lib/authRedirect";
 
 export default function SignUpCandidate() {
-  const navigate = useNavigate();
   const { signUp, isAuthenticated, user, isLoading: authLoading, isSigningUp } = useAuth();
+  const didRedirectRef = useRef(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -18,13 +19,14 @@ export default function SignUpCandidate() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (authLoading || isSigningUp) return;
+    if (authLoading || isSigningUp || didRedirectRef.current) return;
     if (isAuthenticated && user) {
-      navigate(user.type === "company" ? "/company/dashboard" : "/dashboard", {
-        replace: true,
-      });
+      didRedirectRef.current = true;
+      window.location.replace(
+        user.type === "company" ? "/company/dashboard" : "/dashboard",
+      );
     }
-  }, [authLoading, isSigningUp, isAuthenticated, user, navigate]);
+  }, [authLoading, isSigningUp, isAuthenticated, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,14 +50,12 @@ export default function SignUpCandidate() {
     try {
       const result = await signUp(email, password, fullName, "candidate");
       if (result.success) {
-        if (result.needsEmailConfirmation !== false) {
-          navigate(
-            `/signup/confirmation?type=candidate&email=${encodeURIComponent(email)}`,
-            { replace: true },
-          );
-          return;
-        }
-        navigate("/dashboard", { replace: true });
+        didRedirectRef.current = true;
+        redirectAfterSignup(
+          "candidate",
+          email,
+          result.needsEmailConfirmation !== false,
+        );
         return;
       }
       setError(result.error || "Erreur lors de la création du compte. Veuillez réessayer.");

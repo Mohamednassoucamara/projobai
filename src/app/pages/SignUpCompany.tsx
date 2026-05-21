@@ -1,14 +1,15 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Shield, ArrowRight, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 import { isValidEmail, validatePassword } from "../../lib/security";
+import { redirectAfterSignup } from "../../lib/authRedirect";
 
 export default function SignUpCompany() {
-  const navigate = useNavigate();
   const { signUp, isAuthenticated, user, isLoading: authLoading, isSigningUp } = useAuth();
+  const didRedirectRef = useRef(false);
   const [companyName, setCompanyName] = useState("");
   const [sector, setSector] = useState("");
   const [size, setSize] = useState("");
@@ -21,13 +22,14 @@ export default function SignUpCompany() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (authLoading || isSigningUp) return;
+    if (authLoading || isSigningUp || didRedirectRef.current) return;
     if (isAuthenticated && user) {
-      navigate(user.type === "company" ? "/company/dashboard" : "/dashboard", {
-        replace: true,
-      });
+      didRedirectRef.current = true;
+      window.location.replace(
+        user.type === "company" ? "/company/dashboard" : "/dashboard",
+      );
     }
-  }, [authLoading, isSigningUp, isAuthenticated, user, navigate]);
+  }, [authLoading, isSigningUp, isAuthenticated, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,14 +53,12 @@ export default function SignUpCompany() {
     try {
       const result = await signUp(email, password, companyName, "company");
       if (result.success) {
-        if (result.needsEmailConfirmation !== false) {
-          navigate(
-            `/signup/confirmation?type=company&email=${encodeURIComponent(email)}`,
-            { replace: true },
-          );
-          return;
-        }
-        navigate("/company/dashboard", { replace: true });
+        didRedirectRef.current = true;
+        redirectAfterSignup(
+          "company",
+          email,
+          result.needsEmailConfirmation !== false,
+        );
         return;
       }
       setError(result.error || "Erreur lors de la création du compte. Veuillez réessayer.");

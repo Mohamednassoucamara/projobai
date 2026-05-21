@@ -21,39 +21,26 @@ import Pricing from "./pages/Pricing";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
+/** Pages auth sans widgets (Botpress/WhatsApp) pour éviter les conflits DOM. */
+const authRoutes = [
+  { path: "/login", Component: Login },
+  { path: "/signup-candidate", Component: SignUpCandidate },
+  { path: "/signup-company", Component: SignUpCompany },
+  { path: "/signup/confirmation", Component: SignUpEmailSent },
+] as const;
+
 export const router = createBrowserRouter([
+  ...authRoutes.map((route) => ({
+    ...route,
+    errorElement: <RouteErrorBoundary />,
+  })),
   {
     Component: Layout,
     errorElement: <RouteErrorBoundary />,
     children: [
-      {
-        path: "/",
-        Component: Home,
-      },
-      {
-        path: "/pricing",
-        Component: Pricing,
-      },
-      {
-        path: "/profile-choice",
-        Component: ProfileChoice,
-      },
-      {
-        path: "/login",
-        Component: Login,
-      },
-      {
-        path: "/signup-candidate",
-        Component: SignUpCandidate,
-      },
-      {
-        path: "/signup-company",
-        Component: SignUpCompany,
-      },
-      {
-        path: "/signup/confirmation",
-        Component: SignUpEmailSent,
-      },
+      { path: "/", Component: Home },
+      { path: "/pricing", Component: Pricing },
+      { path: "/profile-choice", Component: ProfileChoice },
       {
         path: "/dashboard",
         element: (
@@ -102,14 +89,8 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "/jobs",
-        Component: JobList,
-      },
-      {
-        path: "/jobs/:id",
-        Component: JobDetail,
-      },
+      { path: "/jobs", Component: JobList },
+      { path: "/jobs/:id", Component: JobDetail },
       {
         path: "/company/dashboard",
         element: (

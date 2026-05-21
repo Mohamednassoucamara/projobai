@@ -21,7 +21,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
     // Détecter la session dans l'URL (pour les liens de confirmation email)
     detectSessionInUrl: true,
-
     flowType: 'pkce',
     redirectTo: getAppOrigin(),
   },

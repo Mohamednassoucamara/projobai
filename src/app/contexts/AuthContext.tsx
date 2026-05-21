@@ -50,7 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (isSigningUpRef.current) return;
-      applySession(session);
+      // Différer pour éviter les conflits React DOM (removeChild) pendant les transitions
+      window.setTimeout(() => {
+        if (!isSigningUpRef.current) {
+          applySession(session);
+        }
+      }, 0);
     });
     return () => {
       subscription.unsubscribe();
