@@ -3,13 +3,13 @@
 
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { getAppOrigin } from '../lib/supabase.config';
+import type { Database } from '../types/database.types';
 
 export type SignUpResult = {
   success: boolean;
   error?: string;
   needsEmailConfirmation?: boolean;
 };
-import type { Database } from '../types/database.types';
 
 // Types raccourcis
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -86,7 +86,7 @@ export const authService = {
       }
 
       const needsEmailConfirmation = !authData.user.email_confirmed_at;
-      if (needsEmailConfirmation && authData.session) {
+      if (authData.session) {
         await supabase.auth.signOut();
       }
 

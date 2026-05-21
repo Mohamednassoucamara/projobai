@@ -1,5 +1,4 @@
-
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
 import { authService } from "../../services/supabase.service";
 
@@ -16,6 +15,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, type: "candidate" | "company") => Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }>;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isSigningUp: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,33 +23,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const isSigningUpRef = useRef(false);
+
+  const applySession = (session: { user: { id: string; email?: string; user_metadata?: Record<string, unknown> } } | null) => {
+    if (session?.user) {
+      setUser({
+        name: (session.user.user_metadata?.full_name as string) || session.user.email || "",
+        email: session.user.email || "",
+        type: (session.user.user_metadata?.user_type as "candidate" | "company") || "candidate",
+      });
+    } else {
+      setUser(null);
+    }
+  };
 
   useEffect(() => {
     const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (data.session && data.session.user) {
-        setUser({
-          name: data.session.user.user_metadata?.full_name || data.session.user.email,
-          email: data.session.user.email,
-          type: data.session.user.user_metadata?.user_type || "candidate",
-        });
-      } else {
-        setUser(null);
+      const { data } = await supabase.auth.getSession();
+      if (!isSigningUpRef.current) {
+        applySession(data.session);
       }
       setIsLoading(false);
     };
     getSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session && session.user) {
-        setUser({
-          name: session.user.user_metadata?.full_name || session.user.email,
-          email: session.user.email,
-          type: session.user.user_metadata?.user_type || "candidate",
-        });
-      } else {
-        setUser(null);
-      }
+      if (isSigningUpRef.current) return;
+      applySession(session);
     });
     return () => {
       subscription.unsubscribe();
@@ -80,26 +81,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fullName: string,
     type: "candidate" | "company"
   ): Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }> => {
+    isSigningUpRef.current = true;
+    setIsSigningUp(true);
+    setUser(null);
     try {
       const result = await authService.signUp(email, password, fullName, type);
       if (!result.success) {
-        setUser(null);
         return {
           success: false,
           error: result.error || "Erreur lors de la création du compte",
         };
       }
-      if (result.needsEmailConfirmation) {
-        setUser(null);
-      }
+      setUser(null);
       return {
         success: true,
         needsEmailConfirmation: result.needsEmailConfirmation,
       };
     } catch (err: unknown) {
-      setUser(null);
       const message = err instanceof Error ? err.message : "Une erreur est survenue";
       return { success: false, error: message };
+    } finally {
+      isSigningUpRef.current = false;
+      setIsSigningUp(false);
     }
   };
 
@@ -114,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signUp, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, signUp, isAuthenticated: !!user, isLoading, isSigningUp }}>
       {children}
     </AuthContext.Provider>
   );

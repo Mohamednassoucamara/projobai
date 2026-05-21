@@ -7,7 +7,15 @@ export default function BotpressWidget() {
   useEffect(() => {
     try {
       // Pages où on ne veut pas charger le widget global
-      const excludedPaths = ["/cv-assistant", "/interview-prep", "/cover-letter"];
+      const excludedPaths = [
+        "/cv-assistant",
+        "/interview-prep",
+        "/cover-letter",
+        "/signup-candidate",
+        "/signup-company",
+        "/signup/confirmation",
+        "/login",
+      ];
 
       // Ne pas charger le widget sur les pages avec iframe Botpress intégrée
       if (excludedPaths.includes(location.pathname)) {

@@ -5,6 +5,7 @@ import ProfileChoice from "./pages/ProfileChoice";
 import Login from "./pages/Login";
 import SignUpCandidate from "./pages/SignUpCandidate";
 import SignUpCompany from "./pages/SignUpCompany";
+import SignUpEmailSent from "./pages/SignUpEmailSent";
 import DashboardCandidate from "./pages/DashboardCandidate";
 import CVAssistant from "./pages/CVAssistant";
 import CVPreview from "./pages/CVPreview";
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
       {
         path: "/signup-company",
         Component: SignUpCompany,
+      },
+      {
+        path: "/signup/confirmation",
+        Component: SignUpEmailSent,
       },
       {
         path: "/dashboard",
