@@ -12,7 +12,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, type: "candidate" | "company") => Promise<boolean>;
   logout: () => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, type: "candidate" | "company") => Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }>;
+  signUp: (email: string, password: string, fullName: string, type: "candidate" | "company") => Promise<{ success: boolean; error?: string }>;
   isAuthenticated: boolean;
   isLoading: boolean;
   isSigningUp: boolean;
@@ -85,24 +85,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     fullName: string,
     type: "candidate" | "company"
-  ): Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }> => {
+  ): Promise<{ success: boolean; error?: string }> => {
     isSigningUpRef.current = true;
     setIsSigningUp(true);
-    setUser(null);
     try {
       const result = await authService.signUp(email, password, fullName, type);
       if (!result.success) {
+        setUser(null);
         return {
           success: false,
           error: result.error || "Erreur lors de la création du compte",
         };
       }
-      setUser(null);
-      return {
-        success: true,
-        needsEmailConfirmation: result.needsEmailConfirmation,
-      };
+      const { data } = await supabase.auth.getSession();
+      applySession(data.session);
+      return { success: true };
     } catch (err: unknown) {
+      setUser(null);
       const message = err instanceof Error ? err.message : "Une erreur est survenue";
       return { success: false, error: message };
     } finally {

@@ -13,7 +13,6 @@ export default function BotpressWidget() {
         "/cover-letter",
         "/signup-candidate",
         "/signup-company",
-        "/signup/confirmation",
         "/login",
       ];
 

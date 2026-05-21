@@ -22,9 +22,7 @@ export default function SignUpCandidate() {
     if (authLoading || isSigningUp || didRedirectRef.current) return;
     if (isAuthenticated && user) {
       didRedirectRef.current = true;
-      window.location.replace(
-        user.type === "company" ? "/company/dashboard" : "/dashboard",
-      );
+      window.location.replace("/");
     }
   }, [authLoading, isSigningUp, isAuthenticated, user]);
 
@@ -51,11 +49,7 @@ export default function SignUpCandidate() {
       const result = await signUp(email, password, fullName, "candidate");
       if (result.success) {
         didRedirectRef.current = true;
-        redirectAfterSignup(
-          "candidate",
-          email,
-          result.needsEmailConfirmation !== false,
-        );
+        redirectAfterSignup();
         return;
       }
       setError(result.error || "Erreur lors de la création du compte. Veuillez réessayer.");

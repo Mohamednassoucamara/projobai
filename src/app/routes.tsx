@@ -1,11 +1,10 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import ProfileChoice from "./pages/ProfileChoice";
 import Login from "./pages/Login";
 import SignUpCandidate from "./pages/SignUpCandidate";
 import SignUpCompany from "./pages/SignUpCompany";
-import SignUpEmailSent from "./pages/SignUpEmailSent";
 import DashboardCandidate from "./pages/DashboardCandidate";
 import CVAssistant from "./pages/CVAssistant";
 import CVPreview from "./pages/CVPreview";
@@ -26,7 +25,10 @@ const authRoutes = [
   { path: "/login", Component: Login },
   { path: "/signup-candidate", Component: SignUpCandidate },
   { path: "/signup-company", Component: SignUpCompany },
-  { path: "/signup/confirmation", Component: SignUpEmailSent },
+  {
+    path: "/signup/confirmation",
+    loader: () => redirect("/"),
+  },
 ] as const;
 
 export const router = createBrowserRouter([

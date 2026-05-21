@@ -2,13 +2,11 @@
 // Ce fichier contient toutes les fonctions d'interaction avec la base de données
 
 import { supabase, handleSupabaseError } from '../lib/supabase';
-import { getAppOrigin } from '../lib/supabase.config';
 import type { Database } from '../types/database.types';
 
 export type SignUpResult = {
   success: boolean;
   error?: string;
-  needsEmailConfirmation?: boolean;
 };
 
 // Types raccourcis
@@ -41,7 +39,6 @@ export const authService = {
         email,
         password,
         options: {
-          emailRedirectTo: `${getAppOrigin()}/login`,
           data: {
             full_name: fullName,
             user_type: userType,
@@ -85,15 +82,15 @@ export const authService = {
         }
       }
 
-      const needsEmailConfirmation = !authData.user.email_confirmed_at;
-      if (authData.session) {
-        await supabase.auth.signOut();
+      if (!authData.session) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) throw signInError;
       }
 
-      return {
-        success: true,
-        needsEmailConfirmation,
-      };
+      return { success: true };
     } catch (error) {
       console.error('Signup error:', error);
       return {

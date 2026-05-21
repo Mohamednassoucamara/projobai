@@ -14,7 +14,6 @@ export default function WhatsAppButton() {
     "/login",
     "/signup-candidate",
     "/signup-company",
-    "/signup/confirmation",
   ];
 
   if (excludedPaths.includes(location.pathname)) {
