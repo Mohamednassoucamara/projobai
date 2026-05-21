@@ -9,10 +9,20 @@ Dans [Netlify](https://app.netlify.com) → votre site → **Site configuration*
 | Variable | Valeur |
 |----------|--------|
 | `VITE_SUPABASE_URL` | `https://zafrxknqtkzermookggk.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | Clé **anon** ou **publishable** (Settings → API dans Supabase) |
+| `VITE_SUPABASE_ANON_KEY` | Clé **anon** (JWT `eyJ...`) ou **publishable** (`sb_publishable_...`) — **jamais** la clé **secret** (`sb_secret_...`) |
 | `VITE_APP_URL` | `https://projobai.netlify.app` |
 
 Puis **Trigger deploy** → **Clear cache and deploy site** (obligatoire après changement de variables Vite).
+
+### Erreur « Forbidden use of secret API key in browser »
+
+Vous avez mis la **clé secrète** (`sb_secret_...` ou `service_role`) dans `VITE_SUPABASE_ANON_KEY`.  
+Dans Supabase → **Project Settings → API**, copiez uniquement :
+
+- **anon public** (legacy, commence par `eyJ...`), ou  
+- **publishable** (`sb_publishable_...`)
+
+Ne copiez **pas** « service_role » ni « secret ».
 
 ## 2. Authentification Supabase (URLs autorisées)
 
