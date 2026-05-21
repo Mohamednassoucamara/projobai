@@ -18,10 +18,12 @@ import PostJob from "./pages/PostJob";
 import SearchProfiles from "./pages/SearchProfiles";
 import Pricing from "./pages/Pricing";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
 export const router = createBrowserRouter([
   {
     Component: Layout,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: "/",

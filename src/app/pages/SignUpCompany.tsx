@@ -1,14 +1,15 @@
-import { Link, Navigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Shield, ArrowRight, ArrowLeft, Loader2, AlertCircle, Mail, CheckCircle2 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 import { isValidEmail, validatePassword } from "../../lib/security";
 
 export default function SignUpCompany() {
-  const { signUp, isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { signUp, isAuthenticated, user, isLoading: authLoading } = useAuth();
   const [companyName, setCompanyName] = useState("");
   const [sector, setSector] = useState("");
   const [size, setSize] = useState("");
@@ -21,10 +22,14 @@ export default function SignUpCompany() {
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
-  if (isAuthenticated && user) {
-    const redirectPath = user.type === "company" ? "/company/dashboard" : "/dashboard";
-    return <Navigate to={redirectPath} replace />;
-  }
+  useEffect(() => {
+    if (authLoading || emailSent) return;
+    if (isAuthenticated && user) {
+      const redirectPath =
+        user.type === "company" ? "/company/dashboard" : "/dashboard";
+      navigate(redirectPath, { replace: true });
+    }
+  }, [authLoading, emailSent, isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +53,9 @@ export default function SignUpCompany() {
     try {
       const result = await signUp(email, password, companyName, "company");
       if (result.success) {
-        setEmailSent(true);
+        if (result.needsEmailConfirmation !== false) {
+          setEmailSent(true);
+        }
       } else {
         setError(result.error || "Erreur lors de la création du compte. Veuillez réessayer.");
       }
@@ -155,19 +162,15 @@ export default function SignUpCompany() {
               <h1 className="text-4xl font-bold mb-3 text-[#003087]">Créez votre compte entreprise</h1>
               <p className="text-lg text-slate-600 mb-8">Trouvez les meilleurs talents pour votre équipe</p>
 
-              <AnimatePresence mode="wait">
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200 mb-6"
-                  >
-                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-                    <p className="text-sm text-red-800 font-medium">{error}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {error ? (
+                <div
+                  role="alert"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200 mb-6"
+                >
+                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                  <p className="text-sm text-red-800 font-medium">{error}</p>
+                </div>
+              ) : null}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid md:grid-cols-2 gap-5">

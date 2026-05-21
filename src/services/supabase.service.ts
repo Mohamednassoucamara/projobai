@@ -1,8 +1,14 @@
 // Service Supabase pour ProJob AI
 // Ce fichier contient toutes les fonctions d'interaction avec la base de données
 
-import { supabase } from '../lib/supabase';
+import { supabase, handleSupabaseError } from '../lib/supabase';
 import { getAppOrigin } from '../lib/supabase.config';
+
+export type SignUpResult = {
+  success: boolean;
+  error?: string;
+  needsEmailConfirmation?: boolean;
+};
 import type { Database } from '../types/database.types';
 
 // Types raccourcis
@@ -24,9 +30,13 @@ export const authService = {
   /**
    * Créer un nouveau compte utilisateur
    */
-  async signUp(email: string, password: string, fullName: string, userType: 'candidate' | 'company') {
+  async signUp(
+    email: string,
+    password: string,
+    fullName: string,
+    userType: 'candidate' | 'company',
+  ): Promise<SignUpResult> {
     try {
-      // Créer le compte auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -42,36 +52,54 @@ export const authService = {
       if (authError) throw authError;
       if (!authData.user) throw new Error('No user returned');
 
-      // Créer le profil
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          user_type: userType,
-          full_name: fullName,
-          email,
-        });
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: authData.user.id,
+        user_type: userType,
+        full_name: fullName,
+        email,
+      });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        await supabase.auth.signOut();
+        throw profileError;
+      }
 
-      // Créer le profil spécifique
       if (userType === 'candidate') {
-        await supabase
+        const { error: candidateError } = await supabase
           .from('candidate_profiles')
           .insert({ id: authData.user.id });
+        if (candidateError) {
+          await supabase.auth.signOut();
+          throw candidateError;
+        }
       } else {
-        await supabase
+        const { error: companyError } = await supabase
           .from('company_profiles')
           .insert({
             id: authData.user.id,
             company_name: fullName,
           });
+        if (companyError) {
+          await supabase.auth.signOut();
+          throw companyError;
+        }
       }
 
-      return { success: true, user: authData.user };
+      const needsEmailConfirmation = !authData.user.email_confirmed_at;
+      if (needsEmailConfirmation && authData.session) {
+        await supabase.auth.signOut();
+      }
+
+      return {
+        success: true,
+        needsEmailConfirmation,
+      };
     } catch (error) {
       console.error('Signup error:', error);
-      return { success: false, error };
+      return {
+        success: false,
+        error: handleSupabaseError(error),
+      };
     }
   },
 

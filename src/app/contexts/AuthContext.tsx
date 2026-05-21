@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, type: "candidate" | "company") => Promise<boolean>;
   logout: () => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, type: "candidate" | "company") => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string, fullName: string, type: "candidate" | "company") => Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -79,16 +79,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     fullName: string,
     type: "candidate" | "company"
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }> => {
     try {
       const result = await authService.signUp(email, password, fullName, type);
       if (!result.success) {
-        const err = result.error as any;
-        return { success: false, error: err?.message || "Erreur lors de la création du compte" };
+        setUser(null);
+        return {
+          success: false,
+          error: result.error || "Erreur lors de la création du compte",
+        };
       }
-      return { success: true };
-    } catch (err: any) {
-      return { success: false, error: err?.message || "Une erreur est survenue" };
+      if (result.needsEmailConfirmation) {
+        setUser(null);
+      }
+      return {
+        success: true,
+        needsEmailConfirmation: result.needsEmailConfirmation,
+      };
+    } catch (err: unknown) {
+      setUser(null);
+      const message = err instanceof Error ? err.message : "Une erreur est survenue";
+      return { success: false, error: message };
     }
   };
 
