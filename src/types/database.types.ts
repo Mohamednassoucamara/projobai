@@ -242,7 +242,8 @@ export interface Database {
           description: string;
           location: string;
           job_type: 'CDI' | 'CDD' | 'Stage' | 'Freelance' | 'Temps partiel';
-          experience_level: 'Débutant' | 'Intermédiaire' | 'Confirmé' | 'Expert' | null;
+          experience_level: string | null;
+          education_level: string | null;
           salary_min: number | null;
           salary_max: number | null;
           salary_currency: string;
@@ -264,7 +265,8 @@ export interface Database {
           description: string;
           location: string;
           job_type: 'CDI' | 'CDD' | 'Stage' | 'Freelance' | 'Temps partiel';
-          experience_level?: 'Débutant' | 'Intermédiaire' | 'Confirmé' | 'Expert' | null;
+          experience_level?: string | null;
+          education_level?: string | null;
           salary_min?: number | null;
           salary_max?: number | null;
           salary_currency?: string;
@@ -286,7 +288,8 @@ export interface Database {
           description?: string;
           location?: string;
           job_type?: 'CDI' | 'CDD' | 'Stage' | 'Freelance' | 'Temps partiel';
-          experience_level?: 'Débutant' | 'Intermédiaire' | 'Confirmé' | 'Expert' | null;
+          experience_level?: string | null;
+          education_level?: string | null;
           salary_min?: number | null;
           salary_max?: number | null;
           salary_currency?: string;
