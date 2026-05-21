@@ -1,0 +1,1 @@
+Ce projet utilise Deno pour les fonctions edge. Les imports doivent être compatibles Deno (pas npm: mais https://deno.land/x/ ou npm installé via Deno).

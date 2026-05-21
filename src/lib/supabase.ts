@@ -1,11 +1,14 @@
 // Client Supabase pour ProJob AI
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database.types';
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
+import {
+  assertSupabaseConfig,
+  getAppOrigin,
+  supabaseAnonKey,
+  supabaseUrl,
+} from './supabase.config';
 
-// Construire l'URL Supabase à partir du projectId
-const supabaseUrl = `https://${projectId}.supabase.co`;
-const supabaseAnonKey = publicAnonKey;
+assertSupabaseConfig();
 
 // Créer le client Supabase avec le typage de la base de données
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
@@ -19,8 +22,8 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     // Détecter la session dans l'URL (pour les liens de confirmation email)
     detectSessionInUrl: true,
 
-    // Redirection après confirmation email (optionnel)
-    // redirectTo: window.location.origin,
+    flowType: 'pkce',
+    redirectTo: getAppOrigin(),
   },
 
   // Options globales pour les requêtes

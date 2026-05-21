@@ -2,6 +2,7 @@
 // Ce fichier contient toutes les fonctions d'interaction avec la base de données
 
 import { supabase } from '../lib/supabase';
+import { getAppOrigin } from '../lib/supabase.config';
 import type { Database } from '../types/database.types';
 
 // Types raccourcis
@@ -30,11 +31,12 @@ export const authService = {
         email,
         password,
         options: {
+          emailRedirectTo: `${getAppOrigin()}/login`,
           data: {
             full_name: fullName,
             user_type: userType,
-          }
-        }
+          },
+        },
       });
 
       if (authError) throw authError;

@@ -1,6 +1,5 @@
-import { Hono } from "npm:hono";
-import { cors } from "npm:hono/cors";
-import { logger } from "npm:hono/logger";
+import { Hono } from "https://deno.land/x/hono/mod.ts";
+import { cors, logger } from "https://deno.land/x/hono/middleware.ts";
 import * as kv from "./kv_store.tsx";
 const app = new Hono();
 
@@ -20,8 +19,10 @@ app.use(
 );
 
 // Health check endpoint
-app.get("/make-server-8303dfdf/health", (c) => {
-  return c.json({ status: "ok" });
+app.get("/make-server-8303dfdf/health", (c: any) => {
+  return c.text("OK");
 });
 
-Deno.serve(app.fetch);
+if (typeof Deno !== "undefined" && Deno.serve) {
+  Deno.serve(app.fetch);
+}

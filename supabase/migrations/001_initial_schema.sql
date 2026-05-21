@@ -2,9 +2,7 @@
 -- Version: 1.0
 -- Description: Schema complet pour la plateforme ProJob AI
 
--- Enable UUID extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- Extension pgcrypto déjà activée sur Supabase, ligne supprimée pour compatibilité
 
 -- =====================================================
 -- TABLES D'AUTHENTIFICATION ET PROFILS
@@ -115,10 +113,6 @@ CREATE TABLE jobs (
   requirements TEXT[],
   responsibilities TEXT[],
   benefits TEXT[],
-  is_active BOOLEAN DEFAULT TRUE,
-  views_count INT DEFAULT 0,
-  applications_count INT DEFAULT 0,
-  published_at TIMESTAMPTZ DEFAULT NOW(),
   expires_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -163,7 +157,6 @@ CREATE TABLE cvs (
   title TEXT NOT NULL,
   template_type TEXT DEFAULT 'modern',
   content JSONB NOT NULL,
-  pdf_url TEXT,
   is_default BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -176,7 +169,6 @@ CREATE TABLE cover_letters (
   job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
   company_name TEXT NOT NULL,
   position TEXT NOT NULL,
-  content TEXT NOT NULL,
   template_type TEXT DEFAULT 'modern',
   tone TEXT DEFAULT 'professional',
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -184,21 +176,30 @@ CREATE TABLE cover_letters (
 );
 
 -- =====================================================
--- TABLES DES PRÉPARATIONS D'ENTRETIEN
--- =====================================================
-
--- Table des sessions de préparation d'entretien
-CREATE TABLE interview_sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  candidate_id UUID NOT NULL REFERENCES candidate_profiles(id) ON DELETE CASCADE,
-  category TEXT NOT NULL,
-  total_questions INT NOT NULL DEFAULT 0,
-  completed_questions INT NOT NULL DEFAULT 0,
-  average_score DECIMAL(3, 1),
-  status TEXT DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed')),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  completed_at TIMESTAMPTZ
-);
+  -- Triggers pour updated_at
+  DO $$
+  BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_profiles_updated_at') THEN
+      CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_candidate_profiles_updated_at') THEN
+      CREATE TRIGGER update_candidate_profiles_updated_at BEFORE UPDATE ON candidate_profiles
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_company_profiles_updated_at') THEN
+      CREATE TRIGGER update_company_profiles_updated_at BEFORE UPDATE ON company_profiles
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_jobs_updated_at') THEN
+      CREATE TRIGGER update_jobs_updated_at BEFORE UPDATE ON jobs
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_applications_updated_at') THEN
+      CREATE TRIGGER update_applications_updated_at BEFORE UPDATE ON applications
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+  END $$;
 
 -- Table des réponses aux questions d'entretien
 CREATE TABLE interview_answers (
@@ -215,18 +216,16 @@ CREATE TABLE interview_answers (
 -- TABLES DES FAVORIS ET PRÉFÉRENCES
 -- =====================================================
 
--- Table des offres favorites
 CREATE TABLE favorite_jobs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   candidate_id UUID NOT NULL REFERENCES candidate_profiles(id) ON DELETE CASCADE,
   job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(candidate_id, job_id)
 );
 
--- Table des candidats favoris (pour les entreprises)
 CREATE TABLE favorite_candidates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   company_id UUID NOT NULL REFERENCES company_profiles(id) ON DELETE CASCADE,
   candidate_id UUID NOT NULL REFERENCES candidate_profiles(id) ON DELETE CASCADE,
   notes TEXT,
@@ -238,9 +237,8 @@ CREATE TABLE favorite_candidates (
 -- TABLES DES NOTIFICATIONS
 -- =====================================================
 
--- Table des notifications
 CREATE TABLE notifications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   type TEXT NOT NULL CHECK (type IN ('application', 'job_match', 'interview', 'message', 'system')),
   title TEXT NOT NULL,
