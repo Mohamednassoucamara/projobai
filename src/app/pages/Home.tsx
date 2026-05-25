@@ -1,12 +1,194 @@
 import { Link } from "react-router";
-import { ArrowRight, FileText, Briefcase, MessageSquare, Zap, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, FileText, Briefcase, MessageSquare, Zap, ChevronDown, ChevronUp, Users, Loader2, Mail, Phone } from "lucide-react";
 import { motion } from "motion/react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 import { useAuth } from "../contexts/AuthContext";
+import { companyService } from "../../services/supabase.service";
+import { supabase } from "../../lib/supabase";
+
+const APPLICATION_STATUS_LABELS: Record<string, string> = {
+  pending: "En attente",
+  reviewed: "Examinée",
+  shortlisted: "Présélectionnée",
+  interview: "Entretien",
+  accepted: "Acceptée",
+  rejected: "Refusée",
+};
+
+type CompanyApplication = {
+  id: string;
+  job_id: string;
+  status: string;
+  applied_at: string;
+  jobs?: { title: string };
+  candidate_profiles?: {
+    profiles?: { full_name: string; email: string; phone?: string };
+  };
+};
+
+type CompanyJob = {
+  id: string;
+  title: string;
+  is_active: boolean;
+  applications_count?: number;
+  created_at?: string;
+};
+
+function CompanyPublishedOffersSection() {
+  const [jobs, setJobs] = useState<CompanyJob[]>([]);
+  const [applicationsByJob, setApplicationsByJob] = useState<Record<string, CompanyApplication[]>>({});
+  const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadOffers = async () => {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) return;
+
+        const [jobsData, applicationsData] = await Promise.all([
+          companyService.getJobs(authUser.id),
+          companyService.getApplications(authUser.id),
+        ]);
+
+        const publishedJobs = (jobsData || []) as CompanyJob[];
+        setJobs(publishedJobs);
+
+        const grouped: Record<string, CompanyApplication[]> = {};
+        for (const app of (applicationsData || []) as CompanyApplication[]) {
+          const jobId = app.job_id;
+          if (!grouped[jobId]) grouped[jobId] = [];
+          grouped[jobId].push(app);
+        }
+        setApplicationsByJob(grouped);
+      } catch {
+        setJobs([]);
+        setApplicationsByJob({});
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadOffers();
+  }, []);
+
+  const toggleJob = (jobId: string) => {
+    setExpandedJobs((prev) => {
+      const next = new Set(prev);
+      if (next.has(jobId)) next.delete(jobId);
+      else next.add(jobId);
+      return next;
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loader2 className="h-10 w-10 animate-spin text-[#003087]" />
+      </div>
+    );
+  }
+
+  if (jobs.length === 0) {
+    return (
+      <div className="text-center py-12 rounded-3xl bg-white border-2 border-dashed border-slate-200">
+        <Briefcase className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+        <p className="text-slate-600 mb-6">Vous n&apos;avez pas encore publié d&apos;offre.</p>
+        <Link
+          to="/company/post-job"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all"
+        >
+          Publier ma première offre
+          <ArrowRight className="h-5 w-5" />
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {jobs.map((job) => {
+        const applications = applicationsByJob[job.id] || [];
+        const count = applications.length || job.applications_count || 0;
+        const isExpanded = expandedJobs.has(job.id);
+
+        return (
+          <div key={job.id} className="rounded-2xl bg-white border-2 border-slate-100 overflow-hidden shadow-sm hover:border-[#003087]/30 transition-all">
+            <button
+              type="button"
+              onClick={() => toggleJob(job.id)}
+              className="w-full p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                  <h3 className="text-xl font-bold text-[#003087]">{job.title}</h3>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${job.is_active ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
+                    {job.is_active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-600 flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  {count} candidature{count > 1 ? "s" : ""}
+                </p>
+              </div>
+              {isExpanded ? (
+                <ChevronUp className="h-6 w-6 text-[#003087] shrink-0 ml-4" />
+              ) : (
+                <ChevronDown className="h-6 w-6 text-[#003087] shrink-0 ml-4" />
+              )}
+            </button>
+
+            {isExpanded && (
+              <div className="px-6 pb-6 border-t border-slate-100">
+                {applications.length === 0 ? (
+                  <p className="text-slate-500 text-sm py-4">Aucune candidature pour cette offre pour le moment.</p>
+                ) : (
+                  <ul className="space-y-3 pt-4">
+                    {applications.map((app) => {
+                      const profile = app.candidate_profiles?.profiles;
+                      return (
+                        <li key={app.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <p className="font-semibold text-slate-800">{profile?.full_name || "Candidat"}</p>
+                              {profile?.email && (
+                                <p className="text-sm text-slate-600 flex items-center gap-1.5 mt-1">
+                                  <Mail className="h-3.5 w-3.5" />
+                                  {profile.email}
+                                </p>
+                              )}
+                              {profile?.phone && (
+                                <p className="text-sm text-slate-600 flex items-center gap-1.5 mt-0.5">
+                                  <Phone className="h-3.5 w-3.5" />
+                                  {profile.phone}
+                                </p>
+                              )}
+                              <p className="text-xs text-slate-500 mt-2">
+                                Postulé le {new Date(app.applied_at).toLocaleDateString("fr-FR")}
+                              </p>
+                            </div>
+                            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#003087]/10 text-[#003087]">
+                              {APPLICATION_STATUS_LABELS[app.status] || app.status}
+                            </span>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
+  const isCompany = isAuthenticated && user?.type === "company";
   const dashboardLink = user?.type === "company" ? "/company/dashboard" : "/dashboard";
 
   return (
@@ -89,12 +271,21 @@ export default function Home() {
                   Accéder au tableau de bord
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link
-                  to="/jobs"
-                  className="inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-10 py-4 rounded-full text-lg font-bold hover:bg-[#003087] hover:text-white transition-all"
-                >
-                  Voir les offres
-                </Link>
+                {isCompany ? (
+                  <a
+                    href="#mes-offres-publiees"
+                    className="inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-10 py-4 rounded-full text-lg font-bold hover:bg-[#003087] hover:text-white transition-all"
+                  >
+                    Voir mes offres publiées
+                  </a>
+                ) : (
+                  <Link
+                    to="/jobs"
+                    className="inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-10 py-4 rounded-full text-lg font-bold hover:bg-[#003087] hover:text-white transition-all"
+                  >
+                    Voir les offres
+                  </Link>
+                )}
               </>
             ) : (
               <>
@@ -115,6 +306,27 @@ export default function Home() {
             )}
           </motion.div>
         </motion.div>
+
+        {isCompany && (
+          <motion.section
+            id="mes-offres-publiees"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.7 }}
+            className="mb-32 scroll-mt-24"
+          >
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">
+                <span className="text-[#003087]">Mes offres</span>{" "}
+                <span className="text-[#E31E24]">publiées</span>
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                Consultez vos annonces et les candidatures reçues pour chaque offre
+              </p>
+            </div>
+            <CompanyPublishedOffersSection />
+          </motion.section>
+        )}
 
         {/* Features Grid */}
         <motion.div
