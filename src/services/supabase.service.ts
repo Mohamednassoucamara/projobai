@@ -518,7 +518,7 @@ export const applicationService = {
    * Vérifier si un candidat a déjà postulé
    */
   async hasApplied(candidateId: string, jobId: string) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('applications')
       .select('id')
       .eq('candidate_id', candidateId)
@@ -526,7 +526,104 @@ export const applicationService = {
       .maybeSingle();
 
     return !!data;
-  }
+  },
+
+  /**
+   * Soumettre une candidature complète (profil, fichiers, lien à l'offre)
+   */
+  async submitApplication(params: {
+    jobId: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    motivationMessage?: string;
+    cvFile: File;
+    coverLetterFile?: File;
+  }) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Vous devez être connecté pour postuler');
+
+    const userType = user.user_metadata?.user_type as string | undefined;
+    if (userType === 'company') {
+      throw new Error('Seuls les candidats peuvent postuler à une offre');
+    }
+
+    const candidateId = user.id;
+
+    if (await this.hasApplied(candidateId, params.jobId)) {
+      throw new Error('Vous avez déjà postulé à cette offre');
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        full_name: params.fullName,
+        email: params.email,
+        phone: params.phone,
+      })
+      .eq('id', candidateId);
+
+    if (profileError) throw profileError;
+
+    const { data: existingCandidate } = await supabase
+      .from('candidate_profiles')
+      .select('id')
+      .eq('id', candidateId)
+      .maybeSingle();
+
+    if (!existingCandidate) {
+      const { error: createCandidateError } = await supabase
+        .from('candidate_profiles')
+        .insert({ id: candidateId });
+      if (createCandidateError) throw createCandidateError;
+    }
+
+    const cvPath = await storageService.uploadApplicationDocument(
+      candidateId,
+      params.jobId,
+      params.cvFile,
+      'cv',
+    );
+
+    let coverLetterPath: string | null = null;
+    if (params.coverLetterFile) {
+      coverLetterPath = await storageService.uploadApplicationDocument(
+        candidateId,
+        params.jobId,
+        params.coverLetterFile,
+        'cover',
+      );
+    }
+
+    const { data: jobData, error: jobError } = await supabase
+      .from('jobs')
+      .select('company_id, title')
+      .eq('id', params.jobId)
+      .single();
+
+    if (jobError) throw jobError;
+
+    const application = await this.apply({
+      job_id: params.jobId,
+      candidate_id: candidateId,
+      cv_url: cvPath,
+      cover_letter: coverLetterPath,
+      motivation_message: params.motivationMessage?.trim() || null,
+    });
+
+    if (jobData?.company_id) {
+      await notificationService.create({
+        user_id: jobData.company_id,
+        type: 'application',
+        title: 'Nouvelle candidature',
+        message: `${params.fullName} a postulé pour le poste « ${jobData.title} ».`,
+        link: '/#mes-offres-publiees',
+        is_read: false,
+      });
+    }
+
+    return application;
+  },
 };
 
 // =====================================================
@@ -631,7 +728,7 @@ export const storageService = {
     const fileExt = file.name.split('.').pop();
     const fileName = `${companyId}/${Date.now()}.${fileExt}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('company-logos')
       .upload(fileName, file, {
         cacheControl: '3600',
@@ -645,5 +742,41 @@ export const storageService = {
       .getPublicUrl(fileName);
 
     return publicUrl;
-  }
+  },
+
+  /**
+   * Upload un document de candidature (CV ou lettre de motivation)
+   */
+  async uploadApplicationDocument(
+    userId: string,
+    jobId: string,
+    file: File,
+    docType: 'cv' | 'cover',
+  ) {
+    const fileExt = file.name.split('.').pop() || 'pdf';
+    const fileName = `${userId}/${jobId}/${docType}-${Date.now()}.${fileExt}`;
+
+    const { error } = await supabase.storage
+      .from('application-documents')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+    if (error) throw error;
+    return fileName;
+  },
+
+  /**
+   * URL signée pour consulter un document privé
+   */
+  async getSignedDocumentUrl(
+    bucket: 'application-documents' | 'cvs',
+    path: string,
+    expiresIn = 3600,
+  ) {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, expiresIn);
+
+    if (error) throw error;
+    return data.signedUrl;
+  },
 };

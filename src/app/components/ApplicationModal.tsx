@@ -1,11 +1,15 @@
-import { useState } from "react";
-import { X, Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { X, Upload, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { validateUploadedFile } from "../../lib/security";
+import { applicationService } from "../../services/supabase.service";
+import { handleSupabaseError } from "../../lib/supabase";
 
 interface ApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  jobId: string;
   jobTitle: string;
   companyName: string;
 }
@@ -13,6 +17,7 @@ interface ApplicationModalProps {
 export default function ApplicationModal({
   isOpen,
   onClose,
+  jobId,
   jobTitle,
   companyName,
 }: ApplicationModalProps) {
@@ -20,21 +25,67 @@ export default function ApplicationModal({
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [motivationMessage, setMotivationMessage] = useState("");
+  const { user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isOpen && user) {
+      setFullName(user.name || "");
+      setEmail(user.email || "");
+    }
+  }, [isOpen, user]);
+
+  const resetForm = () => {
+    setStep("form");
+    setCvFile(null);
+    setCoverLetterFile(null);
+    setFileError("");
+    setSubmitError("");
+    setFullName("");
+    setEmail("");
+    setPhone("");
+    setMotivationMessage("");
+  };
+
+  const handleClose = () => {
+    onClose();
+    resetForm();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cvFile) {
       setFileError("Veuillez joindre votre CV (PDF).");
       return;
     }
     setFileError("");
-    setStep("success");
-    setTimeout(() => {
-      onClose();
-      setStep("form");
-      setCvFile(null);
-      setCoverLetterFile(null);
-    }, 3000);
+    setSubmitError("");
+    setIsSubmitting(true);
+
+    try {
+      await applicationService.submitApplication({
+        jobId,
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        motivationMessage: motivationMessage.trim() || undefined,
+        cvFile,
+        coverLetterFile: coverLetterFile || undefined,
+      });
+      setStep("success");
+      setTimeout(() => {
+        handleClose();
+      }, 3000);
+    } catch (err) {
+      setSubmitError(handleSupabaseError(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +115,7 @@ export default function ApplicationModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-            onClick={onClose}
+            onClick={handleClose}
           />
           <div className="fixed inset-0 flex items-center justify-center z-50 p-6">
             <motion.div
@@ -86,17 +137,18 @@ export default function ApplicationModal({
                       </p>
                     </div>
                     <button
-                      onClick={onClose}
+                      type="button"
+                      onClick={handleClose}
                       className="h-10 w-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
                     >
                       <X className="h-5 w-5 text-slate-600" />
                     </button>
                   </div>
 
-                  {fileError && (
+                  {(fileError || submitError) && (
                     <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 mb-4">
                       <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                      <p className="text-sm text-red-800 font-medium">{fileError}</p>
+                      <p className="text-sm text-red-800 font-medium">{fileError || submitError}</p>
                     </div>
                   )}
 
@@ -109,6 +161,8 @@ export default function ApplicationModal({
                         type="text"
                         required
                         maxLength={100}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
                         placeholder="Votre nom et prénom"
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
                       />
@@ -122,6 +176,8 @@ export default function ApplicationModal({
                         type="email"
                         required
                         maxLength={254}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre.email@exemple.com"
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
                       />
@@ -135,6 +191,8 @@ export default function ApplicationModal({
                         type="tel"
                         required
                         maxLength={20}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                         placeholder="+224 XXX XX XX XX"
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
                       />
@@ -198,6 +256,8 @@ export default function ApplicationModal({
                       <textarea
                         rows={4}
                         maxLength={1000}
+                        value={motivationMessage}
+                        onChange={(e) => setMotivationMessage(e.target.value)}
                         placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce poste..."
                         className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all resize-none"
                       />
@@ -206,16 +266,25 @@ export default function ApplicationModal({
                     <div className="flex gap-3 pt-4">
                       <button
                         type="button"
-                        onClick={onClose}
-                        className="flex-1 px-6 py-4 rounded-xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors"
+                        onClick={handleClose}
+                        disabled={isSubmitting}
+                        className="flex-1 px-6 py-4 rounded-xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors disabled:opacity-50"
                       >
                         Annuler
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all"
+                        disabled={isSubmitting}
+                        className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
                       >
-                        Envoyer ma candidature
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            Envoi en cours…
+                          </>
+                        ) : (
+                          "Envoyer ma candidature"
+                        )}
                       </button>
                     </div>
                   </form>
@@ -237,7 +306,7 @@ export default function ApplicationModal({
                     Votre candidature a été transmise avec succès.
                   </p>
                   <p className="text-slate-500">
-                    L'entreprise vous contactera si votre profil correspond.
+                    L&apos;entreprise vous contactera si votre profil correspond.
                   </p>
                 </div>
               )}

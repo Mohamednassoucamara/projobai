@@ -67,7 +67,7 @@ export default function JobDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,10 +91,16 @@ export default function JobDetail() {
 
   const handleApplyClick = () => {
     if (!isAuthenticated) {
-      navigate("/login");
-    } else {
-      setIsApplicationModalOpen(true);
+      navigate(`/login?type=candidate&from=${encodeURIComponent(`/jobs/${id}`)}`);
+      return;
     }
+    if (user?.type === "company") {
+      navigate("/company/dashboard");
+      return;
+    }
+    const isValidJobId = id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (!isValidJobId) return;
+    setIsApplicationModalOpen(true);
   };
 
   if (isLoading) {
@@ -280,12 +286,15 @@ export default function JobDetail() {
 
       <Footer />
 
-      <ApplicationModal
-        isOpen={isApplicationModalOpen}
-        onClose={() => setIsApplicationModalOpen(false)}
-        jobTitle={job.title}
-        companyName={companyName}
-      />
+      {id && (
+        <ApplicationModal
+          isOpen={isApplicationModalOpen}
+          onClose={() => setIsApplicationModalOpen(false)}
+          jobId={id}
+          jobTitle={job.title}
+          companyName={companyName}
+        />
+      )}
     </div>
   );
 }

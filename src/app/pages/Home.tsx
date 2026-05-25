@@ -1,32 +1,15 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, FileText, Briefcase, MessageSquare, Zap, ChevronDown, ChevronUp, Users, Loader2, Mail, Phone } from "lucide-react";
+import { ArrowRight, FileText, Briefcase, MessageSquare, Zap, ChevronDown, ChevronUp, Users, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
 import { useAuth } from "../contexts/AuthContext";
 import { companyService } from "../../services/supabase.service";
 import { supabase } from "../../lib/supabase";
 
-const APPLICATION_STATUS_LABELS: Record<string, string> = {
-  pending: "En attente",
-  reviewed: "Examinée",
-  shortlisted: "Présélectionnée",
-  interview: "Entretien",
-  accepted: "Acceptée",
-  rejected: "Refusée",
-};
-
-type CompanyApplication = {
-  id: string;
-  job_id: string;
-  status: string;
-  applied_at: string;
-  jobs?: { title: string };
-  candidate_profiles?: {
-    profiles?: { full_name: string; email: string; phone?: string };
-  };
-};
+type CompanyApplication = CompanyApplicationData & { job_id: string };
 
 type CompanyJob = {
   id: string;
@@ -145,36 +128,9 @@ function CompanyPublishedOffersSection() {
                   <p className="text-slate-500 text-sm py-4">Aucune candidature pour cette offre pour le moment.</p>
                 ) : (
                   <ul className="space-y-3 pt-4">
-                    {applications.map((app) => {
-                      const profile = app.candidate_profiles?.profiles;
-                      return (
-                        <li key={app.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-slate-800">{profile?.full_name || "Candidat"}</p>
-                              {profile?.email && (
-                                <p className="text-sm text-slate-600 flex items-center gap-1.5 mt-1">
-                                  <Mail className="h-3.5 w-3.5" />
-                                  {profile.email}
-                                </p>
-                              )}
-                              {profile?.phone && (
-                                <p className="text-sm text-slate-600 flex items-center gap-1.5 mt-0.5">
-                                  <Phone className="h-3.5 w-3.5" />
-                                  {profile.phone}
-                                </p>
-                              )}
-                              <p className="text-xs text-slate-500 mt-2">
-                                Postulé le {new Date(app.applied_at).toLocaleDateString("fr-FR")}
-                              </p>
-                            </div>
-                            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#003087]/10 text-[#003087]">
-                              {APPLICATION_STATUS_LABELS[app.status] || app.status}
-                            </span>
-                          </div>
-                        </li>
-                      );
-                    })}
+                    {applications.map((app) => (
+                      <CompanyApplicationItem key={app.id} app={app} />
+                    ))}
                   </ul>
                 )}
               </div>

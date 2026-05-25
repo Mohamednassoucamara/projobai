@@ -55,8 +55,8 @@ export function handleSupabaseError(error: any): string {
   }
 
   // Erreurs de validation
-  if (error.message?.includes('duplicate key')) {
-    return 'Cette entrée existe déjà';
+  if (error.code === '23505' || error.message?.includes('duplicate key')) {
+    return 'Vous avez déjà postulé à cette offre';
   }
   if (error.message?.includes('violates foreign key')) {
     return 'Référence invalide';
