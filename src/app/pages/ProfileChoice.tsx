@@ -7,20 +7,20 @@ import Footer from "../components/Footer";
 export default function ProfileChoice() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#003087]/5 via-white to-[#E31E24]/5 flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="max-w-6xl w-full"
         >
-        <div className="flex items-center justify-between mb-12">
-          <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-14 w-auto" />
-          </Link>
-          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] font-medium transition-colors">
-            <ArrowLeft className="h-5 w-5" />
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-12">
+          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] font-medium transition-colors text-sm sm:text-base">
+            <ArrowLeft className="h-5 w-5 shrink-0" />
             <span>Retour à l'accueil</span>
+          </Link>
+          <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
+            <img src={logoImage} alt="ProJob AI" className="h-12 sm:h-14 w-auto" />
           </Link>
         </div>
 
@@ -38,7 +38,7 @@ export default function ProfileChoice() {
           </motion.div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -46,7 +46,7 @@ export default function ProfileChoice() {
           >
             <Link
               to="/signup-candidate"
-              className="group relative block p-10 rounded-3xl bg-white border-2 border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/20 transition-all duration-300 overflow-hidden h-full"
+              className="group relative block p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/20 transition-all duration-300 overflow-hidden h-full"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
@@ -111,7 +111,7 @@ export default function ProfileChoice() {
           >
             <Link
               to="/signup-company"
-              className="group relative block p-10 rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E31E24] hover:shadow-2xl hover:shadow-[#E31E24]/20 transition-all duration-300 overflow-hidden h-full"
+              className="group relative block p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E31E24] hover:shadow-2xl hover:shadow-[#E31E24]/20 transition-all duration-300 overflow-hidden h-full"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#E31E24]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">

@@ -151,29 +151,31 @@ export default function CVPreview() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-            </Link>
-            <Link to="/cv-assistant" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors">
-              <ArrowLeft className="h-5 w-5" />
-              <span className="font-medium">Retour à l'assistant</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
+      <header className="border-b bg-white shadow-sm sticky top-0 z-20">
+        <div className="page-container py-3 sm:py-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 min-w-0">
+              <Link to="/" className="flex items-center hover:opacity-80 transition-opacity shrink-0">
+                <img src={logoImage} alt="ProJob AI" className="h-10 sm:h-12 w-auto" />
+              </Link>
+              <Link to="/cv-assistant" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors min-w-0">
+                <ArrowLeft className="h-5 w-5 shrink-0" />
+                <span className="font-medium text-sm sm:text-base truncate">Retour à l&apos;assistant</span>
+              </Link>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <Link
               to="/cv-edit"
-              className="flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-bold"
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-bold"
             >
               <Edit className="h-4 w-4" />
               <span>Modifier</span>
             </Link>
             <button
+              type="button"
               onClick={handleDownload}
               disabled={isCapturing || isGenerating}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all font-bold disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all font-bold disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isCapturing || isGenerating ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /><span>Génération...</span></>
@@ -182,10 +184,11 @@ export default function CVPreview() {
               )}
             </button>
           </div>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto max-w-7xl px-6 py-12 flex-1">
+      <div className="page-container py-8 sm:py-12 flex-1">
         {!cvData.fullName && (
           <motion.div
             data-pdf-ignore

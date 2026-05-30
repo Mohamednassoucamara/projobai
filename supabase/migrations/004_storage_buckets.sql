@@ -1,39 +1,37 @@
--- Configuration Supabase Storage pour ProJob AI
--- À exécuter après la création des tables principales
+-- Migration 004 : buckets Storage + politiques (candidatures, CV, avatars)
+-- Idempotent : peut être exécutée via Supabase CLI (db push) ou SQL Editor
 
 -- =====================================================
--- CRÉATION DES BUCKETS DE STOCKAGE
+-- BUCKETS
 -- =====================================================
 
--- Bucket pour les avatars des utilisateurs
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Bucket pour les CV au format PDF
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('cvs', 'cvs', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Bucket pour les logos d'entreprises
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('company-logos', 'company-logos', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Bucket pour les documents de candidature
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('application-documents', 'application-documents', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- =====================================================
--- POLITIQUES DE STOCKAGE (STORAGE POLICIES)
+-- POLITIQUES STORAGE (storage.objects)
 -- =====================================================
 
--- Politiques pour les avatars
+-- Avatars
+DROP POLICY IF EXISTS "Avatars are publicly accessible" ON storage.objects;
 CREATE POLICY "Avatars are publicly accessible"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'avatars');
 
+DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
 CREATE POLICY "Users can upload their own avatar"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -41,6 +39,7 @@ CREATE POLICY "Users can upload their own avatar"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
 CREATE POLICY "Users can update their own avatar"
   ON storage.objects FOR UPDATE
   USING (
@@ -48,6 +47,7 @@ CREATE POLICY "Users can update their own avatar"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can delete their own avatar" ON storage.objects;
 CREATE POLICY "Users can delete their own avatar"
   ON storage.objects FOR DELETE
   USING (
@@ -55,7 +55,8 @@ CREATE POLICY "Users can delete their own avatar"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
--- Politiques pour les CV
+-- CVs (bucket cvs)
+DROP POLICY IF EXISTS "Users can view their own CVs" ON storage.objects;
 CREATE POLICY "Users can view their own CVs"
   ON storage.objects FOR SELECT
   USING (
@@ -63,6 +64,7 @@ CREATE POLICY "Users can view their own CVs"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Companies can view CVs from applications" ON storage.objects;
 CREATE POLICY "Companies can view CVs from applications"
   ON storage.objects FOR SELECT
   USING (
@@ -71,10 +73,11 @@ CREATE POLICY "Companies can view CVs from applications"
       SELECT 1 FROM applications a
       JOIN jobs j ON j.id = a.job_id
       WHERE j.company_id = auth.uid()
-      AND a.cv_url LIKE '%' || name
+        AND (a.cv_url = name OR a.cv_url LIKE '%' || name)
     )
   );
 
+DROP POLICY IF EXISTS "Users can upload their own CVs" ON storage.objects;
 CREATE POLICY "Users can upload their own CVs"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -82,6 +85,7 @@ CREATE POLICY "Users can upload their own CVs"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can update their own CVs" ON storage.objects;
 CREATE POLICY "Users can update their own CVs"
   ON storage.objects FOR UPDATE
   USING (
@@ -89,6 +93,7 @@ CREATE POLICY "Users can update their own CVs"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can delete their own CVs" ON storage.objects;
 CREATE POLICY "Users can delete their own CVs"
   ON storage.objects FOR DELETE
   USING (
@@ -96,11 +101,13 @@ CREATE POLICY "Users can delete their own CVs"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
--- Politiques pour les logos d'entreprises
+-- Logos entreprise
+DROP POLICY IF EXISTS "Company logos are publicly accessible" ON storage.objects;
 CREATE POLICY "Company logos are publicly accessible"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'company-logos');
 
+DROP POLICY IF EXISTS "Companies can upload their own logo" ON storage.objects;
 CREATE POLICY "Companies can upload their own logo"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -108,6 +115,7 @@ CREATE POLICY "Companies can upload their own logo"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Companies can update their own logo" ON storage.objects;
 CREATE POLICY "Companies can update their own logo"
   ON storage.objects FOR UPDATE
   USING (
@@ -115,6 +123,7 @@ CREATE POLICY "Companies can update their own logo"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Companies can delete their own logo" ON storage.objects;
 CREATE POLICY "Companies can delete their own logo"
   ON storage.objects FOR DELETE
   USING (
@@ -122,7 +131,8 @@ CREATE POLICY "Companies can delete their own logo"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
--- Politiques pour les documents de candidature
+-- Documents de candidature (CV + lettre lors du postulé)
+DROP POLICY IF EXISTS "Users can view their own application documents" ON storage.objects;
 CREATE POLICY "Users can view their own application documents"
   ON storage.objects FOR SELECT
   USING (
@@ -130,6 +140,7 @@ CREATE POLICY "Users can view their own application documents"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Companies can view application documents" ON storage.objects;
 CREATE POLICY "Companies can view application documents"
   ON storage.objects FOR SELECT
   USING (
@@ -138,13 +149,11 @@ CREATE POLICY "Companies can view application documents"
       SELECT 1 FROM applications a
       JOIN jobs j ON j.id = a.job_id
       WHERE j.company_id = auth.uid()
-      AND (
-        a.cv_url = name OR a.cover_letter = name OR
-        a.cv_url LIKE '%' || name OR a.cover_letter LIKE '%' || name
-      )
+        AND (a.cv_url = name OR a.cover_letter = name OR a.cv_url LIKE '%' || name OR a.cover_letter LIKE '%' || name)
     )
   );
 
+DROP POLICY IF EXISTS "Users can upload application documents" ON storage.objects;
 CREATE POLICY "Users can upload application documents"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -152,6 +161,7 @@ CREATE POLICY "Users can upload application documents"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can update their application documents" ON storage.objects;
 CREATE POLICY "Users can update their application documents"
   ON storage.objects FOR UPDATE
   USING (
@@ -159,6 +169,7 @@ CREATE POLICY "Users can update their application documents"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can delete their application documents" ON storage.objects;
 CREATE POLICY "Users can delete their application documents"
   ON storage.objects FOR DELETE
   USING (

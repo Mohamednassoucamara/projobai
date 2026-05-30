@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router";
-import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import AppNavHeader from "../components/AppNavHeader";
 import { supabase } from "../../lib/supabase";
 import { sanitizeText } from "../../lib/security";
 
@@ -126,24 +126,14 @@ export default function PostJob() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="border-b bg-white">
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link to="/company/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
-            <ArrowLeft className="h-5 w-5" />
-            <span>Retour au tableau de bord</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-10 w-auto" />
-          </Link>
-        </div>
-      </div>
+      <AppNavHeader backTo="/company/dashboard" backLabel="Retour au tableau de bord" maxWidth="4xl" />
 
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-4xl font-bold mb-2">Publier une offre d'emploi</h1>
-          <p className="text-lg text-slate-600 mb-12">Trouvez le candidat idéal pour votre entreprise</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Publier une offre d'emploi</h1>
+          <p className="text-base sm:text-lg text-slate-600 mb-8 sm:mb-12">Trouvez le candidat idéal pour votre entreprise</p>
 
-          <div className="bg-white rounded-3xl p-8 border">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border">
             {error && (
               <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-medium">
                 {error}

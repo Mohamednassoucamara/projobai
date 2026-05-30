@@ -1,9 +1,9 @@
 import { Link } from "react-router";
-import { Search, MapPin, Briefcase, GraduationCap, Calendar, ArrowLeft, Sparkles, TrendingUp, Filter, Loader2 } from "lucide-react";
+import { Search, MapPin, Briefcase, GraduationCap, Calendar, Sparkles, TrendingUp, Filter, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import AppNavHeader from "../components/AppNavHeader";
 import { jobService } from "../../services/supabase.service";
 
 const FALLBACK_JOBS = [
@@ -63,26 +63,16 @@ export default function JobList() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Retour au tableau de bord</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-          </Link>
-        </div>
-      </div>
+      <AppNavHeader backTo="/dashboard" backLabel="Retour au tableau de bord" />
 
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="page-container py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="mb-12">
-            <h1 className="text-5xl font-bold mb-3">
+            <h1 className="page-title mb-3">
               <span className="text-[#003087]">Découvrez</span>{" "}
               <span className="text-[#E31E24]">votre prochain emploi</span>
             </h1>
-            <p className="text-xl text-slate-600">Les meilleures offres disponibles en Guinée</p>
+            <p className="page-subtitle">Les meilleures offres disponibles en Guinée</p>
           </div>
 
           <div className="mb-8">
@@ -93,14 +83,14 @@ export default function JobList() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher un poste, une entreprise, un secteur..."
-                className="w-full pl-16 pr-6 py-5 rounded-2xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all text-lg shadow-sm"
+                className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 rounded-2xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all text-base sm:text-lg shadow-sm"
               />
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl p-6 border-2 border-slate-100 shadow-lg sticky top-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="lg:col-span-1 order-2 lg:order-1">
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-slate-100 shadow-lg lg:sticky lg:top-24">
                 <div className="flex items-center gap-2 mb-6">
                   <Filter className="h-5 w-5 text-[#003087]" />
                   <h3 className="font-bold text-lg text-[#003087]">Filtres</h3>
@@ -159,7 +149,7 @@ export default function JobList() {
               </div>
             </div>
 
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 order-1 lg:order-2">
               <div className="mb-6 flex items-center justify-between">
                 <p className="text-slate-600">
                   {isLoading ? (
@@ -193,22 +183,22 @@ export default function JobList() {
                         transition={{ delay: i * 0.05 }}
                         className="group"
                       >
-                        <div className={`relative bg-white rounded-2xl p-8 border-2 ${job.featured ? "border-[#E31E24] shadow-xl shadow-[#E31E24]/10" : "border-slate-100 hover:border-[#003087]"} transition-all hover:shadow-xl`}>
+                        <div className={`relative bg-white rounded-2xl p-5 sm:p-8 border-2 ${job.featured ? "border-[#E31E24] shadow-xl shadow-[#E31E24]/10" : "border-slate-100 hover:border-[#003087]"} transition-all hover:shadow-xl`}>
                           {job.featured && (
                             <div className="absolute -top-3 left-6 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
                               <Sparkles className="h-4 w-4" />
                               Offre Premium
                             </div>
                           )}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-3">
-                                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                          <div className="mb-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start gap-3 mb-3">
+                                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg shrink-0">
                                   {companyName.charAt(0)}
                                 </div>
-                                <div>
-                                  <h3 className="text-2xl font-bold text-[#003087] group-hover:text-[#E31E24] transition-colors">{job.title}</h3>
-                                  <p className="text-lg text-slate-700 font-medium">{companyName}</p>
+                                <div className="min-w-0">
+                                  <h3 className="text-xl sm:text-2xl font-bold text-[#003087] group-hover:text-[#E31E24] transition-colors break-words">{job.title}</h3>
+                                  <p className="text-base sm:text-lg text-slate-700 font-medium break-words">{companyName}</p>
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-3 mb-4">

@@ -1,11 +1,11 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { FileText, Mail, MessageSquare, Briefcase, TrendingUp, LogOut, Sparkles, ArrowRight, CheckCircle2, Home, Loader2 } from "lucide-react";
+import { FileText, Mail, MessageSquare, Briefcase, TrendingUp, Sparkles, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCVData } from "../contexts/CVDataContext";
 import { jobService } from "../../services/supabase.service";
-import logoImage from "../../assets/logo.png";
+import DashboardHeader from "../components/DashboardHeader";
 import Footer from "../components/Footer";
 
 const FALLBACK_JOBS = [
@@ -15,16 +15,10 @@ const FALLBACK_JOBS = [
 ];
 
 export default function DashboardCandidate() {
-  const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const { cvData } = useCVData();
   const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -65,42 +59,11 @@ export default function DashboardCandidate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex flex-col">
-      {/* Header */}
-      <div className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center hover:scale-105 transition-transform">
-              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-            </Link>
-            <Link
-              to="/"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-[#003087] hover:bg-gradient-to-r hover:from-[#003087] hover:to-[#0047b3] hover:text-white transition-all border-2 border-[#003087]"
-            >
-              <Home className="h-4 w-4" />
-              <span>Accueil</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center font-bold text-white text-sm shadow-lg">
-                {user?.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-              </div>
-              <span className="font-semibold text-sm text-slate-800">{user?.name}</span>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-slate-600 hover:bg-red-50 hover:text-[#E31E24] transition-all border border-transparent hover:border-red-200"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Déconnexion</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <DashboardHeader />
 
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="page-container py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-5xl font-bold mb-12">
+          <h1 className="page-title mb-8 sm:mb-12">
             <span className="text-[#003087]">Bonjour</span>{" "}
             <span className="text-[#E31E24]">{user?.name.split(" ")[0]}</span> 👋
           </h1>
@@ -141,10 +104,10 @@ export default function DashboardCandidate() {
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <Link
                   to={hasStartedProfile ? "/cv-edit" : "/cv-assistant"}
-                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 hover:scale-105 transition-all"
+                  className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all text-center"
                 >
                   {profileCompletion === 100 ? "Modifier mon profil" : hasStartedProfile ? "Continuer mon profil" : "Créer mon profil"}
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -162,7 +125,7 @@ export default function DashboardCandidate() {
           </motion.div>
 
           {/* Quick Actions */}
-          <div className="grid md:grid-cols-4 gap-5 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
             {[
               { to: "/cv-assistant", icon: FileText, title: "Mon CV", desc: "Créer ou modifier", color: "#003087" },
               { to: "/cover-letter", icon: Mail, title: "Lettre de motivation", desc: "Générer avec l'IA", color: "#E31E24" },
@@ -172,7 +135,7 @@ export default function DashboardCandidate() {
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.05 }}>
                 <Link
                   to={item.to}
-                  className="group block p-8 rounded-2xl bg-white border-2 border-slate-100 hover:border-transparent hover:shadow-2xl hover:scale-105 transition-all duration-300 relative overflow-hidden"
+                  className="group block p-6 sm:p-8 rounded-2xl bg-white border-2 border-slate-100 hover:border-transparent hover:shadow-2xl sm:hover:scale-105 transition-all duration-300 relative overflow-hidden"
                   style={{ boxShadow: "none" }}
                   onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 20px 40px -12px ${item.color}30`; }}
                   onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
@@ -195,14 +158,14 @@ export default function DashboardCandidate() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl shadow-slate-200/50"
+            className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xl shadow-slate-200/50"
           >
             <div className="flex items-center gap-3 mb-8">
               <div className="h-12 w-12 rounded-2xl bg-[#003087] flex items-center justify-center shadow-lg shadow-[#003087]/30">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold">Postes recommandés</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold">Postes recommandés</h2>
                 <p className="text-slate-600">Correspondant à votre profil</p>
               </div>
             </div>

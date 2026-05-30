@@ -117,19 +117,19 @@ export default function ApplicationModal({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
             onClick={handleClose}
           />
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-6">
+          <div className="fixed inset-0 flex items-end sm:items-center justify-center z-50 p-3 sm:p-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {step === "form" ? (
-                <div className="p-8">
+                <div className="p-5 sm:p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-3xl font-bold text-[#003087]">
+                      <h2 className="text-2xl sm:text-3xl font-bold text-[#003087]">
                         Postuler
                       </h2>
                       <p className="text-slate-600 mt-1">
@@ -263,19 +263,19 @@ export default function ApplicationModal({
                       />
                     </div>
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                       <button
                         type="button"
                         onClick={handleClose}
                         disabled={isSubmitting}
-                        className="flex-1 px-6 py-4 rounded-xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors disabled:opacity-50"
+                        className="flex-1 px-6 py-3.5 sm:py-4 rounded-xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors disabled:opacity-50"
                       >
                         Annuler
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
+                        className="flex-1 px-6 py-3.5 sm:py-4 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
                       >
                         {isSubmitting ? (
                           <>

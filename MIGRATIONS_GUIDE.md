@@ -23,15 +23,17 @@ Votre projet Supabase est maintenant connecté. Il ne reste plus qu'à créer le
 
 ✅ Vous devriez voir un message de succès : "Success. No rows returned"
 
-### Étape 3 : Configurer le stockage de fichiers
+### Étape 3 : Migrations 002, 003 et 004
 
-1. Toujours dans SQL Editor, créez une **nouvelle query**
-2. Ouvrez le fichier `supabase/storage.sql`
-3. **Copiez tout le contenu**
-4. **Collez-le** dans l'éditeur SQL
-5. Cliquez sur **"Run"**
+Exécutez dans l'ordre (une query par fichier) :
 
-✅ Vous devriez voir les buckets créés
+1. `supabase/migrations/002_profiles_insert_policy.sql`
+2. `supabase/migrations/003_jobs_missing_columns.sql`
+3. `supabase/migrations/004_storage_buckets.sql` — buckets Storage + politiques pour les candidatures (CV PDF)
+
+> Alternative : `supabase/storage.sql` si vous n'utilisez pas encore la migration 004.
+
+✅ Vous devriez voir les buckets créés après l'étape 004
 
 ### Étape 4 : Vérifier que tout fonctionne
 

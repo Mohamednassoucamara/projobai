@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 import { Check, ArrowLeft, Sparkles, Zap, Shield, Clock, Target, Users, TrendingUp, Award, Rocket } from "lucide-react";
 import { motion } from "motion/react";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import AppNavHeader from "../components/AppNavHeader";
 
 export default function Pricing() {
   const benefits = [
@@ -74,20 +74,10 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Retour à l'accueil</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-          </Link>
-        </div>
-      </div>
+      <AppNavHeader backTo="/" backLabel="Retour à l'accueil" />
 
-      <div className="flex-1 px-6 py-16">
-        <div className="mx-auto max-w-7xl">
+      <div className="flex-1 page-container py-10 sm:py-16">
+        <div className="w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +87,7 @@ export default function Pricing() {
               <Rocket className="h-5 w-5 text-[#E31E24]" />
               <span className="font-semibold text-[#003087]">Boostez votre carrière dès aujourd'hui</span>
             </div>
-            <h1 className="text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold mb-6">
               <span className="text-[#003087]">Choisissez votre</span>{" "}
               <span className="bg-gradient-to-r from-[#E31E24] to-[#ff3333] bg-clip-text text-transparent">formule</span>
             </h1>
@@ -128,7 +118,7 @@ export default function Pricing() {
             ))}
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-10 max-w-6xl mx-auto mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 max-w-6xl mx-auto mb-16 sm:mb-20">
             {plans.map((plan, i) => (
               <motion.div
                 key={plan.name}
@@ -249,7 +239,7 @@ export default function Pricing() {
             <p className="text-center text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
               Découvrez les avantages qui font de ProJob AI votre meilleur allié professionnel
             </p>
-            <div className="grid md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {benefits.map((benefit, i) => (
                 <motion.div
                   key={benefit.title}

@@ -62,7 +62,7 @@ export default function SignUpCandidate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="max-w-lg w-full">
           <div className="flex items-center justify-between mb-12">
             <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
@@ -74,7 +74,7 @@ export default function SignUpCandidate() {
             </Link>
           </div>
 
-          <div className="bg-white rounded-3xl p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#003087]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
             <div className="relative">
               <h1 className="text-4xl font-bold mb-3 text-[#003087]">Créez votre compte</h1>

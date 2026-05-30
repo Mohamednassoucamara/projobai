@@ -72,18 +72,21 @@ export default function CVAssistant() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <div className="flex-1 flex flex-col">
-        <div className="border-b bg-white shadow-sm">
-          <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-            <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors">
+        <div className="border-b bg-white shadow-sm sticky top-0 z-20">
+          <div className="mx-auto max-w-4xl w-full px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between gap-3 min-w-0">
+            <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors shrink-0">
               <ArrowLeft className="h-5 w-5" />
-              <span className="font-medium">Retour</span>
+              <span className="font-medium text-sm sm:text-base">Retour</span>
             </Link>
-            <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
+            <Link to="/" className="flex items-center hover:opacity-80 transition-opacity sm:hidden shrink-0">
+              <img src={logoImage} alt="ProJob AI" className="h-10 w-auto" />
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="text-sm font-medium text-[#003087]">Étape {Math.min(step, 6)}/6</div>
-              <div className="h-2 w-32 bg-slate-100 rounded-full overflow-hidden">
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto sm:flex-1 sm:justify-center">
+              <div className="text-xs sm:text-sm font-medium text-[#003087] shrink-0">Étape {Math.min(step, 6)}/6</div>
+              <div className="h-2 flex-1 sm:w-32 sm:flex-none bg-slate-100 rounded-full overflow-hidden">
                 <motion.div
                   animate={{ width: `${(Math.min(step, 6) / 6) * 100}%` }}
                   transition={{ duration: 0.5 }}
@@ -91,10 +94,14 @@ export default function CVAssistant() {
                 />
               </div>
             </div>
+            <Link to="/" className="hidden sm:flex items-center hover:opacity-80 transition-opacity shrink-0">
+              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
+            </Link>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 mx-auto max-w-4xl w-full px-6 py-8 flex flex-col">
+        <div className="flex-1 mx-auto max-w-4xl w-full px-4 sm:px-6 py-6 sm:py-8 flex flex-col">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

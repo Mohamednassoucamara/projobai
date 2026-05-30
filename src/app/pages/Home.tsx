@@ -154,30 +154,30 @@ export default function Home() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="mx-auto max-w-7xl px-6 py-6"
+        className="page-container py-4 sm:py-6"
       >
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <img src={logoImage} alt="ProJob AI" className="h-14 w-auto" />
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <Link to="/" className="flex items-center shrink-0">
+            <img src={logoImage} alt="ProJob AI" className="h-11 w-auto sm:h-14" />
           </Link>
 
           {isAuthenticated && user ? (
             <Link
               to={dashboardLink}
-              className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border-2 border-slate-200 hover:border-[#003087] transition-all"
+              className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border-2 border-slate-200 hover:border-[#003087] transition-all min-w-0 max-w-[55%] sm:max-w-none"
             >
-              <div className={`h-9 w-9 rounded-full bg-gradient-to-br ${user.type === "company" ? "from-[#E31E24] to-[#ff3333]" : "from-[#003087] to-[#0047b3]"} flex items-center justify-center font-bold text-white text-sm shadow-lg`}>
+              <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br shrink-0 ${user.type === "company" ? "from-[#E31E24] to-[#ff3333]" : "from-[#003087] to-[#0047b3]"} flex items-center justify-center font-bold text-white text-xs sm:text-sm shadow-lg`}>
                 {user.name.split(" ").map(n => n[0]).join("")}
               </div>
-              <div className="text-left">
-                <div className="text-sm font-semibold text-slate-800">{user.name}</div>
+              <div className="text-left min-w-0 hidden sm:block">
+                <div className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{user.name}</div>
                 <div className="text-xs text-slate-600">{user.type === "company" ? "Entreprise" : "Candidat"}</div>
               </div>
             </Link>
           ) : (
             <Link
               to="/profile-choice"
-              className="px-6 py-2.5 rounded-full border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-medium"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-medium text-sm sm:text-base shrink-0"
             >
               Se connecter
             </Link>
@@ -186,7 +186,7 @@ export default function Home() {
       </motion.div>
 
       {/* Hero Section */}
-      <div className="mx-auto max-w-7xl px-6 pt-12 pb-20">
+      <div className="page-container pt-8 sm:pt-12 pb-16 sm:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -203,7 +203,7 @@ export default function Home() {
             <span className="text-sm text-[#003087]">Propulsé par l'Intelligence Artificielle</span>
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
             <span className="text-[#003087]">L'IA qui vous prépare à</span>{" "}
             <span className="bg-gradient-to-r from-[#E31E24] to-[#ff3333] bg-clip-text text-transparent">l'emploi</span>
           </h1>
@@ -222,7 +222,7 @@ export default function Home() {
               <>
                 <Link
                   to={dashboardLink}
-                  className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 hover:scale-105 transition-all"
+                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all"
                 >
                   Accéder au tableau de bord
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -230,14 +230,14 @@ export default function Home() {
                 {isCompany ? (
                   <a
                     href="#mes-offres-publiees"
-                    className="inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-10 py-4 rounded-full text-lg font-bold hover:bg-[#003087] hover:text-white transition-all"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
                   >
                     Voir mes offres publiées
                   </a>
                 ) : (
                   <Link
                     to="/jobs"
-                    className="inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-10 py-4 rounded-full text-lg font-bold hover:bg-[#003087] hover:text-white transition-all"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
                   >
                     Voir les offres
                   </Link>
@@ -247,7 +247,7 @@ export default function Home() {
               <>
                 <Link
                   to="/profile-choice"
-                  className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 hover:scale-105 transition-all"
+                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all"
                 >
                   Commencer gratuitement
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -289,9 +289,9 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.7 }}
-          className="grid md:grid-cols-3 gap-6 mb-32"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-20 sm:mb-32"
         >
-          <Link to="/cv-assistant" className="group relative p-10 rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
+          <Link to="/cv-assistant" className="group relative p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="h-16 w-16 rounded-2xl bg-[#003087] flex items-center justify-center mb-6 shadow-lg shadow-[#003087]/30 group-hover:scale-110 transition-transform">
@@ -302,7 +302,7 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link to="/interview-prep" className="group relative p-10 rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
+          <Link to="/interview-prep" className="group relative p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="h-16 w-16 rounded-2xl bg-[#003087] flex items-center justify-center mb-6 shadow-lg shadow-[#003087]/30 group-hover:scale-110 transition-transform">
@@ -313,7 +313,7 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link to="/jobs" className="group relative p-10 rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
+          <Link to="/jobs" className="group relative p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="h-16 w-16 rounded-2xl bg-[#003087] flex items-center justify-center mb-6 shadow-lg shadow-[#003087]/30 group-hover:scale-110 transition-transform">
@@ -342,7 +342,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -411,8 +411,8 @@ export default function Home() {
       </div>
 
       {/* Company Section */}
-      <div className="bg-gradient-to-br from-[#003087] to-[#0047b3] py-20">
-        <div className="mx-auto max-w-7xl px-6">
+      <div className="bg-gradient-to-br from-[#003087] to-[#0047b3] py-14 sm:py-20">
+        <div className="page-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -423,7 +423,7 @@ export default function Home() {
               <p className="text-lg text-white/80">Recrutez les meilleurs talents avec notre plateforme intelligente</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               <Link
                 to="/company/post-job"
                 className="group relative p-8 rounded-2xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] text-white hover:shadow-2xl hover:shadow-[#E31E24]/50 hover:scale-105 transition-all duration-300"
@@ -473,7 +473,7 @@ export default function Home() {
 
       {/* How It Works Section */}
       <div className="bg-gradient-to-b from-white to-slate-50 py-16">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="page-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -494,7 +494,7 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#003087]/10 text-[#003087] font-bold text-sm mb-8 mx-auto block w-fit">
                 Pour les candidats
               </div>
-              <div className="grid md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {[
                   {
                     step: "01",
@@ -548,7 +548,7 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E31E24]/10 text-[#E31E24] font-bold text-sm mb-8 mx-auto block w-fit">
                 Pour les entreprises
               </div>
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                 {[
                   {
                     step: "01",

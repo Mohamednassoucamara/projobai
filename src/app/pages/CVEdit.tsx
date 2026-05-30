@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft, Plus, X, Save } from "lucide-react";
 import { motion } from "motion/react";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
 
@@ -62,24 +61,26 @@ export default function CVEdit() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-          <Link to="/cv-preview" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Retour à l'aperçu</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-          </Link>
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all font-bold"
-          >
-            <Save className="h-4 w-4" />
-            <span>Enregistrer</span>
-          </button>
+      <header className="border-b bg-white shadow-sm sticky top-0 z-20">
+        <div className="page-container-narrow py-3 sm:py-4 max-w-5xl">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between gap-3 min-w-0">
+              <Link to="/cv-preview" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors min-w-0">
+                <ArrowLeft className="h-5 w-5 shrink-0" />
+                <span className="font-medium text-sm sm:text-base truncate">Retour à l&apos;aperçu</span>
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={handleSave}
+              className="flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all font-bold"
+            >
+              <Save className="h-4 w-4" />
+              <span>Enregistrer</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
       <div className="flex-1 mx-auto max-w-5xl px-6 py-12">
         <motion.div

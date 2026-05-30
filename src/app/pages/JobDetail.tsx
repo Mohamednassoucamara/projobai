@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, MapPin, Briefcase, GraduationCap, Calendar, Sparkles, Loader2, AlertCircle } from "lucide-react";
+import { MapPin, Briefcase, GraduationCap, Calendar, Sparkles, Loader2, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import AppNavHeader from "../components/AppNavHeader";
 import ApplicationModal from "../components/ApplicationModal";
 import { useAuth } from "../contexts/AuthContext";
 import { jobService } from "../../services/supabase.service";
@@ -130,23 +130,13 @@ export default function JobDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="border-b bg-white">
-        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-          <Link to="/jobs" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
-            <ArrowLeft className="h-5 w-5" />
-            <span>Retour aux offres</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-10 w-auto" />
-          </Link>
-        </div>
-      </div>
+      <AppNavHeader backTo="/jobs" backLabel="Retour aux offres" maxWidth="5xl" />
 
-      <div className="mx-auto max-w-5xl px-6 py-12">
+      <div className="page-container-narrow py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="bg-white rounded-3xl p-8 border mb-6">
-            <h1 className="text-4xl font-bold mb-3">{job.title}</h1>
-            <p className="text-2xl text-slate-700 mb-6">{companyName}</p>
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border mb-6">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 break-words">{job.title}</h1>
+            <p className="text-xl sm:text-2xl text-slate-700 mb-6 break-words">{companyName}</p>
 
             <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-4">
               <div className="flex items-center gap-2">
@@ -175,16 +165,16 @@ export default function JobDetail() {
               </div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleApplyClick}
-                className="flex-1 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all"
+                className="flex-1 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all"
               >
                 Postuler maintenant
               </button>
               <Link
                 to="/cv-assistant"
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#003087] text-[#003087] px-6 py-4 rounded-xl font-bold hover:bg-[#003087] hover:text-white transition-all"
+                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#003087] text-[#003087] px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
               >
                 <Sparkles className="h-5 w-5" />
                 Adapter mon CV avec l'IA
@@ -192,9 +182,9 @@ export default function JobDetail() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white rounded-3xl p-8 border">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border">
                 <h2 className="text-2xl font-bold mb-4">Description du poste</h2>
                 <div className="space-y-4 text-slate-700">
                   {descParagraphs.length > 0
@@ -240,8 +230,8 @@ export default function JobDetail() {
               )}
             </div>
 
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-3xl p-6 border sticky top-6">
+            <div className="lg:col-span-1 order-1 lg:order-2">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border lg:sticky lg:top-24">
                 <h3 className="font-bold mb-4 text-lg">À propos de l'entreprise</h3>
                 {job.company_profiles?.description && (
                   <p className="text-sm text-slate-700 mb-4">{job.company_profiles.description}</p>

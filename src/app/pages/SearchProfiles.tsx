@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import { Search, ArrowLeft, Star, MapPin, Briefcase } from "lucide-react";
+import { Search, Star, MapPin, Briefcase } from "lucide-react";
 import { motion } from "motion/react";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
+import AppNavHeader from "../components/AppNavHeader";
 
 export default function SearchProfiles() {
   const profiles = [
@@ -42,24 +42,14 @@ export default function SearchProfiles() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <Link to="/company/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
-            <ArrowLeft className="h-5 w-5" />
-            <span>Retour au tableau de bord</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-10 w-auto" />
-          </Link>
-        </div>
-      </div>
+      <AppNavHeader backTo="/company/dashboard" backLabel="Retour au tableau de bord" />
 
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="page-container py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-4xl font-bold mb-12">Rechercher des profils</h1>
+          <h1 className="page-title mb-8 sm:mb-12">Rechercher des profils</h1>
 
           <div className="mb-8">
             <div className="relative">

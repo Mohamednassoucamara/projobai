@@ -1,27 +1,19 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { Plus, Users, Briefcase, Star, LogOut, Home, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
+import DashboardHeader from "../components/DashboardHeader";
 import { motion } from "motion/react";
-import { useAuth } from "../contexts/AuthContext";
 import { companyService } from "../../services/supabase.service";
 import { supabase } from "../../lib/supabase";
-import logoImage from "../../assets/logo.png";
 import Footer from "../components/Footer";
 
 export default function DashboardCompany() {
-  const navigate = useNavigate();
-  const { logout, user } = useAuth();
   const [jobs, setJobs] = useState<any[]>([]);
   const [applicationsByJob, setApplicationsByJob] = useState<Record<string, CompanyApplicationData[]>>({});
   const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState({ activeJobs: 0, totalApplications: 0, favorites: 0, hired: 0 });
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -76,47 +68,17 @@ export default function DashboardCompany() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center hover:scale-105 transition-transform">
-              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-            </Link>
-            <Link
-              to="/"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-[#003087] hover:bg-gradient-to-r hover:from-[#003087] hover:to-[#0047b3] hover:text-white transition-all border-2 border-[#003087]"
-            >
-              <Home className="h-4 w-4" />
-              <span>Accueil</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#E31E24] to-[#ff3333] flex items-center justify-center font-bold text-white text-sm shadow-lg">
-                {user?.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-              </div>
-              <span className="font-semibold text-sm text-slate-800">{user?.name}</span>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-slate-600 hover:bg-red-50 hover:text-[#E31E24] transition-all border border-transparent hover:border-red-200"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Déconnexion</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <DashboardHeader />
 
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="page-container py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-5xl font-bold mb-12">
+          <h1 className="page-title mb-8 sm:mb-12">
             <span className="text-[#003087]">Tableau de bord</span>{" "}
             <span className="text-[#E31E24]">Entreprise</span>
           </h1>
 
           {/* Stats */}
-          <div className="grid md:grid-cols-4 gap-5 mb-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-10 sm:mb-12">
             {displayStats.map((stat, i) => (
               <motion.div
                 key={i}
@@ -139,10 +101,10 @@ export default function DashboardCompany() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-10 sm:mb-12">
             <Link
               to="/company/post-job"
-              className="group p-10 rounded-3xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] text-white hover:shadow-2xl hover:shadow-[#E31E24]/40 hover:scale-105 transition-all relative overflow-hidden"
+              className="group p-8 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] text-white hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
               <div className="relative">
@@ -154,7 +116,7 @@ export default function DashboardCompany() {
               </div>
             </Link>
 
-            <div className="p-12 rounded-3xl bg-white border-2 border-slate-200">
+            <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200">
               <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-6">
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
@@ -169,7 +131,7 @@ export default function DashboardCompany() {
 
             <Link
               to="/company/search-profiles"
-              className="p-12 rounded-3xl bg-white border-2 border-slate-200 hover:border-[#003087] transition-all"
+              className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#003087] transition-all"
             >
               <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-6">
                 <Star className="h-8 w-8 text-blue-600" />
@@ -180,8 +142,8 @@ export default function DashboardCompany() {
           </div>
 
           {/* Active Jobs */}
-          <div className="bg-white rounded-3xl p-8 border">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-bold">Vos offres et candidatures</h2>
               <Link to="/company/post-job" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#003087] text-white text-sm font-semibold hover:bg-[#0047b3] transition-colors">
                 <Plus className="h-4 w-4" />

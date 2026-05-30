@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { ArrowLeft, Sparkles, Copy, Download, Edit, Check, FileText, Briefcase, Lightbulb, Target, RotateCcw, Mail, Phone, MapPin, Building, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef } from "react";
-import logoImage from "../../assets/logo.png";
+import AppNavHeader from "../components/AppNavHeader";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
 
@@ -168,19 +168,9 @@ export default function CoverLetter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Retour au tableau de bord</span>
-          </Link>
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-          </Link>
-        </div>
-      </div>
+      <AppNavHeader backTo="/dashboard" backLabel="Retour au tableau de bord" />
 
-      <div className="mx-auto max-w-7xl px-6 py-12 flex-1">
+      <div className="page-container py-8 sm:py-12 flex-1">
         <AnimatePresence mode="wait">
           {step === "form" && (
             <motion.div
@@ -197,7 +187,7 @@ export default function CoverLetter() {
                 >
                   <FileText className="h-10 w-10 text-white" />
                 </motion.div>
-                <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#003087] to-[#0047b3] bg-clip-text text-transparent">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#003087] to-[#0047b3] bg-clip-text text-transparent">
                   Lettre de Motivation IA
                 </h1>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">

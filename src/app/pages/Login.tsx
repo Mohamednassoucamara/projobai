@@ -85,27 +85,27 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="max-w-lg w-full"
         >
-        <div className="flex items-center justify-between mb-12">
-          <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-14 w-auto" />
+        <div className="flex items-center justify-between gap-3 mb-8 sm:mb-12">
+          <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity shrink-0">
+            <img src={logoImage} alt="ProJob AI" className="h-11 sm:h-14 w-auto" />
           </Link>
-          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
+          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm sm:text-base shrink-0">
             <ArrowLeft className="h-5 w-5" />
             <span>Retour</span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-3xl p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#003087]/5 to-transparent rounded-full blur-3xl" />
           <div className="relative">
-            <h1 className="text-4xl font-bold mb-3 text-[#003087]">Bon retour !</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-[#003087]">Bon retour !</h1>
             <p className="text-lg text-slate-600 mb-8">
               {userType === "company" ? "Accédez à votre espace entreprise" : "Accédez à votre espace candidat"}
             </p>
