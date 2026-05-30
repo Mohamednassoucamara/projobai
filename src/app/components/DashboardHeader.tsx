@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { Home, LogOut } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "./AppLogo";
 
 export default function DashboardHeader() {
   const { user, logout } = useAuth();
@@ -25,9 +25,7 @@ export default function DashboardHeader() {
       <div className="page-container py-3 sm:py-4">
         <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-            <Link to="/" className="flex items-center shrink-0 hover:scale-105 transition-transform">
-              <img src={logoImage} alt="ProJob AI" className="h-10 w-auto sm:h-12" />
-            </Link>
+            <AppLogo />
             <Link
               to="/"
               className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-[#003087] hover:bg-gradient-to-r hover:from-[#003087] hover:to-[#0047b3] hover:text-white transition-all border-2 border-[#003087]"

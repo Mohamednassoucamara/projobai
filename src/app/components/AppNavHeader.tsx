@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "./AppLogo";
 
 type AppNavHeaderProps = {
   backTo: string;
@@ -33,9 +33,7 @@ export default function AppNavHeader({
             <ArrowLeft className="h-5 w-5 shrink-0" />
             <span className="font-medium text-sm sm:text-base truncate">{backLabel}</span>
           </Link>
-          <Link to={logoTo} className="shrink-0 hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-9 w-auto sm:h-10 md:h-12" />
-          </Link>
+          <AppLogo to={logoTo} />
         </div>
       </div>
     </header>

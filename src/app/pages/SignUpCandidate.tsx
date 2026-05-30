@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Shield, ArrowRight, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import { isValidEmail, validatePassword } from "../../lib/security";
 import { redirectAfterSignup } from "../../lib/authRedirect";
@@ -66,7 +66,7 @@ export default function SignUpCandidate() {
         <div className="max-w-lg w-full">
           <div className="flex items-center justify-between mb-12">
             <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-              <img src={logoImage} alt="ProJob AI" className="h-14 w-auto" />
+              <AppLogo />
             </Link>
             <Link to="/profile-choice" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
               <ArrowLeft className="h-5 w-5" />

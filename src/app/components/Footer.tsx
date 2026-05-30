@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { Facebook, Linkedin, Mail } from "lucide-react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "./AppLogo";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Footer() {
@@ -21,9 +21,9 @@ export default function Footer() {
       <div className="page-container py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 sm:gap-12 mb-10 sm:mb-12">
           <div className="md:col-span-1">
-            <Link to="/" className="inline-block mb-6">
-              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-            </Link>
+            <div className="mb-6">
+              <AppLogo className="brand-logo h-10 w-auto max-w-[10rem] sm:max-w-[11rem] object-contain object-left" />
+            </div>
             <p className="text-slate-200 leading-relaxed mb-6">
               ProJob AI est votre partenaire intelligent pour réussir votre carrière professionnelle.
               De la création de CV à la préparation d'entretien, nous vous accompagnons à chaque étape

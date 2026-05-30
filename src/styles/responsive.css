@@ -13,11 +13,27 @@ body,
   min-width: 320px;
 }
 
+/* Médias fluides — ne pas écraser les utilitaires Tailwind h-* / w-* */
 img,
-video,
+video {
+  max-width: 100%;
+}
+
+img:not([class*="h-"]):not([class*="w-"]),
+video:not([class*="h-"]):not([class*="w-"]) {
+  height: auto;
+}
+
 svg {
   max-width: 100%;
-  height: auto;
+}
+
+/* Logo horizontal : hauteur prioritaire, largeur plafonnée */
+img.brand-logo {
+  width: auto;
+  max-width: min(100%, 13rem);
+  object-fit: contain;
+  object-position: left center;
 }
 
 .page-container {

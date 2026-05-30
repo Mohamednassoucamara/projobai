@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Link } from "react-router";
 import { Download, Edit, ArrowLeft, Sparkles, CheckCircle, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
 
@@ -155,9 +155,7 @@ export default function CVPreview() {
         <div className="page-container py-3 sm:py-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-3 sm:gap-6 min-w-0">
-              <Link to="/" className="flex items-center hover:opacity-80 transition-opacity shrink-0">
-                <img src={logoImage} alt="ProJob AI" className="h-10 sm:h-12 w-auto" />
-              </Link>
+              <AppLogo />
               <Link to="/cv-assistant" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors min-w-0">
                 <ArrowLeft className="h-5 w-5 shrink-0" />
                 <span className="font-medium text-sm sm:text-base truncate">Retour à l&apos;assistant</span>

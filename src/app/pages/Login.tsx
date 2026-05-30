@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import { ArrowRight, ArrowLeft, AlertCircle, Loader2, Lock } from "lucide-react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import {
   isRateLimited,
@@ -93,9 +93,7 @@ export default function Login() {
           className="max-w-lg w-full"
         >
         <div className="flex items-center justify-between gap-3 mb-8 sm:mb-12">
-          <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity shrink-0">
-            <img src={logoImage} alt="ProJob AI" className="h-11 sm:h-14 w-auto" />
-          </Link>
+          <AppLogo />
           <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm sm:text-base shrink-0">
             <ArrowLeft className="h-5 w-5" />
             <span>Retour</span>

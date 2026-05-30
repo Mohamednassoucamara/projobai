@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { User, Building2, ArrowLeft, FileText, MessageSquare, Briefcase, Users, Search, TrendingUp } from "lucide-react";
 import { motion } from "motion/react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 
 export default function ProfileChoice() {
@@ -19,9 +19,7 @@ export default function ProfileChoice() {
             <ArrowLeft className="h-5 w-5 shrink-0" />
             <span>Retour à l'accueil</span>
           </Link>
-          <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-            <img src={logoImage} alt="ProJob AI" className="h-12 sm:h-14 w-auto" />
-          </Link>
+          <AppLogo />
         </div>
 
         <div className="text-center mb-12">

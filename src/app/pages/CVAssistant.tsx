@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Send, ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
 
@@ -80,9 +80,9 @@ export default function CVAssistant() {
               <ArrowLeft className="h-5 w-5" />
               <span className="font-medium text-sm sm:text-base">Retour</span>
             </Link>
-            <Link to="/" className="flex items-center hover:opacity-80 transition-opacity sm:hidden shrink-0">
-              <img src={logoImage} alt="ProJob AI" className="h-10 w-auto" />
-            </Link>
+            <div className="sm:hidden shrink-0">
+              <AppLogo to="/" />
+            </div>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto sm:flex-1 sm:justify-center">
               <div className="text-xs sm:text-sm font-medium text-[#003087] shrink-0">Étape {Math.min(step, 6)}/6</div>
@@ -94,9 +94,9 @@ export default function CVAssistant() {
                 />
               </div>
             </div>
-            <Link to="/" className="hidden sm:flex items-center hover:opacity-80 transition-opacity shrink-0">
-              <img src={logoImage} alt="ProJob AI" className="h-12 w-auto" />
-            </Link>
+            <div className="hidden sm:block shrink-0">
+              <AppLogo to="/" />
+            </div>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, FileText, Briefcase, MessageSquare, Zap, ChevronDown, ChevronUp, Users, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
-import logoImage from "../../assets/logo.png";
+import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
 import { useAuth } from "../contexts/AuthContext";
@@ -157,9 +157,7 @@ export default function Home() {
         className="page-container py-4 sm:py-6"
       >
         <div className="flex items-center justify-between gap-3 min-w-0">
-          <Link to="/" className="flex items-center shrink-0">
-            <img src={logoImage} alt="ProJob AI" className="h-11 w-auto sm:h-14" />
-          </Link>
+          <AppLogo />
 
           {isAuthenticated && user ? (
             <Link
