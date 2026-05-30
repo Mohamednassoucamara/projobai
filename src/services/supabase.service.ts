@@ -263,9 +263,13 @@ export const candidateService = {
       .from('applications')
       .select(`
         *,
-        jobs!inner(
-          *,
-          company_profiles!inner(
+        jobs(
+          id,
+          title,
+          location,
+          job_type,
+          is_active,
+          company_profiles(
             company_name,
             logo_url
           )
@@ -554,16 +558,33 @@ export const applicationService = {
       throw new Error('Vous avez déjà postulé à cette offre');
     }
 
-    const { error: profileError } = await supabase
+    const { data: existingProfile } = await supabase
       .from('profiles')
-      .update({
+      .select('id')
+      .eq('id', candidateId)
+      .maybeSingle();
+
+    if (!existingProfile) {
+      const { error: createProfileError } = await supabase.from('profiles').insert({
+        id: candidateId,
+        user_type: 'candidate',
         full_name: params.fullName,
         email: params.email,
         phone: params.phone,
-      })
-      .eq('id', candidateId);
+      });
+      if (createProfileError) throw createProfileError;
+    } else {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: params.fullName,
+          email: params.email,
+          phone: params.phone,
+        })
+        .eq('id', candidateId);
 
-    if (profileError) throw profileError;
+      if (profileError) throw profileError;
+    }
 
     const { data: existingCandidate } = await supabase
       .from('candidate_profiles')
@@ -577,6 +598,14 @@ export const applicationService = {
         .insert({ id: candidateId });
       if (createCandidateError) throw createCandidateError;
     }
+
+    const { error: jobError } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('id', params.jobId)
+      .single();
+
+    if (jobError) throw jobError;
 
     const cvPath = await storageService.uploadApplicationDocument(
       candidateId,
@@ -595,14 +624,6 @@ export const applicationService = {
       );
     }
 
-    const { data: jobData, error: jobError } = await supabase
-      .from('jobs')
-      .select('company_id, title')
-      .eq('id', params.jobId)
-      .single();
-
-    if (jobError) throw jobError;
-
     const application = await this.apply({
       job_id: params.jobId,
       candidate_id: candidateId,
@@ -610,17 +631,6 @@ export const applicationService = {
       cover_letter: coverLetterPath,
       motivation_message: params.motivationMessage?.trim() || null,
     });
-
-    if (jobData?.company_id) {
-      await notificationService.create({
-        user_id: jobData.company_id,
-        type: 'application',
-        title: 'Nouvelle candidature',
-        message: `${params.fullName} a postulé pour le poste « ${jobData.title} ».`,
-        link: '/#mes-offres-publiees',
-        is_read: false,
-      });
-    }
 
     return application;
   },

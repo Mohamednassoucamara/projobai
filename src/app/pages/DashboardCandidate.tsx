@@ -1,12 +1,14 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { FileText, Mail, MessageSquare, Briefcase, TrendingUp, Sparkles, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { FileText, Mail, MessageSquare, Briefcase, TrendingUp, Sparkles, ArrowRight, CheckCircle2, Loader2, ClipboardList } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCVData } from "../contexts/CVDataContext";
-import { jobService } from "../../services/supabase.service";
+import { jobService, candidateService } from "../../services/supabase.service";
+import { getCurrentUserId } from "../../lib/supabase";
 import DashboardHeader from "../components/DashboardHeader";
 import Footer from "../components/Footer";
+import CandidateApplicationItem, { type CandidateApplicationData } from "../components/CandidateApplicationItem";
 
 const FALLBACK_JOBS = [
   { id: "1", title: "Développeur Web Junior", company_profiles: { company_name: "Tech Solutions GN" }, location: "Conakry", match: 95 },
@@ -19,6 +21,8 @@ export default function DashboardCandidate() {
   const { cvData } = useCVData();
   const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [myApplications, setMyApplications] = useState<CandidateApplicationData[]>([]);
+  const [loadingApplications, setLoadingApplications] = useState(true);
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -36,6 +40,25 @@ export default function DashboardCandidate() {
       }
     };
     loadJobs();
+  }, []);
+
+  useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+          setMyApplications([]);
+          return;
+        }
+        const data = await candidateService.getApplications(userId);
+        setMyApplications((data || []) as CandidateApplicationData[]);
+      } catch {
+        setMyApplications([]);
+      } finally {
+        setLoadingApplications(false);
+      }
+    };
+    loadApplications();
   }, []);
 
   const calculateProfileCompletion = () => {
@@ -152,6 +175,50 @@ export default function DashboardCandidate() {
               </motion.div>
             ))}
           </div>
+
+          {/* Mes candidatures */}
+          <motion.div
+            id="mes-candidatures"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="mb-12 sm:mb-16 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xl shadow-slate-200/50"
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-12 w-12 rounded-2xl bg-[#E31E24] flex items-center justify-center shadow-lg shadow-[#E31E24]/30">
+                <ClipboardList className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold">Mes candidatures</h2>
+                <p className="text-slate-600">Suivez l'état de vos postulations</p>
+              </div>
+            </div>
+
+            {loadingApplications ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-[#003087]" />
+              </div>
+            ) : myApplications.length === 0 ? (
+              <div className="text-center py-10 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
+                <Briefcase className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-600 font-medium mb-2">Aucune candidature pour le moment</p>
+                <p className="text-sm text-slate-500 mb-6">Parcourez les offres et postulez pour suivre vos candidatures ici.</p>
+                <Link
+                  to="/jobs"
+                  className="inline-flex items-center gap-2 bg-[#003087] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#002060] transition-colors"
+                >
+                  Voir les offres
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ) : (
+              <ul className="space-y-4">
+                {myApplications.map((app) => (
+                  <CandidateApplicationItem key={app.id} app={app} />
+                ))}
+              </ul>
+            )}
+          </motion.div>
 
           {/* Recommended Jobs */}
           <motion.div

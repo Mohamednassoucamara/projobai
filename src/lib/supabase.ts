@@ -62,8 +62,12 @@ export function handleSupabaseError(error: any): string {
     return 'Référence invalide';
   }
 
-  // Erreurs RLS (Row Level Security)
-  if (error.message?.includes('new row violates row-level security')) {
+  // Erreurs RLS (Row Level Security) — tables et storage
+  if (
+    error.message?.includes('row-level security')
+    || error.message?.includes('Row Level Security')
+    || error.statusCode === '403'
+  ) {
     return 'Vous n\'avez pas les permissions nécessaires';
   }
 
