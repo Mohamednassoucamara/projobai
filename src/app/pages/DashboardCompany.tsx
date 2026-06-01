@@ -10,14 +10,17 @@ import Footer from "../components/Footer";
 
 export default function DashboardCompany() {
   const [jobs, setJobs] = useState<any[]>([]);
+  const [allApplications, setAllApplications] = useState<CompanyApplicationData[]>([]);
   const [applicationsByJob, setApplicationsByJob] = useState<Record<string, CompanyApplicationData[]>>({});
   const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState({ activeJobs: 0, totalApplications: 0, favorites: 0, hired: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoadError("");
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (!authUser) return;
 
@@ -26,21 +29,35 @@ export default function DashboardCompany() {
           companyService.getApplications(authUser.id),
         ]);
 
-        if (jobsData && jobsData.length > 0) {
-          setJobs(jobsData);
-          const activeJobs = jobsData.filter((j: any) => j.is_active).length;
-          const totalApps = jobsData.reduce((sum: number, j: any) => sum + (j.applications_count || 0), 0);
-          setStats({ activeJobs, totalApplications: totalApps, favorites: 0, hired: 0 });
-        }
+        const publishedJobs = jobsData || [];
+        setJobs(publishedJobs);
+
+        const apps = (applicationsData || []) as (CompanyApplicationData & { job_id: string })[];
+        setAllApplications(apps);
 
         const grouped: Record<string, CompanyApplicationData[]> = {};
-        for (const app of (applicationsData || []) as (CompanyApplicationData & { job_id: string })[]) {
+        for (const app of apps) {
+          if (!app.job_id) continue;
           if (!grouped[app.job_id]) grouped[app.job_id] = [];
           grouped[app.job_id].push(app);
         }
         setApplicationsByJob(grouped);
-      } catch {
-        // Keep default stats
+
+        const activeJobs = publishedJobs.filter((j: { is_active?: boolean }) => j.is_active).length;
+        setStats({
+          activeJobs,
+          totalApplications: apps.length,
+          favorites: 0,
+          hired: apps.filter((a) => a.status === "accepted").length,
+        });
+
+        const jobsWithApps = Object.keys(grouped);
+        if (jobsWithApps.length > 0) {
+          setExpandedJobs(new Set(jobsWithApps));
+        }
+      } catch (err) {
+        console.error("Dashboard company load error:", err);
+        setLoadError("Impossible de charger les candidatures. Vérifiez que la migration 008 est appliquée sur Supabase.");
       } finally {
         setIsLoading(false);
       }
@@ -116,7 +133,10 @@ export default function DashboardCompany() {
               </div>
             </Link>
 
-            <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200">
+            <a
+              href="#candidatures-recues"
+              className="block p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E31E24]/40 hover:shadow-lg transition-all"
+            >
               <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-6">
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
@@ -124,10 +144,10 @@ export default function DashboardCompany() {
               <p className="text-slate-600">Gérez les candidats intéressés</p>
               <div className="mt-6 text-sm">
                 <span className="inline-flex items-center justify-center h-6 px-3 rounded-full bg-red-100 text-red-600 font-medium">
-                  {stats.totalApplications} candidature{stats.totalApplications > 1 ? "s" : ""}
+                  {isLoading ? "…" : stats.totalApplications} candidature{stats.totalApplications !== 1 ? "s" : ""}
                 </span>
               </div>
-            </div>
+            </a>
 
             <Link
               to="/company/search-profiles"
@@ -139,6 +159,46 @@ export default function DashboardCompany() {
               <h2 className="text-2xl font-bold mb-2">Rechercher des profils</h2>
               <p className="text-slate-600">Trouvez les candidats idéaux</p>
             </Link>
+          </div>
+
+          {/* Candidatures reçues — liste complète */}
+          <div
+            id="candidatures-recues"
+            className="mb-10 sm:mb-12 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] flex items-center justify-center shadow-lg">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Candidatures reçues</h2>
+                <p className="text-slate-600 text-sm">Profils des candidats ayant postulé à vos offres</p>
+              </div>
+            </div>
+
+            {loadError && (
+              <p className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm border border-red-100">{loadError}</p>
+            )}
+
+            {isLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-[#003087]" />
+              </div>
+            ) : allApplications.length === 0 ? (
+              <div className="text-center py-10 rounded-xl bg-slate-50 border border-dashed border-slate-200">
+                <Users className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-600 font-medium">Aucune candidature pour le moment</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Les candidatures apparaîtront ici dès qu&apos;un candidat postule à l&apos;une de vos offres.
+                </p>
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {allApplications.map((app) => (
+                  <CompanyApplicationItem key={app.id} app={app} />
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Active Jobs */}

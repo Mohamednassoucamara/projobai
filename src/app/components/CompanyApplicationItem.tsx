@@ -21,9 +21,11 @@ export type CompanyApplicationData = {
   id: string;
   status: string;
   applied_at: string;
+  job_id?: string;
   motivation_message?: string | null;
   cv_url?: string | null;
   cover_letter?: string | null;
+  jobs?: { title?: string };
   candidate_profiles?: {
     job_title?: string | null;
     location?: string | null;
@@ -83,11 +85,17 @@ function DocumentLink({ path, label }: { path: string; label: string }) {
 export default function CompanyApplicationItem({ app }: { app: CompanyApplicationData }) {
   const profile = app.candidate_profiles?.profiles;
   const candidateMeta = app.candidate_profiles;
+  const offerTitle = app.jobs?.title;
 
   return (
     <li className="p-4 rounded-xl bg-slate-50 border border-slate-100">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
+          {offerTitle && (
+            <p className="text-xs font-semibold text-[#003087] uppercase tracking-wide mb-1">
+              {offerTitle}
+            </p>
+          )}
           <p className="font-semibold text-slate-800">{profile?.full_name || "Candidat"}</p>
           {candidateMeta?.job_title && (
             <p className="text-sm text-slate-600 mt-0.5">{candidateMeta.job_title}</p>

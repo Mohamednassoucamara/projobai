@@ -449,27 +449,31 @@ export const companyService = {
   },
 
   /**
-   * Récupérer les candidatures reçues
+   * Récupérer les candidatures reçues pour toutes les offres de l'entreprise
    */
   async getApplications(companyId: string) {
+    const { data: jobs, error: jobsError } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('company_id', companyId);
+
+    if (jobsError) throw jobsError;
+
+    const jobIds = (jobs || []).map((j) => j.id);
+    if (jobIds.length === 0) return [];
+
     const { data, error } = await supabase
       .from('applications')
       .select(`
         *,
-        jobs!inner(
-          title,
-          company_id
-        ),
-        candidate_profiles!inner(
-          *,
-          profiles!inner(
-            full_name,
-            email,
-            phone
-          )
+        jobs(title, company_id),
+        candidate_profiles(
+          job_title,
+          location,
+          profiles(full_name, email, phone)
         )
       `)
-      .eq('jobs.company_id', companyId)
+      .in('job_id', jobIds)
       .order('applied_at', { ascending: false });
 
     if (error) throw error;
