@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { FileText, Mail, MessageSquare, Briefcase, TrendingUp, Sparkles, ArrowRight, CheckCircle2, Loader2, ClipboardList } from "lucide-react";
+import { FileText, Mail, MessageSquare, Briefcase, TrendingUp, Sparkles, ArrowRight, CheckCircle2, Loader2, ClipboardList, Compass } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCVData } from "../contexts/CVDataContext";
@@ -147,17 +147,18 @@ export default function DashboardCandidate() {
           </motion.div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mb-12 sm:mb-16">
             {[
               { to: "/cv-assistant", icon: FileText, title: "Mon CV", desc: "Créer ou modifier", color: "#003087" },
               { to: "/cover-letter", icon: Mail, title: "Lettre de motivation", desc: "Générer avec l'IA", color: "#E31E24" },
               { to: "/interview-prep", icon: MessageSquare, title: "Entretien", desc: "S'entraîner", color: "#003087" },
+              { to: "/orientation", icon: Compass, title: "Orientation", desc: "Trouver ma voie", color: "#0F6E5A" },
               { to: "/jobs", icon: Briefcase, title: "Offres d'emploi", desc: "Parcourir", color: "#E31E24" },
             ].map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.05 }}>
                 <Link
                   to={item.to}
-                  className="group block p-6 sm:p-8 rounded-2xl bg-white border-2 border-slate-100 hover:border-transparent hover:shadow-2xl sm:hover:scale-105 transition-all duration-300 relative overflow-hidden"
+                  className="group block h-full p-6 rounded-2xl bg-white border-2 border-slate-100 hover:border-transparent hover:shadow-2xl sm:hover:scale-105 transition-all duration-300 relative overflow-hidden"
                   style={{ boxShadow: "none" }}
                   onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 20px 40px -12px ${item.color}30`; }}
                   onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}

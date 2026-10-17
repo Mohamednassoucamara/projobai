@@ -17,6 +17,7 @@ import DashboardCompany from "./pages/DashboardCompany";
 import PostJob from "./pages/PostJob";
 import SearchProfiles from "./pages/SearchProfiles";
 import Pricing from "./pages/Pricing";
+import CareerOrientation from "./pages/CareerOrientation";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
@@ -88,6 +89,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute type="candidate">
             <InterviewPrep />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/orientation",
+        element: (
+          <ProtectedRoute type="candidate">
+            <CareerOrientation />
           </ProtectedRoute>
         ),
       },

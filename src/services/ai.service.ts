@@ -112,4 +112,12 @@ export const aiService = {
   interviewSummary(position: string, items: { question: string; answer: string; score: number }[]) {
     return call<{ summary?: string; advice?: string[] }>("interview_summary", { position, items });
   },
+
+  careerOrientation(profile: Record<string, unknown>, cv?: CVForAi) {
+    return call<unknown>("career_orientation", { profile, cv: cv ? cvPayload(cv) : undefined });
+  },
+
+  careerChat(messages: { role: "user" | "assistant"; content: string }[], context: Record<string, unknown>) {
+    return call<{ reply?: string }>("career_chat", { messages, context });
+  },
 };

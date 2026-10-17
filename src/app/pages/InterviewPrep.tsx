@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, Clock, Target, Lightbulb, Trophy, RotateCcw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
@@ -82,7 +82,8 @@ export default function InterviewPrep() {
   const [scores, setScores] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(180); // 3 minutes par question
   const { cvData } = useCVData();
-  const [position, setPosition] = useState(cvData.jobTitle || "");
+  const [searchParams] = useSearchParams();
+  const [position, setPosition] = useState(searchParams.get("position") || cvData.jobTitle || "");
   const [sessionQuestions, setSessionQuestions] = useState<Question[]>([]);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loadingCategory, setLoadingCategory] = useState<string | null>(null);

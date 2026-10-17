@@ -45,6 +45,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/orientation" className="text-slate-200 hover:text-white transition-colors">
+                  Orientation professionnelle
+                </Link>
+              </li>
+              <li>
                 <Link to="/jobs" className="text-slate-200 hover:text-white transition-colors">
                   Trouver un emploi
                 </Link>

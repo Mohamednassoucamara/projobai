@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
 import { isMotif, type MotifId } from "../../lib/motifs";
+import { normalizeOrientation, type OrientationResult } from "../../lib/orientationData";
 
 export interface Experience {
   title: string;
@@ -40,6 +41,8 @@ export interface CVData {
   motif: MotifId;
   /** Modèle de mise en page de la lettre de motivation. */
   letterTemplate: LetterTemplate;
+  /** Dernier résultat d'orientation professionnelle. */
+  orientation: OrientationResult | null;
 }
 
 export type LetterTemplate = "moderne" | "classique" | "elegant";
@@ -74,6 +77,7 @@ export const defaultCVData: CVData = {
   photo: "",
   motif: "aucun",
   letterTemplate: "moderne",
+  orientation: null,
 };
 
 const STORAGE_KEY = "cvData";
@@ -115,6 +119,7 @@ function normalize(raw: unknown): CVData {
         : "",
     motif: isMotif(d.motif) ? d.motif : "aucun",
     letterTemplate: d.letterTemplate === "classique" || d.letterTemplate === "elegant" ? d.letterTemplate : "moderne",
+    orientation: normalizeOrientation(d.orientation),
   };
 }
 

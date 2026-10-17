@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Search, MapPin, Briefcase, GraduationCap, Calendar, Sparkles, TrendingUp, Filter, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
@@ -7,7 +7,7 @@ import AppNavHeader from "../components/AppNavHeader";
 import { jobService } from "../../services/supabase.service";
 import { useCVData } from "../contexts/CVDataContext";
 import { useAuth } from "../contexts/AuthContext";
-import { matchJob, matchTone, hasMatchableCV } from "../../lib/matching";
+import { matchJob, matchTone, hasMatchableCV, norm } from "../../lib/matching";
 
 
 function timeAgo(dateStr: string) {
@@ -31,7 +31,8 @@ function formatSalary(min?: number, max?: number) {
 export default function JobList() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("q") || "");
   const [filters, setFilters] = useState({ location: "", job_type: "", education_level: "" });
   const [loadError, setLoadError] = useState(false);
   const [sortByMatch, setSortByMatch] = useState(true);
@@ -56,7 +57,10 @@ export default function JobList() {
 
   const filtered = jobs.filter((job) => {
     const name = job.company_profiles?.company_name || "";
-    const matchSearch = !search || job.title.toLowerCase().includes(search.toLowerCase()) || name.toLowerCase().includes(search.toLowerCase());
+    // Recherche par mots : une offre correspond si au moins la moitié des mots importants y figurent.
+    const hay = norm(`${job.title} ${name} ${job.description || ""} ${(job.job_skills || []).map((s: any) => s.skill_name).join(" ")}`);
+    const words = norm(search).split(" ").filter((w) => w.length > 2 && !["les", "des", "une", "pour", "and"].includes(w));
+    const matchSearch = !search.trim() || hay.includes(norm(search)) || (words.length > 0 && words.filter((w) => hay.includes(w)).length >= Math.ceil(words.length / 2));
     const matchLocation = !filters.location || job.location?.toLowerCase().includes(filters.location.toLowerCase());
     const matchType = !filters.job_type || job.job_type === filters.job_type;
     const matchEdu = !filters.education_level || job.education_level === filters.education_level;

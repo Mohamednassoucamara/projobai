@@ -33,14 +33,51 @@ const CONTEXT = `Tu es l'assistant de ProJob AI, plateforme d'employabilité dé
 Tu connais les attentes des recruteurs guinéens : secteurs miniers, BTP, banques, ONG et organisations internationales, télécoms, administration, commerce.
 Tu écris en français professionnel, clair et simple. Tu n'inventes jamais d'employeur, de diplôme, de date ou de chiffre qui ne figure pas dans les données fournies.`;
 
-type Action = "improve_cv" | "cover_letter" | "interview_questions" | "interview_feedback" | "interview_summary";
+type Action =
+  | "improve_cv"
+  | "cover_letter"
+  | "interview_questions"
+  | "interview_feedback"
+  | "interview_summary"
+  | "career_orientation"
+  | "career_chat";
+
+type ChatMessage = { role: "user" | "assistant"; content: string };
 
 function clip(value: unknown): string {
   return JSON.stringify(value ?? null).slice(0, MAX_INPUT_CHARS);
 }
 
-function buildPrompt(action: Action, p: Record<string, unknown>): { prompt: string; maxTokens: number } {
+function buildPrompt(
+  action: Action,
+  p: Record<string, unknown>,
+): { prompt: string; maxTokens: number; messages?: ChatMessage[]; text?: boolean } {
   switch (action) {
+    case "career_orientation":
+      return {
+        maxTokens: 2200,
+        prompt: `Tu es conseiller d'orientation professionnelle, spécialiste du marché de l'emploi en Guinée.
+Propose 3 métiers réalistes pour ce profil, classés du plus adapté au moins adapté. Tiens compte du niveau d'études, des intérêts, des compétences, de la ville et de la mobilité.
+Règles : pas de salaire chiffré, pas de nom d'école ou d'entreprise inventé ; formations décrites par type (ex. « BTS en logistique », « certification CCNA ») ; conseils concrets et faisables avec peu de moyens.
+Réponds uniquement avec un objet JSON :
+{"summary":"2 phrases qui résument le profil et la logique des pistes",
+"careers":[{"title":"métier","match":0-100,"why":"2 à 3 phrases liées au profil","sectors":["secteurs qui recrutent ce métier en Guinée"],"skillsToDevelop":["4 compétences"],"trainings":["2 ou 3 formations ou certifications"],"firstSteps":["Ce mois-ci : ...","D'ici 3 mois : ...","D'ici 6 mois : ..."]}],
+"advice":["4 conseils généraux de recherche d'emploi adaptés à ce profil"]}
+
+Profil : ${clip(p.profile)}
+${p.cv ? `CV : ${clip(p.cv)}` : ""}`,
+      };
+    case "career_chat": {
+      const history = (Array.isArray(p.messages) ? p.messages : [])
+        .filter((m): m is ChatMessage => !!m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+        .slice(-12)
+        .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+      while (history.length && history[0].role !== "user") history.shift();
+      const intro = `Tu es le conseiller carrière de ProJob AI. Tu réponds en français simple, de façon concrète et bienveillante, en 120 à 220 mots, avec des étapes numérotées quand c'est utile. Tu adaptes tes conseils au marché guinéen. Tu ne promets pas d'emploi, tu ne donnes pas de salaire chiffré et tu n'inventes pas de nom d'entreprise ou d'école. Si la question sort de l'emploi et de la carrière, recentre poliment.
+Profil du candidat : ${clip(p.context)}`;
+      if (history.length) history[0] = { role: "user", content: `${intro}\n\nQuestion : ${history[0].content}` };
+      return { maxTokens: 900, prompt: "", messages: history, text: true };
+    }
     case "improve_cv":
       return {
         maxTokens: 1500,
@@ -134,10 +171,19 @@ Deno.serve(async (req) => {
   } catch {
     return json({ error: "invalid_body" }, 400, origin);
   }
-  const allowed: Action[] = ["improve_cv", "cover_letter", "interview_questions", "interview_feedback", "interview_summary"];
+  const allowed: Action[] = [
+    "improve_cv",
+    "cover_letter",
+    "interview_questions",
+    "interview_feedback",
+    "interview_summary",
+    "career_orientation",
+    "career_chat",
+  ];
   if (!body.action || !allowed.includes(body.action)) return json({ error: "unknown_action" }, 400, origin);
 
-  const { prompt, maxTokens } = buildPrompt(body.action, body.payload || {});
+  const { prompt, maxTokens, messages, text: wantsText } = buildPrompt(body.action, body.payload || {});
+  if (messages && !messages.length) return json({ error: "invalid_body" }, 400, origin);
 
   try {
     const res = await fetch(ANTHROPIC_URL, {
@@ -151,7 +197,7 @@ Deno.serve(async (req) => {
         model: MODEL,
         max_tokens: maxTokens,
         system: CONTEXT,
-        messages: [{ role: "user", content: prompt }],
+        messages: messages ?? [{ role: "user", content: prompt }],
       }),
     });
     if (!res.ok) {
@@ -164,7 +210,7 @@ Deno.serve(async (req) => {
       .filter((b: { type: string }) => b.type === "text")
       .map((b: { text: string }) => b.text)
       .join("");
-    return json({ result: extractJson(text) }, 200, origin);
+    return json({ result: wantsText ? { reply: text.trim() } : extractJson(text) }, 200, origin);
   } catch (e) {
     console.error("ai_assistant_failure", e instanceof Error ? e.message : e);
     return json({ error: "upstream_error" }, 502, origin);
