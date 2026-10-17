@@ -69,7 +69,20 @@ export async function buildCvPdf(cv: CVData) {
   const sideW = SIDE_W - SIDE_PAD * 2;
 
   const ini = initials(cv.fullName);
-  if (ini) {
+  let photoPng: string | null = null;
+  if (cv.photo && typeof document !== "undefined") {
+    try {
+      const { circularPhoto } = await import("./cvPhoto");
+      photoPng = await circularPhoto(cv.photo);
+    } catch {
+      photoPng = null; // photo illisible : on garde les initiales
+    }
+  }
+  if (photoPng) {
+    const d = 34;
+    pdf.addImage(photoPng, "PNG", (SIDE_W - d) / 2, sy - 2, d, d);
+    sy += d + 7;
+  } else if (ini) {
     const r = 15;
     const cx = SIDE_W / 2;
     setFill(tint(accent, 0.18));

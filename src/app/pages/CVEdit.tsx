@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { ArrowLeft, Plus, X, Save, Sparkles, Loader2, Undo2, Eye, CheckCircle2, CloudOff, Cloud } from "lucide-react";
 import { motion } from "motion/react";
 import Footer from "../components/Footer";
+import CVPhotoField from "../components/CVPhotoField";
 import { useCVData, type CVData } from "../contexts/CVDataContext";
 import { aiService, aiErrorMessage } from "../../services/ai.service";
 
@@ -45,7 +46,9 @@ export default function CVEdit() {
   // Chaque modification est reportée dans le contexte, qui l'enregistre dans le compte.
   const commit = (next: CVData) => {
     setFormData(next);
-    updateCVData(next);
+    // La photo et la couleur sont gérées par leurs propres réglages : ne pas les écraser.
+    const { photo: _photo, theme: _theme, ...rest } = next;
+    updateCVData(rest);
   };
   const set = <K extends keyof CVData>(key: K, value: CVData[K]) => commit({ ...formData, [key]: value });
 
@@ -195,6 +198,7 @@ export default function CVEdit() {
           {/* Informations personnelles */}
           <section className="mb-10">
             <h2 className="text-xl font-bold text-[#003087] mb-4">Informations personnelles</h2>
+            <div className="mb-5"><CVPhotoField /></div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="cv-fullName" className="block text-sm font-medium text-slate-700 mb-2">Nom complet *</label>

@@ -6,6 +6,7 @@ import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
 import { generateCvPdf } from "../../lib/cvPdf";
+import CVPhotoField from "../components/CVPhotoField";
 import { CV_COLORS, safeAccent, tint, rgbToHex, initials } from "../../lib/cvTheme";
 
 /** Unités de l'aperçu : 1 mm de la feuille A4 = largeur du conteneur / 210. */
@@ -46,11 +47,17 @@ function CVSheet() {
       >
         {/* Colonne latérale */}
         <aside style={{ background: accent, color: "#fff", padding: `${mm(20)} ${mm(9)}` }}>
-          {ini && (
+          {cvData.photo ? (
+            <img
+              src={cvData.photo}
+              alt=""
+              style={{ width: mm(34), height: mm(34), borderRadius: "50%", objectFit: "cover", display: "block", margin: `0 auto ${mm(9)}`, border: `${mm(1)} solid #fff` }}
+            />
+          ) : ini ? (
             <div style={{ width: mm(30), height: mm(30), borderRadius: "50%", margin: `0 auto ${mm(10)}`, display: "grid", placeItems: "center", background: rgbToHex(tint(accentRgb, 0.18)), border: `${mm(0.6)} solid ${rgbToHex(tint(accentRgb, 0.45))}`, fontSize: pt(20), fontWeight: 700 }}>
               {ini}
             </div>
-          )}
+          ) : null}
           {(cvData.phone || cvData.email || cvData.location) && (
             <section style={{ marginBottom: mm(7) }}>
               <h3 style={sideHeading}>Contact</h3>
@@ -271,13 +278,17 @@ export default function CVPreview() {
 
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 min-w-0">
-            <div className="lg:hidden mb-6"><ColorPicker /></div>
+            <div className="lg:hidden mb-6 space-y-4">
+              <div className="bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-lg"><CVPhotoField compact /></div>
+              <ColorPicker />
+            </div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <CVSheet />
             </motion.div>
           </div>
 
           <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-28">
+            <div className="hidden lg:block bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg"><CVPhotoField compact /></div>
             <div className="hidden lg:block"><ColorPicker /></div>
 
             <div className="bg-gradient-to-br from-[#003087] to-[#0047b3] rounded-3xl p-6 sm:p-8 text-white shadow-2xl">
