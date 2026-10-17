@@ -41,6 +41,7 @@ export interface Database {
           profile_summary: string | null;
           avatar_url: string | null;
           profile_completion: number;
+          is_searchable: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -51,6 +52,7 @@ export interface Database {
           profile_summary?: string | null;
           avatar_url?: string | null;
           profile_completion?: number;
+          is_searchable?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -61,6 +63,7 @@ export interface Database {
           profile_summary?: string | null;
           avatar_url?: string | null;
           profile_completion?: number;
+          is_searchable?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -583,6 +586,19 @@ export interface Database {
       calculate_profile_completion: {
         Args: { candidate_uuid: string };
         Returns: number;
+      };
+      search_candidates: {
+        Args: { p_query?: string | null; p_location?: string | null; p_limit?: number };
+        Returns: {
+          id: string;
+          full_name: string;
+          job_title: string | null;
+          location: string | null;
+          profile_summary: string | null;
+          skills: string[] | null;
+          experience_count: number;
+          updated_at: string | null;
+        }[];
       };
     };
   };

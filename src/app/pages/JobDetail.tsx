@@ -7,42 +7,9 @@ import AppNavHeader from "../components/AppNavHeader";
 import ApplicationModal from "../components/ApplicationModal";
 import { useAuth } from "../contexts/AuthContext";
 import { jobService } from "../../services/supabase.service";
+import { useCVData } from "../contexts/CVDataContext";
+import { matchJob, matchTone, hasMatchableCV } from "../../lib/matching";
 
-const FALLBACK_JOB = {
-  id: "1",
-  title: "Développeur Web Full Stack",
-  description: "Nous recherchons un Développeur Web Full Stack talentueux pour rejoindre notre équipe technique en pleine expansion. Vous travaillerez sur des projets innovants et contribuerez à la création d'applications web modernes.\n\nEn tant que membre clé de notre équipe, vous serez responsable du développement front-end et back-end de nos solutions digitales, en collaboration étroite avec les designers et les chefs de projet.",
-  location: "Conakry, Guinée",
-  education_level: "Licence",
-  job_type: "CDI",
-  experience_level: "2-3 ans",
-  published_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-  deadline: "2026-04-30",
-  salary_min: 800000,
-  salary_max: 1200000,
-  company_profiles: {
-    company_name: "Tech Solutions GN",
-    sector: "IT / Tech",
-    description: "Tech Solutions GN est une entreprise innovante spécialisée dans le développement de solutions digitales pour les entreprises guinéennes.",
-    website: null,
-  },
-  job_skills: [
-    { skill_name: "React" }, { skill_name: "Node.js" }, { skill_name: "TypeScript" },
-    { skill_name: "MongoDB" }, { skill_name: "Express" }, { skill_name: "Git" },
-  ],
-  responsibilities: [
-    "Développer et maintenir des applications web performantes",
-    "Collaborer avec l'équipe pour définir les spécifications techniques",
-    "Assurer la qualité du code et respecter les bonnes pratiques",
-    "Participer aux revues de code et aux tests",
-  ],
-  requirements: [
-    "Licence en Informatique ou équivalent",
-    "2 ans minimum d'expérience en développement web",
-    "Maîtrise du français et bonne connaissance de l'anglais technique",
-    "Esprit d'équipe et excellentes capacités de communication",
-  ],
-};
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -68,6 +35,7 @@ export default function JobDetail() {
   const [notFound, setNotFound] = useState(false);
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const { isAuthenticated, user } = useAuth();
+  const { cvData } = useCVData();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,13 +43,10 @@ export default function JobDetail() {
       if (!id) { setNotFound(true); setIsLoading(false); return; }
       try {
         const data = await jobService.getJobById(id);
-        setJob(data || FALLBACK_JOB);
+        if (data) setJob(data);
+        else setNotFound(true);
       } catch {
-        if (id === "1" || id === "2" || id === "3" || id === "4" || id === "5") {
-          setJob(FALLBACK_JOB);
-        } else {
-          setNotFound(true);
-        }
+        setNotFound(true);
       } finally {
         setIsLoading(false);
       }
@@ -127,6 +92,12 @@ export default function JobDetail() {
   const skills = job.job_skills?.map((s: any) => s.skill_name) || [];
   const salary = formatSalary(job.salary_min, job.salary_max);
   const descParagraphs = (job.description || "").split("\n").filter(Boolean);
+  const match = user?.type === "candidate" && hasMatchableCV(cvData) ? matchJob(job, cvData) : null;
+  const letterLink = `/cover-letter?${new URLSearchParams({
+    company: companyName,
+    position: job.title || "",
+    sector: job.company_profiles?.sector || "",
+  }).toString()}`;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -173,13 +144,28 @@ export default function JobDetail() {
                 Postuler maintenant
               </button>
               <Link
-                to="/cv-assistant"
+                to={user?.type === "candidate" ? letterLink : "/cv-edit"}
                 className="flex-1 flex items-center justify-center gap-2 border-2 border-[#003087] text-[#003087] px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
               >
                 <Sparkles className="h-5 w-5" />
-                Adapter mon CV avec l'IA
+                Préparer ma lettre pour cette offre
               </Link>
             </div>
+
+            {match && (
+              <div className={`mt-6 rounded-2xl border-2 p-4 sm:p-5 ${matchTone(match.score).cls}`}>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <p className="font-bold">Compatibilité avec votre CV : <span className="tabular-nums">{match.score}%</span> · {matchTone(match.score).label}</p>
+                  <Link to="/cv-edit" className="text-sm font-bold underline">Mettre à jour mon CV</Link>
+                </div>
+                {match.matched.length > 0 && (
+                  <p className="text-sm mt-2"><span className="font-semibold">Vous avez :</span> {match.matched.join(", ")}</p>
+                )}
+                {match.missing.length > 0 && (
+                  <p className="text-sm mt-1"><span className="font-semibold">À mettre en avant ou à acquérir :</span> {match.missing.slice(0, 6).join(", ")}</p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

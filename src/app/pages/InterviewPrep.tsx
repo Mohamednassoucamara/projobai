@@ -1,8 +1,10 @@
 import { Link } from "react-router";
-import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, Clock, Target, Lightbulb, Trophy, RotateCcw, Mic, Play, Pause, Volume2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, Clock, Target, Lightbulb, Trophy, RotateCcw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import AppNavHeader from "../components/AppNavHeader";
+import { useCVData } from "../contexts/CVDataContext";
+import { aiService, aiErrorMessage } from "../../services/ai.service";
 import Footer from "../components/Footer";
 
 interface Question {
@@ -44,6 +46,33 @@ const questions: Record<string, Question[]> = {
   ],
 };
 
+interface Feedback {
+  score: number;
+  strengths: string[];
+  improvements: string[];
+  betterAnswer?: string;
+  source: "ai" | "local";
+}
+
+/** Évaluation hors ligne, déterministe : utilisée quand l'IA n'est pas disponible. */
+function localFeedback(answer: string): Feedback {
+  const text = answer.trim();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const strengths: string[] = [];
+  const improvements: string[] = [];
+  let score = 3;
+  if (words >= 80) { score += 3; strengths.push("Réponse développée et complète"); }
+  else if (words >= 40) { score += 2; strengths.push("Réponse d'une longueur adaptée"); }
+  else improvements.push("Développez davantage : visez 4 à 6 phrases");
+  if (/\d/.test(text)) { score += 1; strengths.push("Vous citez des éléments chiffrés"); }
+  else improvements.push("Ajoutez un chiffre ou un résultat concret (durée, quantité, pourcentage)");
+  if (/par exemple|lorsque|quand j|j['’]ai (dû|mené|réalisé|organisé|géré|travaillé|appris)/i.test(text)) {
+    score += 2; strengths.push("Vous vous appuyez sur une expérience vécue");
+  } else improvements.push("Illustrez avec une situation vécue : contexte, action, résultat (méthode STAR)");
+  if (/équipe|client|rigueur|sécurité|responsab|objectif|résultat/i.test(text)) score += 1;
+  return { score: Math.min(10, score), strengths: strengths.slice(0, 2), improvements: improvements.slice(0, 2), source: "local" };
+}
+
 export default function InterviewPrep() {
   const [step, setStep] = useState<"choice" | "question" | "feedback" | "results">("choice");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -52,7 +81,14 @@ export default function InterviewPrep() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [scores, setScores] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(180); // 3 minutes par question
-  const [isRecording, setIsRecording] = useState(false);
+  const { cvData } = useCVData();
+  const [position, setPosition] = useState(cvData.jobTitle || "");
+  const [sessionQuestions, setSessionQuestions] = useState<Question[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const [summary, setSummary] = useState<{ summary?: string; advice?: string[] } | null>(null);
 
   useEffect(() => {
     if (step === "question" && timeLeft > 0) {
@@ -67,7 +103,31 @@ export default function InterviewPrep() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleCategorySelect = (category: string) => {
+  const handleCategorySelect = async (category: string) => {
+    if (loadingCategory) return;
+    let qs: Question[] = questions[category];
+    setLoadingCategory(category);
+    setAiNotice(null);
+    try {
+      const r = await aiService.interviewQuestions(category, position, category === "Débutant" ? "débutant" : "intermédiaire", cvData);
+      const list = (r.questions || []).filter((q) => q && typeof q.question === "string").slice(0, 5);
+      if (list.length >= 3) {
+        qs = list.map((q, i) => ({
+          id: i + 1,
+          question: q.question,
+          tips: q.tips || "Soyez concret et illustrez avec un exemple.",
+          category,
+          difficulty: (["facile", "moyen", "difficile"].includes(String(q.difficulty)) ? q.difficulty : "moyen") as Question["difficulty"],
+        }));
+      }
+    } catch (e) {
+      setAiNotice(aiErrorMessage(e).replace("La version standard a été utilisée.", "Questions et évaluation standard utilisées."));
+    } finally {
+      setLoadingCategory(null);
+    }
+    setSessionQuestions(qs);
+    setFeedbacks([]);
+    setSummary(null);
     setSelectedCategory(category);
     setStep("question");
     setCurrentQuestionIndex(0);
@@ -76,26 +136,48 @@ export default function InterviewPrep() {
     setTimeLeft(180);
   };
 
-  const handleSubmitAnswer = () => {
-    const newAnswers = [...answers, answer];
-    setAnswers(newAnswers);
-
-    // Simuler un score IA basé sur la longueur et la qualité
-    const score = Math.min(10, Math.max(5, Math.floor((answer.length / 50) + Math.random() * 3)));
-    const newScores = [...scores, score];
-    setScores(newScores);
-
+  const handleSubmitAnswer = async () => {
+    if (isEvaluating || !currentQuestion) return;
+    setIsEvaluating(true);
+    let fb: Feedback;
+    try {
+      const r = await aiService.interviewFeedback({
+        question: currentQuestion.question,
+        answer,
+        category: selectedCategory,
+        position,
+      });
+      const score = Math.round(Number(r.score));
+      if (!Number.isFinite(score)) throw new Error("bad_score");
+      fb = {
+        score: Math.max(0, Math.min(10, score)),
+        strengths: (r.strengths || []).map(String).slice(0, 3),
+        improvements: (r.improvements || []).map(String).slice(0, 3),
+        betterAnswer: r.betterAnswer ? String(r.betterAnswer) : undefined,
+        source: "ai",
+      };
+    } catch {
+      fb = localFeedback(answer);
+    } finally {
+      setIsEvaluating(false);
+    }
+    const idx = currentQuestionIndex;
+    setAnswers((prev) => { const n = [...prev]; n[idx] = answer; return n; });
+    setScores((prev) => { const n = [...prev]; n[idx] = fb.score; return n; });
+    setFeedbacks((prev) => { const n = [...prev]; n[idx] = fb; return n; });
     setStep("feedback");
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions[selectedCategory].length - 1) {
+    if (currentQuestionIndex < sessionQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setAnswer("");
       setTimeLeft(180);
       setStep("question");
     } else {
       setStep("results");
+      const items = sessionQuestions.map((q, i) => ({ question: q.question, answer: answers[i] || "", score: scores[i] ?? 0 }));
+      aiService.interviewSummary(position, items).then(setSummary).catch(() => setSummary(null));
     }
   };
 
@@ -107,10 +189,13 @@ export default function InterviewPrep() {
     setAnswers([]);
     setScores([]);
     setTimeLeft(180);
+    setFeedbacks([]);
+    setSummary(null);
   };
 
-  const currentQuestion = selectedCategory ? questions[selectedCategory][currentQuestionIndex] : null;
-  const progress = selectedCategory ? ((currentQuestionIndex + 1) / questions[selectedCategory].length) * 100 : 0;
+  const currentQuestion = selectedCategory ? sessionQuestions[currentQuestionIndex] ?? null : null;
+  const currentFeedback = feedbacks[currentQuestionIndex];
+  const progress = sessionQuestions.length ? ((currentQuestionIndex + 1) / sessionQuestions.length) * 100 : 0;
   const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 
   return (
@@ -142,6 +227,22 @@ export default function InterviewPrep() {
                 </p>
               </div>
 
+              <div className="max-w-xl mx-auto mb-8">
+                <label htmlFor="interview-position" className="block text-sm font-bold text-slate-700 mb-2">Poste pour lequel vous vous préparez</label>
+                <input
+                  id="interview-position"
+                  type="text"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  placeholder="Ex : Technicien de maintenance minière"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none"
+                />
+                <p className="mt-2 text-sm text-slate-500">L'IA adapte les questions au poste et à votre CV. Choisissez ensuite un type d'entretien.</p>
+              </div>
+              {aiNotice && (
+                <div role="status" className="max-w-xl mx-auto mb-6 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{aiNotice}</div>
+              )}
+
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {[
                   { type: "Débutant", desc: "Premier emploi, stage ou alternance", icon: Sparkles, color: "from-blue-500 to-blue-600" },
@@ -152,6 +253,7 @@ export default function InterviewPrep() {
                   <motion.button
                     key={item.type}
                     onClick={() => handleCategorySelect(item.type)}
+                    disabled={loadingCategory !== null}
                     whileHover={{ scale: 1.02, y: -5 }}
                     whileTap={{ scale: 0.98 }}
                     className="group p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-[#003087] hover:shadow-xl transition-all text-left relative overflow-hidden"
@@ -164,6 +266,9 @@ export default function InterviewPrep() {
                     <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
                     <div className="mt-4 text-[#003087] text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                       Commencer <ArrowRight className="h-4 w-4" />
+                    </div>
+                    <div className={`mt-2 text-sm text-[#003087] font-semibold items-center gap-2 ${loadingCategory === item.type ? "flex" : "hidden"}`}>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Préparation des questions…
                     </div>
                   </motion.button>
                 ))}
@@ -207,7 +312,7 @@ export default function InterviewPrep() {
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <span className="text-sm font-medium text-slate-600">Question {currentQuestionIndex + 1}/{questions[selectedCategory].length}</span>
+                    <span className="text-sm font-medium text-slate-600">Question {currentQuestionIndex + 1}/{sessionQuestions.length}</span>
                     <h2 className="text-2xl font-bold text-slate-900 mt-1">{selectedCategory}</h2>
                   </div>
                   <div className="flex items-center gap-4">
@@ -260,33 +365,27 @@ export default function InterviewPrep() {
                 className="bg-white rounded-2xl p-8 shadow-lg border-2 border-slate-100"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <label className="block font-bold text-lg text-slate-900">Votre réponse</label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setIsRecording(!isRecording)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isRecording ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-                    >
-                      {isRecording ? <Pause className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                      <span className="text-sm font-medium">{isRecording ? 'Arrêter' : 'Vocal'}</span>
-                    </button>
-                  </div>
+                  <label htmlFor="interview-answer" className="block font-bold text-lg text-slate-900">Votre réponse</label>
+
                 </div>
                 <textarea
+                  id="interview-answer"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   rows={10}
-                  placeholder="Tapez votre réponse ici ou utilisez l'enregistrement vocal..."
+                  placeholder="Écrivez votre réponse comme si vous parliez au recruteur…"
                   className="w-full px-6 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors resize-none mb-6 text-slate-900"
                 />
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">{answer.length} caractères</span>
                   <button
                     onClick={handleSubmitAnswer}
-                    disabled={answer.length < 20}
+                    disabled={answer.length < 20 || isEvaluating}
                     className="flex items-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02]"
                   >
-                    <span>Soumettre ma réponse</span>
-                    <ArrowRight className="h-5 w-5" />
+                    {isEvaluating ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
+                    <span>{isEvaluating ? "Évaluation en cours…" : "Soumettre ma réponse"}</span>
+                    {!isEvaluating && <ArrowRight className="h-5 w-5" />}
                   </button>
                 </div>
               </motion.div>
@@ -321,7 +420,7 @@ export default function InterviewPrep() {
                   </motion.div>
                   <div>
                     <h2 className="text-3xl font-bold text-slate-900">
-                      {scores[currentQuestionIndex] >= 7 ? 'Excellente réponse !' : 'Bonne tentative !'}
+                      {scores[currentQuestionIndex] >= 8 ? 'Excellente réponse !' : scores[currentQuestionIndex] >= 6 ? 'Bonne réponse' : 'Réponse à retravailler'}
                     </h2>
                     <div className="flex items-center gap-3 mt-2">
                       <span className={`text-2xl font-bold ${scores[currentQuestionIndex] >= 7 ? 'text-green-600' : 'text-orange-600'}`}>
@@ -346,20 +445,12 @@ export default function InterviewPrep() {
                       <h3 className="font-bold text-green-900">Points forts</h3>
                     </div>
                     <ul className="space-y-2 text-green-800">
-                      <li className="flex gap-3">
-                        <span className="text-green-600 font-bold">✓</span>
-                        <span>Structure claire et organisation de la réponse</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="text-green-600 font-bold">✓</span>
-                        <span>Réponse bien développée avec des détails pertinents</span>
-                      </li>
-                      {answer.length > 200 && (
-                        <li className="flex gap-3">
+                      {(currentFeedback?.strengths.length ? currentFeedback.strengths : ["Vous avez répondu à la question"]).map((t, k) => (
+                        <li key={k} className="flex gap-3">
                           <span className="text-green-600 font-bold">✓</span>
-                          <span>Réponse complète et approfondie</span>
+                          <span>{t}</span>
                         </li>
-                      )}
+                      ))}
                     </ul>
                   </div>
 
@@ -369,40 +460,35 @@ export default function InterviewPrep() {
                       <h3 className="font-bold text-blue-900">Suggestions d'amélioration</h3>
                     </div>
                     <ul className="space-y-2 text-blue-800">
-                      <li className="flex gap-3">
-                        <span className="text-blue-600 font-bold">→</span>
-                        <span>Ajoutez des exemples chiffrés pour renforcer vos arguments</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="text-blue-600 font-bold">→</span>
-                        <span>Terminez par une phrase qui montre votre motivation</span>
-                      </li>
-                      {answer.length < 150 && (
-                        <li className="flex gap-3">
+                      {(currentFeedback?.improvements.length ? currentFeedback.improvements : ["Terminez par ce que vous apporterez concrètement au poste"]).map((t, k) => (
+                        <li key={k} className="flex gap-3">
                           <span className="text-blue-600 font-bold">→</span>
-                          <span>Développez davantage votre réponse pour plus d'impact</span>
+                          <span>{t}</span>
                         </li>
-                      )}
+                      ))}
                     </ul>
                   </div>
 
-                  <div className="p-6 rounded-xl bg-gradient-to-r from-[#003087]/5 to-[#0047b3]/5 border-2 border-[#003087]/20">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="h-5 w-5 text-[#003087]" />
-                      <h3 className="font-bold text-[#003087]">Exemple de réponse optimale selon l'IA</h3>
+                  {currentFeedback?.betterAnswer ? (
+                    <div className="p-6 rounded-xl bg-gradient-to-r from-[#003087]/5 to-[#0047b3]/5 border-2 border-[#003087]/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="h-5 w-5 text-[#003087]" />
+                        <h3 className="font-bold text-[#003087]">Exemple de meilleure réponse proposé par l'IA</h3>
+                      </div>
+                      <p className="text-slate-700 leading-relaxed">{currentFeedback.betterAnswer}</p>
                     </div>
-                    <p className="text-slate-700 leading-relaxed">
-                      {currentQuestion.id === 1 && selectedCategory === "Débutant" ? (
-                        "Je m'appelle [Nom], jeune diplômé en [domaine] avec une forte passion pour [secteur]. Durant mes études, j'ai réalisé plusieurs projets pratiques, notamment [exemple concret] qui m'a permis de développer mes compétences en [compétences]. Je suis particulièrement attiré par votre entreprise car [raison spécifique liée à l'entreprise]. Mon objectif est de contribuer à [mission/projet] tout en continuant à apprendre et progresser dans ce domaine."
-                      ) : currentQuestion.id === 1 && selectedCategory === "Technique" ? (
-                        "Développeur [spécialité] avec [X] ans d'expérience, j'ai travaillé sur des projets variés allant de [type projet 1] à [type projet 2]. Ma dernière réalisation a permis de [résultat chiffré, ex: réduire le temps de chargement de 40%]. Je maîtrise [technologies clés] et je reste constamment à jour via [sources d'apprentissage]. Je recherche un poste où je pourrai mettre à profit mon expertise en [domaine] tout en relevant de nouveaux défis techniques."
-                      ) : currentQuestion.id === 1 && selectedCategory === "Commercial" ? (
-                        "Commercial avec [X] années d'expérience dans le secteur [domaine], j'ai développé une expertise en [spécialité]. Mon approche centrée sur l'écoute client m'a permis d'atteindre [résultat chiffré, ex: 120% de mes objectifs]. Je m'appuie sur une méthode structurée de prospection et un suivi rigoureux. Votre entreprise m'attire particulièrement pour [raison], et je suis convaincu que mon expérience en [domaine] sera un atout pour votre équipe."
-                      ) : (
-                        "Professionnel(le) en [domaine] avec [expérience], je me distingue par ma rigueur et mon sens de l'organisation. J'ai notamment [réalisation concrète avec résultat]. Ma maîtrise de [outils/compétences] combinée à mon aptitude à [soft skill] me permettent de gérer efficacement [type de tâches]. Je suis motivé(e) à rejoindre votre entreprise pour [objectif aligné avec le poste]."
-                      )}
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="p-6 rounded-xl bg-gradient-to-r from-[#003087]/5 to-[#0047b3]/5 border-2 border-[#003087]/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Lightbulb className="h-5 w-5 text-[#003087]" />
+                        <h3 className="font-bold text-[#003087]">Méthode pour structurer votre réponse</h3>
+                      </div>
+                      <p className="text-slate-700 leading-relaxed">
+                        Situation : où et quand. Tâche : ce qu'on attendait de vous. Action : ce que vous avez fait, vous personnellement. Résultat : ce qui a changé, si possible avec un chiffre.
+                      </p>
+                      <p className="mt-2 text-xs text-slate-500">Évaluation standard (l'IA n'était pas disponible pour cette réponse).</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4 mt-8 pt-6 border-t-2 border-slate-100">
@@ -417,7 +503,7 @@ export default function InterviewPrep() {
                     onClick={handleNextQuestion}
                     className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#003087] to-[#0047b3] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#003087]/40 transition-all hover:scale-[1.02]"
                   >
-                    {currentQuestionIndex < questions[selectedCategory].length - 1 ? (
+                    {currentQuestionIndex < sessionQuestions.length - 1 ? (
                       <>
                         <span>Question suivante</span>
                         <ArrowRight className="h-5 w-5" />
@@ -455,7 +541,7 @@ export default function InterviewPrep() {
                 >
                   <Trophy className="h-12 w-12 text-white" />
                 </motion.div>
-                <h1 className="text-4xl font-bold mb-3">Félicitations !</h1>
+                <h1 className="text-4xl font-bold mb-3">{averageScore >= 7 ? "Félicitations !" : "Session terminée"}</h1>
                 <p className="text-xl text-white/90 mb-6">Vous avez terminé votre session d'entraînement</p>
                 <div className="flex items-center justify-center gap-8">
                   <div>
@@ -464,14 +550,14 @@ export default function InterviewPrep() {
                   </div>
                   <div className="h-16 w-px bg-white/30" />
                   <div>
-                    <div className="text-5xl font-bold mb-2">{questions[selectedCategory].length}</div>
+                    <div className="text-5xl font-bold mb-2">{sessionQuestions.length}</div>
                     <div className="text-white/80">Questions traitées</div>
                   </div>
                 </div>
               </motion.div>
 
               <div className="grid md:grid-cols-2 gap-6 mb-8">
-                {questions[selectedCategory].map((q, index) => (
+                {sessionQuestions.map((q, index) => (
                   <motion.div
                     key={q.id}
                     initial={{ opacity: 0, x: -20 }}
@@ -501,30 +587,33 @@ export default function InterviewPrep() {
                 className="bg-white rounded-2xl p-8 border-2 border-slate-100"
               >
                 <h2 className="text-2xl font-bold text-slate-900 mb-4">Recommandations personnalisées</h2>
-                <div className="grid md:grid-cols-2 gap-4 mb-6">
-                  <div className="p-4 rounded-xl bg-green-50 border border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
-                      <span className="font-bold text-green-900">Points d'excellence</span>
+                {summary?.summary && <p className="text-slate-700 mb-4">{summary.summary}</p>}
+                {summary?.advice && summary.advice.length > 0 ? (
+                  <ol className="list-decimal pl-5 space-y-2 text-slate-700 mb-6">
+                    {summary.advice.slice(0, 3).map((a, k) => <li key={k}>{a}</li>)}
+                  </ol>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-4 mb-6">
+                    <div className="p-4 rounded-xl bg-green-50 border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span className="font-bold text-green-900">Vos points forts</span>
+                      </div>
+                      <ul className="space-y-1 text-sm text-green-800">
+                        {Array.from(new Set(feedbacks.flatMap((f) => f?.strengths || []))).slice(0, 3).map((t, k) => <li key={k}>• {t}</li>)}
+                      </ul>
                     </div>
-                    <ul className="space-y-1 text-sm text-green-800">
-                      <li>• Bonne structuration des réponses</li>
-                      <li>• Clarté dans l'expression</li>
-                      {averageScore >= 7 && <li>• Excellente préparation générale</li>}
-                    </ul>
-                  </div>
-                  <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Lightbulb className="h-5 w-5 text-blue-600" />
-                      <span className="font-bold text-blue-900">À améliorer</span>
+                    <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lightbulb className="h-5 w-5 text-blue-600" />
+                        <span className="font-bold text-blue-900">À travailler</span>
+                      </div>
+                      <ul className="space-y-1 text-sm text-blue-800">
+                        {Array.from(new Set(feedbacks.flatMap((f) => f?.improvements || []))).slice(0, 3).map((t, k) => <li key={k}>• {t}</li>)}
+                      </ul>
                     </div>
-                    <ul className="space-y-1 text-sm text-blue-800">
-                      <li>• Ajouter plus d'exemples concrets</li>
-                      <li>• Utiliser davantage de chiffres</li>
-                      {averageScore < 7 && <li>• Approfondir certaines réponses</li>}
-                    </ul>
                   </div>
-                </div>
+                )}
 
                 <div className="flex items-center gap-4">
                   <button

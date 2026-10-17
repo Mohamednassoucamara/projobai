@@ -24,9 +24,14 @@ export default function DashboardCompany() {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (!authUser) return;
 
-        const [jobsData, applicationsData] = await Promise.all([
+        const [jobsData, applicationsData, favCount] = await Promise.all([
           companyService.getJobs(authUser.id),
           companyService.getApplications(authUser.id),
+          supabase
+            .from("favorite_candidates")
+            .select("id", { count: "exact", head: true })
+            .eq("company_id", authUser.id)
+            .then((r) => r.count || 0, () => 0),
         ]);
 
         const publishedJobs = jobsData || [];
@@ -47,7 +52,7 @@ export default function DashboardCompany() {
         setStats({
           activeJobs,
           totalApplications: apps.length,
-          favorites: 0,
+          favorites: favCount,
           hired: apps.filter((a) => a.status === "accepted").length,
         });
 
@@ -73,6 +78,20 @@ export default function DashboardCompany() {
   ];
 
   const activeJobs = jobs.filter(j => j.is_active);
+
+  // Garder les compteurs et les deux listes cohérents après un changement de statut.
+  const handleStatusChange = (id: string, status: string) => {
+    setAllApplications((prev) => {
+      const next = prev.map((a) => (a.id === id ? { ...a, status } : a));
+      setStats((st) => ({ ...st, hired: next.filter((a) => a.status === "accepted").length }));
+      return next;
+    });
+    setApplicationsByJob((prev) => {
+      const out: Record<string, CompanyApplicationData[]> = {};
+      for (const [k, list] of Object.entries(prev)) out[k] = list.map((a) => (a.id === id ? { ...a, status } : a));
+      return out;
+    });
+  };
 
   const toggleJobApplications = (jobId: string) => {
     setExpandedJobs((prev) => {
@@ -195,7 +214,7 @@ export default function DashboardCompany() {
             ) : (
               <ul className="space-y-3">
                 {allApplications.map((app) => (
-                  <CompanyApplicationItem key={app.id} app={app} />
+                  <CompanyApplicationItem key={app.id} app={app} onStatusChange={handleStatusChange} />
                 ))}
               </ul>
             )}
@@ -253,7 +272,7 @@ export default function DashboardCompany() {
                           ) : (
                             <ul className="space-y-3 pt-4">
                               {applications.map((app) => (
-                                <CompanyApplicationItem key={app.id} app={app} />
+                                <CompanyApplicationItem key={app.id} app={app} onStatusChange={handleStatusChange} />
                               ))}
                             </ul>
                           )}

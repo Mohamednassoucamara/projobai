@@ -1,6 +1,27 @@
 import { useEffect, useState } from "react";
 import { Mail, Phone, FileText, Loader2 } from "lucide-react";
-import { storageService } from "../../services/supabase.service";
+import { storageService, companyService } from "../../services/supabase.service";
+import type { Database } from "../../types/database.types";
+
+type Application = Database["public"]["Tables"]["applications"]["Row"];
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-slate-200 text-slate-700",
+  reviewed: "bg-[#003087]/10 text-[#003087]",
+  shortlisted: "bg-amber-100 text-amber-800",
+  interview: "bg-violet-100 text-violet-800",
+  accepted: "bg-emerald-100 text-emerald-800",
+  rejected: "bg-red-100 text-red-700",
+};
+
+/** Actions proposées au recruteur ; le candidat est notifié à chaque changement. */
+const ACTIONS: { status: Application["status"]; label: string }[] = [
+  { status: "reviewed", label: "Marquer comme examinée" },
+  { status: "shortlisted", label: "Présélectionner" },
+  { status: "interview", label: "Inviter en entretien" },
+  { status: "accepted", label: "Retenir" },
+  { status: "rejected", label: "Refuser" },
+];
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "En attente",
@@ -82,7 +103,42 @@ function DocumentLink({ path, label }: { path: string; label: string }) {
   );
 }
 
-export default function CompanyApplicationItem({ app }: { app: CompanyApplicationData }) {
+export default function CompanyApplicationItem({
+  app,
+  onStatusChange,
+}: {
+  app: CompanyApplicationData;
+  onStatusChange?: (id: string, status: string) => void;
+}) {
+  const [status, setStatus] = useState(app.status);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmReject, setConfirmReject] = useState(false);
+
+  useEffect(() => setStatus(app.status), [app.status]);
+
+  const changeStatus = async (next: Application["status"]) => {
+    if (next === "rejected" && !confirmReject) {
+      setConfirmReject(true);
+      window.setTimeout(() => setConfirmReject(false), 4000);
+      return;
+    }
+    setConfirmReject(false);
+    setBusy(next);
+    setError(null);
+    const previous = status;
+    setStatus(next);
+    try {
+      await companyService.updateApplicationStatus(app.id, next);
+      onStatusChange?.(app.id, next);
+    } catch {
+      setStatus(previous);
+      setError("Le statut n'a pas pu être modifié. Réessayez.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const profile = app.candidate_profiles?.profiles;
   const candidateMeta = app.candidate_profiles;
   const offerTitle = app.jobs?.title;
@@ -132,10 +188,31 @@ export default function CompanyApplicationItem({ app }: { app: CompanyApplicatio
             })}
           </p>
         </div>
-        <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#003087]/10 text-[#003087] shrink-0">
-          {STATUS_LABELS[app.status] || app.status}
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${STATUS_STYLES[status] || STATUS_STYLES.reviewed}`}>
+          {STATUS_LABELS[status] || status}
         </span>
       </div>
+      <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-200">
+        {ACTIONS.filter((a) => a.status !== status && (a.status !== "reviewed" || status === "pending")).map((a) => (
+          <button
+            key={a.status}
+            type="button"
+            disabled={busy !== null}
+            onClick={() => changeStatus(a.status)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors disabled:opacity-50 ${
+              a.status === "rejected"
+                ? confirmReject
+                  ? "bg-red-600 border-red-600 text-white"
+                  : "border-red-200 text-red-700 hover:bg-red-50"
+                : "border-slate-300 text-slate-700 hover:border-[#003087] hover:text-[#003087] bg-white"
+            }`}
+          >
+            {busy === a.status && <Loader2 className="h-3 w-3 animate-spin" />}
+            {a.status === "rejected" && confirmReject ? "Confirmer le refus" : a.label}
+          </button>
+        ))}
+      </div>
+      {error && <p role="alert" className="text-xs text-red-600 mt-2">{error}</p>}
     </li>
   );
 }

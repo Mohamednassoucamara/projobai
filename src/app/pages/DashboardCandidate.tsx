@@ -6,15 +6,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCVData } from "../contexts/CVDataContext";
 import { jobService, candidateService } from "../../services/supabase.service";
 import { getCurrentUserId } from "../../lib/supabase";
+import { matchJob, hasMatchableCV } from "../../lib/matching";
 import DashboardHeader from "../components/DashboardHeader";
 import Footer from "../components/Footer";
 import CandidateApplicationItem, { type CandidateApplicationData } from "../components/CandidateApplicationItem";
 
-const FALLBACK_JOBS = [
-  { id: "1", title: "Développeur Web Junior", company_profiles: { company_name: "Tech Solutions GN" }, location: "Conakry", match: 95 },
-  { id: "2", title: "Assistant Commercial", company_profiles: { company_name: "Orange Guinée" }, location: "Conakry", match: 88 },
-  { id: "3", title: "Comptable", company_profiles: { company_name: "BCRG" }, location: "Conakry", match: 82 },
-];
 
 export default function DashboardCandidate() {
   const { user } = useAuth();
@@ -27,20 +23,23 @@ export default function DashboardCandidate() {
   useEffect(() => {
     const loadJobs = async () => {
       try {
-        const data = await jobService.getActiveJobs({ limit: 3 });
-        if (data && data.length > 0) {
-          setRecommendedJobs(data.map((j: any, i: number) => ({ ...j, match: 95 - i * 7 })));
-        } else {
-          setRecommendedJobs(FALLBACK_JOBS);
-        }
+        const data = await jobService.getActiveJobs({ limit: 40 });
+        setRecommendedJobs(data || []);
       } catch {
-        setRecommendedJobs(FALLBACK_JOBS);
+        setRecommendedJobs([]);
       } finally {
         setLoadingJobs(false);
       }
     };
     loadJobs();
   }, []);
+
+  // Recommandations : les 3 offres les plus compatibles avec le CV.
+  const matchable = hasMatchableCV(cvData);
+  const topJobs = recommendedJobs
+    .map((j: any) => ({ ...j, match: matchable ? matchJob(j, cvData).score : null }))
+    .sort((a: any, b: any) => (b.match ?? 0) - (a.match ?? 0))
+    .slice(0, 3);
 
   useEffect(() => {
     const loadApplications = async () => {
@@ -243,7 +242,17 @@ export default function DashboardCandidate() {
               </div>
             ) : (
               <div className="space-y-4">
-                {recommendedJobs.map((job, i) => (
+                {topJobs.length === 0 && (
+                  <p className="text-slate-500 border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
+                    Aucune offre publiée pour le moment. Complétez votre CV : nous vous montrerons ici les offres les plus compatibles dès leur publication.
+                  </p>
+                )}
+                {!matchable && topJobs.length > 0 && (
+                  <p className="text-sm text-slate-600 rounded-xl bg-slate-50 p-3">
+                    Ajoutez vos compétences dans votre CV pour voir votre taux de compatibilité avec chaque offre.
+                  </p>
+                )}
+                {topJobs.map((job, i) => (
                   <motion.div key={job.id || i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }}>
                     <Link
                       to={`/jobs/${job.id}`}
@@ -255,13 +264,15 @@ export default function DashboardCandidate() {
                           <p className="text-slate-600 mb-1">{job.company_profiles?.company_name || job.company}</p>
                           <p className="text-sm text-slate-500">{job.location}</p>
                         </div>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold text-[#E31E24] mb-1">{job.match}%</div>
-                          <div className="text-xs text-slate-600 flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3 text-[#003087]" />
-                            <span>Compatible</span>
+                        {job.match !== null && (
+                          <div className="text-right">
+                            <div className="text-3xl font-bold text-[#E31E24] mb-1 tabular-nums">{job.match}%</div>
+                            <div className="text-xs text-slate-600 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-[#003087]" />
+                              <span>{job.match >= 70 ? "Très compatible" : job.match >= 45 ? "Compatible" : "Peu compatible"}</span>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </Link>
                   </motion.div>

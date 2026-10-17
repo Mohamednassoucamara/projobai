@@ -5,14 +5,10 @@ import { useState, useEffect } from "react";
 import Footer from "../components/Footer";
 import AppNavHeader from "../components/AppNavHeader";
 import { jobService } from "../../services/supabase.service";
+import { useCVData } from "../contexts/CVDataContext";
+import { useAuth } from "../contexts/AuthContext";
+import { matchJob, matchTone, hasMatchableCV } from "../../lib/matching";
 
-const FALLBACK_JOBS = [
-  { id: "1", title: "Développeur Web Full Stack", company_profiles: { company_name: "Tech Solutions GN" }, location: "Conakry", education_level: "Licence", job_type: "CDI", published_at: new Date(Date.now() - 2 * 86400000).toISOString(), salary_min: 800000, salary_max: 1200000, is_active: true, featured: true },
-  { id: "2", title: "Assistant Commercial", company_profiles: { company_name: "Orange Guinée" }, location: "Conakry", education_level: "Bac+2", job_type: "CDD", published_at: new Date(Date.now() - 3 * 86400000).toISOString(), salary_min: 600000, salary_max: 900000, is_active: true, featured: false },
-  { id: "3", title: "Comptable", company_profiles: { company_name: "BCRG" }, location: "Conakry", education_level: "Master", job_type: "CDI", published_at: new Date(Date.now() - 5 * 86400000).toISOString(), salary_min: 1000000, salary_max: 1500000, is_active: true, featured: true },
-  { id: "4", title: "Ingénieur Réseau", company_profiles: { company_name: "MTN Guinée" }, location: "Conakry", education_level: "Licence", job_type: "CDI", published_at: new Date(Date.now() - 7 * 86400000).toISOString(), salary_min: 1200000, salary_max: 1800000, is_active: true, featured: false },
-  { id: "5", title: "Chef de Projet Digital", company_profiles: { company_name: "Agence Digitale" }, location: "Conakry", education_level: "Master", job_type: "CDI", published_at: new Date(Date.now() - 7 * 86400000).toISOString(), salary_min: 1500000, salary_max: 2000000, is_active: true, featured: false },
-];
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -37,14 +33,20 @@ export default function JobList() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ location: "", job_type: "", education_level: "" });
+  const [loadError, setLoadError] = useState(false);
+  const [sortByMatch, setSortByMatch] = useState(true);
+  const { cvData } = useCVData();
+  const { user } = useAuth();
+  const canMatch = user?.type === "candidate" && hasMatchableCV(cvData);
 
   useEffect(() => {
     const loadJobs = async () => {
       try {
         const data = await jobService.getActiveJobs({ limit: 50 });
-        setJobs(data && data.length > 0 ? data : FALLBACK_JOBS);
+        setJobs(data || []);
       } catch {
-        setJobs(FALLBACK_JOBS);
+        setJobs([]);
+        setLoadError(true);
       } finally {
         setIsLoading(false);
       }
@@ -60,6 +62,9 @@ export default function JobList() {
     const matchEdu = !filters.education_level || job.education_level === filters.education_level;
     return matchSearch && matchLocation && matchType && matchEdu;
   });
+
+  const scored = filtered.map((job) => ({ job, match: canMatch ? matchJob(job, cvData) : null }));
+  if (canMatch && sortByMatch) scored.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
@@ -158,6 +163,12 @@ export default function JobList() {
                     <><span className="font-bold text-[#003087]">{filtered.length} offre{filtered.length > 1 ? "s" : ""}</span> correspondent à votre recherche</>
                   )}
                 </p>
+                {canMatch && !isLoading && filtered.length > 1 && (
+                  <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                    <input type="checkbox" checked={sortByMatch} onChange={(e) => setSortByMatch(e.target.checked)} className="h-4 w-4 accent-[#003087]" />
+                    Trier par compatibilité
+                  </label>
+                )}
               </div>
 
               {isLoading ? (
@@ -167,11 +178,17 @@ export default function JobList() {
               ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-slate-500">
                   <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                  <p className="text-lg font-medium">Aucune offre ne correspond à vos critères</p>
+                  <p className="text-lg font-medium">
+                    {loadError
+                      ? "Les offres n'ont pas pu être chargées. Vérifiez votre connexion puis rechargez la page."
+                      : jobs.length === 0
+                        ? "Aucune offre publiée pour le moment. Revenez bientôt : les entreprises publient chaque semaine."
+                        : "Aucune offre ne correspond à vos critères"}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-5">
-                  {filtered.map((job, i) => {
+                  {scored.map(({ job, match }, i) => {
                     const companyName = job.company_profiles?.company_name || "Entreprise";
                     const salary = formatSalary(job.salary_min, job.salary_max);
                     const isNew = (Date.now() - new Date(job.published_at).getTime()) < 3 * 86400000;
@@ -196,10 +213,16 @@ export default function JobList() {
                                 <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg shrink-0">
                                   {companyName.charAt(0)}
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 flex-1">
                                   <h3 className="text-xl sm:text-2xl font-bold text-[#003087] group-hover:text-[#E31E24] transition-colors break-words">{job.title}</h3>
                                   <p className="text-base sm:text-lg text-slate-700 font-medium break-words">{companyName}</p>
                                 </div>
+                                {match && (
+                                  <div className={`shrink-0 text-center rounded-xl border px-3 py-2 ${matchTone(match.score).cls}`} title={match.matched.length ? `Compétences en commun : ${match.matched.join(", ")}` : "Comparaison avec votre CV"}>
+                                    <div className="text-xl font-bold tabular-nums">{match.score}%</div>
+                                    <div className="text-[11px] font-semibold leading-tight">{matchTone(match.score).label}</div>
+                                  </div>
+                                )}
                               </div>
                               <div className="flex flex-wrap gap-3 mb-4">
                                 <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full">

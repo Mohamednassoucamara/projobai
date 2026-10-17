@@ -1,10 +1,11 @@
-import { Link } from "react-router";
-import { ArrowLeft, Sparkles, Copy, Download, Edit, Check, FileText, Briefcase, Lightbulb, Target, RotateCcw, Mail, Phone, MapPin, Building, CheckCircle } from "lucide-react";
+import { Link, useSearchParams } from "react-router";
+import { ArrowLeft, Sparkles, Copy, Download, Edit, Check, FileText, Briefcase, Lightbulb, Target, RotateCcw, Mail, Phone, MapPin, Building, CheckCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef } from "react";
 import AppNavHeader from "../components/AppNavHeader";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
+import { aiService, aiErrorMessage } from "../../services/ai.service";
 
 type Step = "form" | "template" | "preview" | "edit";
 type Template = "classic" | "modern" | "creative";
@@ -47,11 +48,14 @@ const tones = {
 
 export default function CoverLetter() {
   const { cvData } = useCVData();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<Step>("form");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiNotice, setAiNotice] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    companyName: "",
-    position: "",
-    sector: "",
+    companyName: searchParams.get("company") || "",
+    position: searchParams.get("position") || cvData.jobTitle || "",
+    sector: searchParams.get("sector") || "",
     recruiterName: "",
     experience: "",
     motivation: "",
@@ -69,7 +73,7 @@ export default function CoverLetter() {
     setFormData({ ...formData, [field]: value });
   };
 
-  const generateLetter = () => {
+  const buildTemplateLetter = () => {
     const { companyName, position, sector, recruiterName, experience, motivation, skills, qualities } = formData;
     const name = cvData.fullName || "Votre Nom";
     const phone = cvData.phone || "+224 XXX XXX XXX";
@@ -138,6 +142,25 @@ export default function CoverLetter() {
 
     letter += `${name}`;
 
+    return letter;
+  };
+
+  const generateLetter = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    setAiNotice(null);
+    let letter = "";
+    try {
+      const toneLabel = tones[selectedTone].name;
+      const r = await aiService.coverLetter(cvData, { ...formData }, toneLabel);
+      if (typeof r.letter !== "string" || r.letter.trim().length < 200) throw new Error("short");
+      letter = r.letter.trim();
+    } catch (e) {
+      letter = buildTemplateLetter();
+      setAiNotice(aiErrorMessage(e));
+    } finally {
+      setIsGenerating(false);
+    }
     setGeneratedLetter(letter);
     setStep("preview");
   };
@@ -152,13 +175,27 @@ export default function CoverLetter() {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    if (!generatedLetter.trim()) return;
     try {
-      if (typeof window.print === 'function') {
-        window.print();
-      } else {
-        alert("La fonction d'impression n'est pas disponible dans cet environnement.");
+      const { default: jsPDF } = await import("jspdf");
+      const pdf = new jsPDF({ unit: "mm", format: "a4" });
+      const margin = 22;
+      const width = 210 - margin * 2;
+      let y = 24;
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(11);
+      for (const raw of generatedLetter.split("\n")) {
+        if (!raw.trim()) { y += 4; continue; }
+        for (const line of pdf.splitTextToSize(raw, width) as string[]) {
+          if (y > 280) { pdf.addPage(); y = 22; }
+          pdf.text(line, margin, y);
+          y += 5.6;
+        }
       }
+      pdf.setProperties({ title: `Lettre de motivation - ${formData.position}`, creator: "ProJob AI" });
+      const who = (cvData.fullName || "ProJob").replace(/\s+/g, "_");
+      pdf.save(`Lettre_motivation_${who}.pdf`);
     } catch (error) {
       console.error("Erreur lors du téléchargement:", error);
     }
@@ -434,10 +471,11 @@ export default function CoverLetter() {
                 </button>
                 <button
                   onClick={generateLetter}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#003087] to-[#0047b3] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#003087]/40 transition-all hover:scale-[1.02]"
+                  disabled={isGenerating}
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#003087] to-[#0047b3] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#003087]/40 transition-all hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100"
                 >
-                  <Sparkles className="h-5 w-5" />
-                  <span>Générer la lettre</span>
+                  {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+                  <span>{isGenerating ? "Rédaction par l'IA…" : "Générer la lettre"}</span>
                 </button>
               </div>
             </motion.div>
@@ -451,6 +489,11 @@ export default function CoverLetter() {
               exit={{ opacity: 0 }}
               className="max-w-5xl mx-auto"
             >
+              {aiNotice && (
+                <div role="status" className="mb-6 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  {aiNotice} Relisez et personnalisez la lettre avant de l'envoyer.
+                </div>
+              )}
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-bold text-slate-900">Votre lettre de motivation</h2>
                 <div className="flex items-center gap-3">
