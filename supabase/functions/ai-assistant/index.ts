@@ -55,9 +55,10 @@ CV : ${clip(p.cv)}`,
       return {
         maxTokens: 1400,
         prompt: `Rédige une lettre de motivation pour cette candidature.
-Format : coordonnées du candidat, destinataire, lieu et date, objet, formule d'appel, 3 paragraphes (accroche liée à l'entreprise ; expérience et compétences prouvées par le CV ; motivation et disponibilité), formule de politesse, signature.
-Ton : ${String(p.tone || "professionnel")}. Longueur : 250 à 330 mots. Date : ${String(p.date || "")}.
-Réponds uniquement avec un objet JSON : {"letter":"texte brut de la lettre, sauts de ligne avec \\n"}
+L'en-tête (coordonnées, destinataire, lieu et date) et la signature sont mis en page par la plateforme : ne les écris pas.
+Corps attendu : formule d'appel (« Madame, Monsieur, » ou le nom du recruteur), 3 paragraphes (accroche liée à l'entreprise et au poste ; expérience et compétences prouvées par le CV, avec un résultat concret si le CV en donne ; motivation, disponibilité et demande d'entretien), puis la formule de politesse complète.
+Ton : ${String(p.tone || "professionnel")}. Longueur du corps : 230 à 320 mots.
+Réponds uniquement avec un objet JSON : {"objet":"Candidature au poste de ...","body":"texte brut, paragraphes séparés par \\n\\n"}
 
 Candidature : ${clip(p.form)}
 CV : ${clip(p.cv)}`,

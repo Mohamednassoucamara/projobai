@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
+import { isMotif, type MotifId } from "../../lib/motifs";
 
 export interface Experience {
   title: string;
@@ -35,7 +36,13 @@ export interface CVData {
   theme: string;
   /** Photo du candidat : image JPEG carrée compressée (data URL), vide si aucune. */
   photo: string;
+  /** Motif décoratif commun au CV et à la lettre. */
+  motif: MotifId;
+  /** Modèle de mise en page de la lettre de motivation. */
+  letterTemplate: LetterTemplate;
 }
+
+export type LetterTemplate = "moderne" | "classique" | "elegant";
 
 export const DEFAULT_CV_THEME = "#1F3A5F";
 
@@ -65,6 +72,8 @@ export const defaultCVData: CVData = {
   languages: [],
   theme: DEFAULT_CV_THEME,
   photo: "",
+  motif: "aucun",
+  letterTemplate: "moderne",
 };
 
 const STORAGE_KEY = "cvData";
@@ -104,6 +113,8 @@ function normalize(raw: unknown): CVData {
       typeof d.photo === "string" && /^data:image\/(jpeg|png);base64,/.test(d.photo) && d.photo.length < 400_000
         ? d.photo
         : "",
+    motif: isMotif(d.motif) ? d.motif : "aucun",
+    letterTemplate: d.letterTemplate === "classique" || d.letterTemplate === "elegant" ? d.letterTemplate : "moderne",
   };
 }
 

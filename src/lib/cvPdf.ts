@@ -4,6 +4,7 @@
 
 import type { CVData } from "../app/contexts/CVDataContext";
 import { safeAccent, tint, initials, type RGB } from "./cvTheme";
+import { drawMotif } from "./motifs";
 
 const PAGE_W = 210;
 const PAGE_H = 297;
@@ -65,6 +66,7 @@ export async function buildCvPdf(cv: CVData) {
 
   // ---------- Colonne latérale (page 1) ----------
   drawSideBand();
+  drawMotif(pdf, cv.motif, 0, 0, SIDE_W, 62, tint(accent, 0.16));
   let sy = TOP + 2;
   const sideW = SIDE_W - SIDE_PAD * 2;
 

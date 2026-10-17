@@ -1,13 +1,15 @@
 import { useState, type CSSProperties } from "react";
 import { Link } from "react-router";
-import { Download, Edit, ArrowLeft, Sparkles, CheckCircle, Loader2, Palette, Check } from "lucide-react";
+import { Download, Edit, ArrowLeft, Sparkles, CheckCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
 import { generateCvPdf } from "../../lib/cvPdf";
 import CVPhotoField from "../components/CVPhotoField";
-import { CV_COLORS, safeAccent, tint, rgbToHex, initials } from "../../lib/cvTheme";
+import { safeAccent, tint, rgbToHex, initials } from "../../lib/cvTheme";
+import { ColorPicker, MotifPicker } from "../components/DocumentStyle";
+import { motifDataUrl } from "../../lib/motifs";
 
 /** Unités de l'aperçu : 1 mm de la feuille A4 = largeur du conteneur / 210. */
 const mm = (n: number) => `calc(${n} * 100cqw / 210)`;
@@ -46,7 +48,7 @@ function CVSheet() {
         style={{ display: "grid", gridTemplateColumns: `${mm(68)} 1fr`, minHeight: mm(297), fontFamily: "Helvetica, Arial, sans-serif", color: "#1B2333", lineHeight: 1.38 }}
       >
         {/* Colonne latérale */}
-        <aside style={{ background: accent, color: "#fff", padding: `${mm(20)} ${mm(9)}` }}>
+        <aside style={{ backgroundColor: accent, backgroundImage: motifDataUrl(cvData.motif, 68, 62, rgbToHex(tint(accentRgb, 0.16))), backgroundRepeat: "no-repeat", backgroundSize: `100% ${mm(62)}`, color: "#fff", padding: `${mm(20)} ${mm(9)}` }}>
           {cvData.photo ? (
             <img
               src={cvData.photo}
@@ -154,55 +156,6 @@ function CVSheet() {
   );
 }
 
-function ColorPicker() {
-  const { cvData, updateCVData } = useCVData();
-  const current = cvData.theme.toLowerCase();
-  const isPreset = CV_COLORS.some((c) => c.hex.toLowerCase() === current);
-  return (
-    <div className="bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg">
-      <div className="flex items-center gap-2 mb-1">
-        <Palette className="h-5 w-5 text-[#003087]" />
-        <h3 className="text-lg font-bold text-slate-900">Couleur du CV</h3>
-      </div>
-      <p className="text-sm text-slate-500 mb-4">Le PDF reprend exactement cette couleur.</p>
-      <div className="grid grid-cols-4 gap-3" role="radiogroup" aria-label="Couleur du CV">
-        {CV_COLORS.map((c) => {
-          const selected = c.hex.toLowerCase() === current;
-          return (
-            <button
-              key={c.hex}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              aria-label={c.name}
-              title={c.name}
-              onClick={() => updateCVData({ theme: c.hex })}
-              className={`relative h-11 rounded-xl transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#003087] ${selected ? "ring-2 ring-offset-2 ring-slate-900" : ""}`}
-              style={{ background: c.hex }}
-            >
-              {selected && <Check className="h-5 w-5 text-white absolute inset-0 m-auto" />}
-            </button>
-          );
-        })}
-      </div>
-      <label className="mt-4 flex items-center justify-between gap-3 text-sm font-medium text-slate-700 cursor-pointer">
-        <span>Autre couleur</span>
-        <span className={`flex items-center gap-2 rounded-lg border-2 px-2 py-1 ${!isPreset ? "border-slate-900" : "border-slate-200"}`}>
-          <input
-            type="color"
-            value={cvData.theme}
-            onChange={(e) => updateCVData({ theme: e.target.value })}
-            className="h-7 w-9 cursor-pointer border-0 bg-transparent p-0"
-            aria-label="Choisir une couleur personnalisée"
-          />
-          <span className="font-mono text-xs uppercase text-slate-500">{cvData.theme}</span>
-        </span>
-      </label>
-      <p className="mt-2 text-xs text-slate-500">Une couleur trop claire est automatiquement assombrie pour que le texte reste lisible.</p>
-    </div>
-  );
-}
-
 export default function CVPreview() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -281,6 +234,7 @@ export default function CVPreview() {
             <div className="lg:hidden mb-6 space-y-4">
               <div className="bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-lg"><CVPhotoField compact /></div>
               <ColorPicker />
+              <MotifPicker />
             </div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <CVSheet />
@@ -290,6 +244,7 @@ export default function CVPreview() {
           <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-28">
             <div className="hidden lg:block bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg"><CVPhotoField compact /></div>
             <div className="hidden lg:block"><ColorPicker /></div>
+            <div className="hidden lg:block"><MotifPicker /></div>
 
             <div className="bg-gradient-to-br from-[#003087] to-[#0047b3] rounded-3xl p-6 sm:p-8 text-white shadow-2xl">
               <div className="flex items-start gap-3 mb-5">

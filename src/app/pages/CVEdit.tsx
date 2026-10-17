@@ -47,7 +47,7 @@ export default function CVEdit() {
   const commit = (next: CVData) => {
     setFormData(next);
     // La photo et la couleur sont gérées par leurs propres réglages : ne pas les écraser.
-    const { photo: _photo, theme: _theme, ...rest } = next;
+    const { photo: _photo, theme: _theme, motif: _motif, letterTemplate: _lt, ...rest } = next;
     updateCVData(rest);
   };
   const set = <K extends keyof CVData>(key: K, value: CVData[K]) => commit({ ...formData, [key]: value });
