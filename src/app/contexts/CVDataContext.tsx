@@ -31,7 +31,11 @@ export interface CVData {
   education: Education[];
   skills: string[];
   languages: Language[];
+  /** Couleur principale du CV choisie par le candidat (hex). */
+  theme: string;
 }
+
+export const DEFAULT_CV_THEME = "#1F3A5F";
 
 export type SaveStatus = "local" | "loading" | "saving" | "saved" | "error";
 
@@ -57,6 +61,7 @@ export const defaultCVData: CVData = {
   education: [],
   skills: [],
   languages: [],
+  theme: DEFAULT_CV_THEME,
 };
 
 const STORAGE_KEY = "cvData";
@@ -91,6 +96,7 @@ function normalize(raw: unknown): CVData {
           percentage: typeof l?.percentage === "number" ? Math.max(0, Math.min(100, l.percentage)) : 50,
         }))
       : [],
+    theme: typeof d.theme === "string" && /^#[0-9a-f]{6}$/i.test(d.theme) ? d.theme : DEFAULT_CV_THEME,
   };
 }
 
