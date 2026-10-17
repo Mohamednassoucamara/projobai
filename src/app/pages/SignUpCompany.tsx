@@ -52,7 +52,7 @@ export default function SignUpCompany() {
       const result = await signUp(email, password, companyName, "company");
       if (result.success) {
         didRedirectRef.current = true;
-        redirectAfterSignup();
+        redirectAfterSignup("company");
         return;
       }
       setError(result.error || "Erreur lors de la création du compte. Veuillez réessayer.");

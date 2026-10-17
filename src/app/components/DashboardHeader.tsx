@@ -28,6 +28,7 @@ export default function DashboardHeader() {
             <AppLogo />
             <Link
               to="/"
+              state={{ home: true }}
               className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-[#050FA0] hover:bg-gradient-to-r hover:from-[#050FA0] hover:to-[#1A27C2] hover:text-white transition-all border-2 border-[#050FA0]"
             >
               <Home className="h-4 w-4 shrink-0" />

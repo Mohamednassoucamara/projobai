@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, Navigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowRight, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp, Users, Loader2, Mail, Compass,
@@ -169,10 +169,22 @@ const STEPS_COMPANY = [
 ];
 
 export default function Home() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const location = useLocation();
+  // Un utilisateur connecté arrive sur son espace. Il ne voit l'accueil que s'il a
+  // cliqué sur « Accueil » (choix mémorisé à l'arrivée sur la page, pour que les
+  // ancres #services, #entreprises… ne déclenchent pas de redirection).
+  const [chooseHome] = useState(() => Boolean((location.state as { home?: boolean } | null)?.home));
   const isCompany = isAuthenticated && user?.type === "company";
   const dashboardLink = user?.type === "company" ? "/company/dashboard" : "/dashboard";
   const [menuOpen, setMenuOpen] = useState(false);
+
+  if (isLoading && !chooseHome) {
+    return <div className="min-h-screen bg-white" aria-busy="true" />;
+  }
+  if (isAuthenticated && user && !chooseHome) {
+    return <Navigate to={dashboardLink} replace />;
+  }
 
   const primaryCta = isAuthenticated && user
     ? { to: dashboardLink, label: "Accéder à mon espace" }

@@ -49,7 +49,7 @@ export default function SignUpCandidate() {
       const result = await signUp(email, password, fullName, "candidate");
       if (result.success) {
         didRedirectRef.current = true;
-        redirectAfterSignup();
+        redirectAfterSignup("candidate");
         return;
       }
       setError(result.error || "Erreur lors de la création du compte. Veuillez réessayer.");

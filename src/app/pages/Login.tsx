@@ -67,7 +67,9 @@ export default function Login() {
       const success = await login(email, password, userType);
 
       if (success) {
-        setTimeout(() => navigate(from, { replace: true }), 300);
+        // Retour à la page demandée (ex. une offre) ; sinon, la redirection automatique
+        // ci-dessus envoie vers l'espace correspondant au type réel du compte.
+        if (params.get("from")) setTimeout(() => navigate(from, { replace: true }), 300);
       } else {
         if (isRateLimited()) {
           setLockoutSeconds(rateLimitSecondsRemaining());
