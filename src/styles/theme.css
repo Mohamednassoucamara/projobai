@@ -1,14 +1,26 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* ===== Charte ProJob AI : couleurs du logo ===== */
+  --pj-blue: #050FA0;        /* bleu du logo */
+  --pj-blue-strong: #060C6E; /* survol, fonds profonds */
+  --pj-blue-mid: #1A27C2;    /* dégradés */
+  --pj-blue-soft: #E9EBFC;   /* fonds de pastilles */
+  --pj-red: #F92813;         /* rouge du logo (accents, grands éléments) */
+  --pj-red-strong: #E4220F;  /* boutons avec texte blanc */
+  --pj-red-soft: #FEEDEA;
+  --pj-ink: #10132E;         /* texte principal, légèrement bleuté */
+  --pj-muted: #5A5F7D;
+  --pj-line: #E2E4F0;
+  --pj-canvas: #F6F7FC;
   --font-size: 16px;
   --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
+  --foreground: #10132E;
   --card: #ffffff;
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
+  --primary: #050FA0;
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.95 0.0058 264.53);
   --secondary-foreground: #030213;
@@ -24,7 +36,7 @@
   --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
+  --ring: #050FA0;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -79,6 +91,17 @@
 }
 
 @theme inline {
+  --font-sans: "Figtree Variable", "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Sora Variable", "Sora", "Figtree Variable", system-ui, sans-serif;
+  --color-brand: var(--pj-blue);
+  --color-brand-strong: var(--pj-blue-strong);
+  --color-brand-mid: var(--pj-blue-mid);
+  --color-brand-soft: var(--pj-blue-soft);
+  --color-accent-red: var(--pj-red);
+  --color-accent-red-strong: var(--pj-red-strong);
+  --color-accent-red-soft: var(--pj-red-soft);
+  --color-ink: var(--pj-ink);
+  --color-canvas: var(--pj-canvas);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -126,6 +149,29 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--pj-blue);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /**

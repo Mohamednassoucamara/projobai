@@ -3,7 +3,7 @@ import { Shield, ArrowRight, ArrowLeft, Loader2, AlertCircle } from "lucide-reac
 import { useAuth } from "../contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
 import AppLogo from "../components/AppLogo";
-import Footer from "../components/Footer";
+import AuthShell from "../components/AuthShell";
 import { isValidEmail, validatePassword } from "../../lib/security";
 import { redirectAfterSignup } from "../../lib/authRedirect";
 
@@ -61,12 +61,12 @@ export default function SignUpCandidate() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
+    <AuthShell audience={"candidate"}>
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="max-w-lg w-full">
           <div className="flex items-center justify-between mb-12">
             <Link to="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-              <AppLogo />
+              <span className="lg:invisible"><AppLogo /></span>
             </Link>
             <Link to="/profile-choice" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
               <ArrowLeft className="h-5 w-5" />
@@ -75,9 +75,9 @@ export default function SignUpCandidate() {
           </div>
 
           <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#003087]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#050FA0]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
             <div className="relative">
-              <h1 className="text-4xl font-bold mb-3 text-[#003087]">Créez votre compte</h1>
+              <h1 className="text-4xl font-bold mb-3 text-[#050FA0]">Créez votre compte</h1>
               <p className="text-lg text-slate-600 mb-8">Commencez votre parcours professionnel</p>
 
               {error ? (
@@ -103,7 +103,7 @@ export default function SignUpCandidate() {
                     placeholder="Mohamed Diallo"
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
@@ -115,7 +115,7 @@ export default function SignUpCandidate() {
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+224 XXX XXX XXX"
                     disabled={isLoading}
-                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
@@ -131,7 +131,7 @@ export default function SignUpCandidate() {
                     placeholder="mohamed@example.com"
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
@@ -147,7 +147,7 @@ export default function SignUpCandidate() {
                     placeholder="••••••••  (min. 8 car., 1 maj., 1 chiffre)"
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
@@ -165,14 +165,14 @@ export default function SignUpCandidate() {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="group w-full bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group w-full bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-6 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E4220F]/40 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
@@ -189,7 +189,7 @@ export default function SignUpCandidate() {
               </form>
 
               <div className="mt-6 flex items-center gap-2 justify-center text-sm text-slate-600 bg-slate-50 py-3 px-4 rounded-xl">
-                <Shield className="h-4 w-4 text-[#003087]" />
+                <Shield className="h-4 w-4 text-[#050FA0]" />
                 <span>Vos données sont sécurisées et confidentielles</span>
               </div>
 
@@ -197,7 +197,7 @@ export default function SignUpCandidate() {
                 Déjà un compte ?{" "}
                 <Link
                   to="/login?type=candidate"
-                  className="text-[#003087] font-semibold hover:text-[#E31E24] hover:underline"
+                  className="text-[#050FA0] font-semibold hover:text-[#E4220F] hover:underline"
                 >
                   Se connecter
                 </Link>
@@ -206,7 +206,6 @@ export default function SignUpCandidate() {
           </div>
         </div>
       </div>
-      <Footer />
-    </div>
+    </AuthShell>
   );
 }

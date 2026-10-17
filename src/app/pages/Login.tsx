@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import { ArrowRight, ArrowLeft, AlertCircle, Loader2, Lock } from "lucide-react";
 import AppLogo from "../components/AppLogo";
-import Footer from "../components/Footer";
+import AuthShell from "../components/AuthShell";
 import {
   isRateLimited,
   recordLoginAttempt,
@@ -84,7 +84,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
+    <AuthShell audience={userType === "company" ? "company" : "candidate"}>
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -93,7 +93,7 @@ export default function Login() {
           className="max-w-lg w-full"
         >
         <div className="flex items-center justify-between gap-3 mb-8 sm:mb-12">
-          <AppLogo />
+          <span className="lg:invisible"><AppLogo /></span>
           <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm sm:text-base shrink-0">
             <ArrowLeft className="h-5 w-5" />
             <span>Retour</span>
@@ -101,9 +101,9 @@ export default function Login() {
         </div>
 
         <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#003087]/5 to-transparent rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#050FA0]/5 to-transparent rounded-full blur-3xl" />
           <div className="relative">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-[#003087]">Bon retour !</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-[#050FA0]">Bon retour !</h1>
             <p className="text-lg text-slate-600 mb-8">
               {userType === "company" ? "Accédez à votre espace entreprise" : "Accédez à votre espace candidat"}
             </p>
@@ -149,7 +149,7 @@ export default function Login() {
                 placeholder="votre@email.com"
                 required
                 disabled={isLoading}
-                className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -165,14 +165,14 @@ export default function Login() {
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
-                className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading || lockoutSeconds > 0}
-              className="group w-full bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="group w-full bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-6 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E4220F]/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isLoading ? (
                 <>
@@ -192,7 +192,7 @@ export default function Login() {
             Pas encore de compte ?{" "}
             <Link
               to={userType === "company" ? "/signup-company" : "/signup-candidate"}
-              className="text-[#003087] font-semibold hover:text-[#E31E24] hover:underline"
+              className="text-[#050FA0] font-semibold hover:text-[#E4220F] hover:underline"
             >
               Créer un compte
             </Link>
@@ -202,7 +202,6 @@ export default function Login() {
       </motion.div>
       </div>
 
-      <Footer />
-    </div>
+    </AuthShell>
   );
 }

@@ -216,11 +216,11 @@ export default function InterviewPrep() {
                 <motion.div
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
-                  className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#003087] to-[#0047b3] mb-6"
+                  className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] mb-6"
                 >
                   <Target className="h-10 w-10 text-white" />
                 </motion.div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#003087] to-[#0047b3] bg-clip-text text-transparent">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#050FA0] to-[#1A27C2] bg-clip-text text-transparent">
                   Préparation d'Entretien
                 </h1>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -236,7 +236,7 @@ export default function InterviewPrep() {
                   value={position}
                   onChange={(e) => setPosition(e.target.value)}
                   placeholder="Ex : Technicien de maintenance minière"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none"
                 />
                 <p className="mt-2 text-sm text-slate-500">L'IA adapte les questions au poste et à votre CV. Choisissez ensuite un type d'entretien.</p>
               </div>
@@ -246,10 +246,10 @@ export default function InterviewPrep() {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {[
-                  { type: "Débutant", desc: "Premier emploi, stage ou alternance", icon: Sparkles, color: "from-blue-500 to-blue-600" },
-                  { type: "Technique", desc: "IT, ingénierie, développement", icon: Target, color: "from-purple-500 to-purple-600" },
-                  { type: "Commercial", desc: "Vente, relation client, marketing", icon: Trophy, color: "from-green-500 to-green-600" },
-                  { type: "Administratif", desc: "Administration et gestion", icon: Lightbulb, color: "from-orange-500 to-orange-600" },
+                  { type: "Débutant", desc: "Premier emploi, stage ou alternance", icon: Sparkles, color: "from-[#050FA0] to-[#1A27C2]" },
+                  { type: "Technique", desc: "IT, ingénierie, développement", icon: Target, color: "from-[#060C6E] to-[#050FA0]" },
+                  { type: "Commercial", desc: "Vente, relation client, marketing", icon: Trophy, color: "from-[#E4220F] to-[#F92813]" },
+                  { type: "Administratif", desc: "Administration et gestion", icon: Lightbulb, color: "from-[#1A27C2] to-[#3340D6]" },
                 ].map((item) => (
                   <motion.button
                     key={item.type}
@@ -257,7 +257,7 @@ export default function InterviewPrep() {
                     disabled={loadingCategory !== null}
                     whileHover={{ scale: 1.02, y: -5 }}
                     whileTap={{ scale: 0.98 }}
-                    className="group p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-[#003087] hover:shadow-xl transition-all text-left relative overflow-hidden"
+                    className="group p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-[#050FA0] hover:shadow-xl transition-all text-left relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity rounded-full blur-3xl" style={{ background: `linear-gradient(to bottom right, ${item.color})` }} />
                     <div className={`inline-flex items-center justify-center h-14 w-14 rounded-xl bg-gradient-to-br ${item.color} mb-4 group-hover:scale-110 transition-transform`}>
@@ -265,10 +265,10 @@ export default function InterviewPrep() {
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-slate-900">{item.type}</h3>
                     <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
-                    <div className="mt-4 text-[#003087] text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                    <div className="mt-4 text-[#050FA0] text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                       Commencer <ArrowRight className="h-4 w-4" />
                     </div>
-                    <div className={`mt-2 text-sm text-[#003087] font-semibold items-center gap-2 ${loadingCategory === item.type ? "flex" : "hidden"}`}>
+                    <div className={`mt-2 text-sm text-[#050FA0] font-semibold items-center gap-2 ${loadingCategory === item.type ? "flex" : "hidden"}`}>
                       <Loader2 className="h-4 w-4 animate-spin" /> Préparation des questions…
                     </div>
                   </motion.button>
@@ -291,9 +291,9 @@ export default function InterviewPrep() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 + index * 0.1 }}
-                    className="bg-gradient-to-br from-[#003087]/5 to-transparent p-6 rounded-xl border border-[#003087]/10"
+                    className="bg-gradient-to-br from-[#050FA0]/5 to-transparent p-6 rounded-xl border border-[#050FA0]/10"
                   >
-                    <feature.icon className="h-8 w-8 text-[#003087] mb-3" />
+                    <feature.icon className="h-8 w-8 text-[#050FA0] mb-3" />
                     <h3 className="font-bold text-slate-900 mb-2">{feature.title}</h3>
                     <p className="text-sm text-slate-600">{feature.desc}</p>
                   </motion.div>
@@ -331,7 +331,7 @@ export default function InterviewPrep() {
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
-                    className="h-full bg-gradient-to-r from-[#003087] to-[#0047b3] rounded-full"
+                    className="h-full bg-gradient-to-r from-[#050FA0] to-[#1A27C2] rounded-full"
                   />
                 </div>
 
@@ -341,7 +341,7 @@ export default function InterviewPrep() {
                   className="bg-white rounded-2xl p-8 shadow-lg border-2 border-slate-100"
                 >
                   <div className="flex items-start gap-4 mb-6">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center flex-shrink-0">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] flex items-center justify-center flex-shrink-0">
                       <Lightbulb className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
@@ -350,8 +350,8 @@ export default function InterviewPrep() {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-r from-[#003087]/5 to-transparent p-4 rounded-xl border border-[#003087]/10">
-                    <div className="flex items-center gap-2 text-sm text-[#003087] font-medium">
+                  <div className="bg-gradient-to-r from-[#050FA0]/5 to-transparent p-4 rounded-xl border border-[#050FA0]/10">
+                    <div className="flex items-center gap-2 text-sm text-[#050FA0] font-medium">
                       <Sparkles className="h-4 w-4" />
                       <span>Conseil IA : Soyez concret et illustrez vos propos avec des exemples</span>
                     </div>
@@ -375,14 +375,14 @@ export default function InterviewPrep() {
                   onChange={(e) => setAnswer(e.target.value)}
                   rows={10}
                   placeholder="Écrivez votre réponse comme si vous parliez au recruteur…"
-                  className="w-full px-6 py-4 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors resize-none mb-6 text-slate-900"
+                  className="w-full px-6 py-4 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors resize-none mb-6 text-slate-900"
                 />
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">{answer.length} caractères</span>
                   <button
                     onClick={handleSubmitAnswer}
                     disabled={answer.length < 20 || isEvaluating}
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02]"
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E4220F]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02]"
                   >
                     {isEvaluating ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
                     <span>{isEvaluating ? "Évaluation en cours…" : "Soumettre ma réponse"}</span>
@@ -471,18 +471,18 @@ export default function InterviewPrep() {
                   </div>
 
                   {currentFeedback?.betterAnswer ? (
-                    <div className="p-6 rounded-xl bg-gradient-to-r from-[#003087]/5 to-[#0047b3]/5 border-2 border-[#003087]/20">
+                    <div className="p-6 rounded-xl bg-gradient-to-r from-[#050FA0]/5 to-[#1A27C2]/5 border-2 border-[#050FA0]/20">
                       <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="h-5 w-5 text-[#003087]" />
-                        <h3 className="font-bold text-[#003087]">Exemple de meilleure réponse proposé par l'IA</h3>
+                        <Sparkles className="h-5 w-5 text-[#050FA0]" />
+                        <h3 className="font-bold text-[#050FA0]">Exemple de meilleure réponse proposé par l'IA</h3>
                       </div>
                       <p className="text-slate-700 leading-relaxed">{currentFeedback.betterAnswer}</p>
                     </div>
                   ) : (
-                    <div className="p-6 rounded-xl bg-gradient-to-r from-[#003087]/5 to-[#0047b3]/5 border-2 border-[#003087]/20">
+                    <div className="p-6 rounded-xl bg-gradient-to-r from-[#050FA0]/5 to-[#1A27C2]/5 border-2 border-[#050FA0]/20">
                       <div className="flex items-center gap-2 mb-3">
-                        <Lightbulb className="h-5 w-5 text-[#003087]" />
-                        <h3 className="font-bold text-[#003087]">Méthode pour structurer votre réponse</h3>
+                        <Lightbulb className="h-5 w-5 text-[#050FA0]" />
+                        <h3 className="font-bold text-[#050FA0]">Méthode pour structurer votre réponse</h3>
                       </div>
                       <p className="text-slate-700 leading-relaxed">
                         Situation : où et quand. Tâche : ce qu'on attendait de vous. Action : ce que vous avez fait, vous personnellement. Résultat : ce qui a changé, si possible avec un chiffre.
@@ -495,14 +495,14 @@ export default function InterviewPrep() {
                 <div className="flex items-center gap-4 mt-8 pt-6 border-t-2 border-slate-100">
                   <button
                     onClick={() => setStep("question")}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-[#003087] hover:text-[#003087] transition-all font-semibold"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] transition-all font-semibold"
                   >
                     <ArrowLeft className="h-5 w-5" />
                     Revoir la question
                   </button>
                   <button
                     onClick={handleNextQuestion}
-                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#003087] to-[#0047b3] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#003087]/40 transition-all hover:scale-[1.02]"
+                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#050FA0] to-[#1A27C2] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#050FA0]/40 transition-all hover:scale-[1.02]"
                   >
                     {currentQuestionIndex < sessionQuestions.length - 1 ? (
                       <>
@@ -532,7 +532,7 @@ export default function InterviewPrep() {
               <motion.div
                 initial={{ y: 20 }}
                 animate={{ y: 0 }}
-                className="bg-gradient-to-br from-[#003087] to-[#0047b3] rounded-3xl p-12 text-white text-center mb-8 shadow-2xl"
+                className="bg-gradient-to-br from-[#050FA0] to-[#1A27C2] rounded-3xl p-12 text-white text-center mb-8 shadow-2xl"
               >
                 <motion.div
                   initial={{ scale: 0 }}
@@ -564,7 +564,7 @@ export default function InterviewPrep() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-[#003087] transition-all"
+                    className="bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-[#050FA0] transition-all"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <span className="text-sm font-semibold text-slate-500">Question {index + 1}</span>
@@ -619,14 +619,14 @@ export default function InterviewPrep() {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={handleRestart}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-[#003087] hover:text-[#003087] transition-all font-semibold"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] transition-all font-semibold"
                   >
                     <RotateCcw className="h-5 w-5" />
                     Recommencer
                   </button>
                   <Link
                     to="/dashboard"
-                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 transition-all hover:scale-[1.02]"
+                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E4220F]/40 transition-all hover:scale-[1.02]"
                   >
                     <span>Retour au tableau de bord</span>
                     <ArrowRight className="h-5 w-5" />

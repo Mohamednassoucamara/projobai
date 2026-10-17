@@ -8,7 +8,7 @@ import { useCVData, type CVData } from "../contexts/CVDataContext";
 import { aiService, aiErrorMessage } from "../../services/ai.service";
 
 const inputCls =
-  "w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all";
+  "w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all";
 const LEVELS = [
   { label: "Notions", percentage: 30 },
   { label: "Intermédiaire", percentage: 60 },
@@ -23,7 +23,7 @@ function SaveBadge() {
     loading: { icon: Loader2, text: "Chargement…", cls: "text-slate-500" },
     saving: { icon: Loader2, text: "Enregistrement…", cls: "text-slate-500" },
     saved: { icon: Cloud, text: "Enregistré dans votre compte", cls: "text-emerald-600" },
-    error: { icon: CloudOff, text: "Non enregistré : vérifiez la connexion", cls: "text-[#E31E24]" },
+    error: { icon: CloudOff, text: "Non enregistré : vérifiez la connexion", cls: "text-[#E4220F]" },
   }[saveStatus];
   const Icon = map.icon;
   return (
@@ -131,7 +131,7 @@ export default function CVEdit() {
         <div className="page-container-narrow py-3 sm:py-4 max-w-5xl">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1 min-w-0">
-              <Link to="/cv-preview" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors min-w-0">
+              <Link to="/cv-preview" className="flex items-center gap-2 text-slate-600 hover:text-[#050FA0] transition-colors min-w-0">
                 <ArrowLeft className="h-5 w-5 shrink-0" />
                 <span className="font-medium text-sm sm:text-base truncate">Retour à l&apos;aperçu</span>
               </Link>
@@ -143,7 +143,7 @@ export default function CVEdit() {
                 onClick={handleOptimize}
                 disabled={aiBusy || !canOptimize}
                 title={canOptimize ? "" : "Renseignez au moins le titre et le profil ou une expérience"}
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#003087]"
+                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#050FA0] text-[#050FA0] hover:bg-[#050FA0] hover:text-white transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#050FA0]"
               >
                 {aiBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 <span>{aiBusy ? "Optimisation…" : "Optimiser avec l'IA"}</span>
@@ -151,7 +151,7 @@ export default function CVEdit() {
               <button
                 type="button"
                 onClick={handleSave}
-                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all font-bold"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white hover:shadow-xl hover:shadow-[#E4220F]/40 sm:hover:scale-[1.02] transition-all font-bold"
               >
                 <Eye className="h-4 w-4" />
                 <span>Voir l&apos;aperçu</span>
@@ -180,7 +180,7 @@ export default function CVEdit() {
                 </div>
               </div>
               {undo && (
-                <button type="button" onClick={handleUndo} className="inline-flex items-center gap-2 text-sm font-bold text-[#003087] hover:underline shrink-0">
+                <button type="button" onClick={handleUndo} className="inline-flex items-center gap-2 text-sm font-bold text-[#050FA0] hover:underline shrink-0">
                   <Undo2 className="h-4 w-4" /> Annuler les modifications IA
                 </button>
               )}
@@ -193,11 +193,11 @@ export default function CVEdit() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-3xl shadow-xl border-2 border-slate-100 p-5 sm:p-10"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#003087] mb-8">Modifier votre CV</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#050FA0] mb-8">Modifier votre CV</h1>
 
           {/* Informations personnelles */}
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-[#003087] mb-4">Informations personnelles</h2>
+            <h2 className="text-xl font-bold text-[#050FA0] mb-4">Informations personnelles</h2>
             <div className="mb-5"><CVPhotoField /></div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -225,7 +225,7 @@ export default function CVEdit() {
 
           {/* Profil */}
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-[#003087] mb-4">Profil professionnel</h2>
+            <h2 className="text-xl font-bold text-[#050FA0] mb-4">Profil professionnel</h2>
             <label htmlFor="cv-profile" className="sr-only">Profil professionnel</label>
             <textarea
               id="cv-profile"
@@ -240,11 +240,11 @@ export default function CVEdit() {
           {/* Expériences */}
           <section className="mb-10">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="text-xl font-bold text-[#003087]">Expériences professionnelles</h2>
+              <h2 className="text-xl font-bold text-[#050FA0]">Expériences professionnelles</h2>
               <button
                 type="button"
                 onClick={() => set("experiences", [...formData.experiences, { title: "", company: "", period: "", description: [] }])}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#003087]/10 text-[#003087] font-bold text-sm hover:bg-[#003087]/20"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#050FA0]/10 text-[#050FA0] font-bold text-sm hover:bg-[#050FA0]/20"
               >
                 <Plus className="h-4 w-4" /> Ajouter
               </button>
@@ -259,7 +259,7 @@ export default function CVEdit() {
                 <div key={i} className="rounded-2xl border-2 border-slate-100 p-4 sm:p-5">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-bold text-slate-500">Expérience {i + 1}</span>
-                    <button type="button" onClick={() => set("experiences", formData.experiences.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-sm text-[#E31E24] hover:underline" aria-label={`Retirer l'expérience ${i + 1}`}>
+                    <button type="button" onClick={() => set("experiences", formData.experiences.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-sm text-[#E4220F] hover:underline" aria-label={`Retirer l'expérience ${i + 1}`}>
                       <X className="h-4 w-4" /> Retirer
                     </button>
                   </div>
@@ -297,11 +297,11 @@ export default function CVEdit() {
           {/* Formation */}
           <section className="mb-10">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="text-xl font-bold text-[#003087]">Formation</h2>
+              <h2 className="text-xl font-bold text-[#050FA0]">Formation</h2>
               <button
                 type="button"
                 onClick={() => set("education", [...formData.education, { degree: "", institution: "", period: "" }])}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#003087]/10 text-[#003087] font-bold text-sm hover:bg-[#003087]/20"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#050FA0]/10 text-[#050FA0] font-bold text-sm hover:bg-[#050FA0]/20"
               >
                 <Plus className="h-4 w-4" /> Ajouter
               </button>
@@ -316,7 +316,7 @@ export default function CVEdit() {
                 <div key={i} className="rounded-2xl border-2 border-slate-100 p-4 sm:p-5">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-bold text-slate-500">Formation {i + 1}</span>
-                    <button type="button" onClick={() => set("education", formData.education.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-sm text-[#E31E24] hover:underline" aria-label={`Retirer la formation ${i + 1}`}>
+                    <button type="button" onClick={() => set("education", formData.education.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-sm text-[#E4220F] hover:underline" aria-label={`Retirer la formation ${i + 1}`}>
                       <X className="h-4 w-4" /> Retirer
                     </button>
                   </div>
@@ -341,13 +341,13 @@ export default function CVEdit() {
 
           {/* Compétences */}
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-[#003087] mb-4">Compétences</h2>
+            <h2 className="text-xl font-bold text-[#050FA0] mb-4">Compétences</h2>
             <label htmlFor="cv-skills" className="sr-only">Compétences</label>
             <input id="cv-skills" type="text" value={skillsText} onChange={(e) => handleSkills(e.target.value)} className={inputCls} placeholder="AutoCAD, Suivi de chantier, Excel (séparées par des virgules)" />
             {formData.skills.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {formData.skills.map((s, i) => (
-                  <span key={i} className="px-3 py-1 rounded-full bg-[#003087]/10 text-[#003087] text-sm font-medium">{s}</span>
+                  <span key={i} className="px-3 py-1 rounded-full bg-[#050FA0]/10 text-[#050FA0] text-sm font-medium">{s}</span>
                 ))}
               </div>
             )}
@@ -356,11 +356,11 @@ export default function CVEdit() {
           {/* Langues */}
           <section className="mb-10">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="text-xl font-bold text-[#003087]">Langues</h2>
+              <h2 className="text-xl font-bold text-[#050FA0]">Langues</h2>
               <button
                 type="button"
                 onClick={() => set("languages", [...formData.languages, { name: "", level: "Courant", percentage: 85 }])}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#003087]/10 text-[#003087] font-bold text-sm hover:bg-[#003087]/20"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#050FA0]/10 text-[#050FA0] font-bold text-sm hover:bg-[#050FA0]/20"
               >
                 <Plus className="h-4 w-4" /> Ajouter
               </button>
@@ -383,7 +383,7 @@ export default function CVEdit() {
                       {LEVELS.map((l) => <option key={l.label}>{l.label}</option>)}
                     </select>
                   </div>
-                  <button type="button" onClick={() => set("languages", formData.languages.filter((_, k) => k !== i))} className="h-12 w-12 inline-flex items-center justify-center rounded-xl text-[#E31E24] hover:bg-red-50" aria-label={`Retirer la langue ${i + 1}`}>
+                  <button type="button" onClick={() => set("languages", formData.languages.filter((_, k) => k !== i))} className="h-12 w-12 inline-flex items-center justify-center rounded-xl text-[#E4220F] hover:bg-red-50" aria-label={`Retirer la langue ${i + 1}`}>
                     <X className="h-5 w-5" />
                   </button>
                 </div>
@@ -399,7 +399,7 @@ export default function CVEdit() {
                   type="checkbox"
                   checked={isSearchable}
                   onChange={(e) => { void setSearchable(e.target.checked); }}
-                  className="mt-1 h-5 w-5 accent-[#003087]"
+                  className="mt-1 h-5 w-5 accent-[#050FA0]"
                 />
                 <span>
                   <span className="block font-bold text-slate-800">Rendre mon profil visible par les recruteurs</span>
@@ -418,7 +418,7 @@ export default function CVEdit() {
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 hover:scale-[1.02] transition-all font-bold"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white hover:shadow-xl hover:shadow-[#E4220F]/40 hover:scale-[1.02] transition-all font-bold"
             >
               <Save className="h-4 w-4" /> Enregistrer et voir l&apos;aperçu
             </button>

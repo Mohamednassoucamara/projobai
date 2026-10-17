@@ -28,7 +28,7 @@ export default function DashboardHeader() {
             <AppLogo />
             <Link
               to="/"
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-[#003087] hover:bg-gradient-to-r hover:from-[#003087] hover:to-[#0047b3] hover:text-white transition-all border-2 border-[#003087]"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-[#050FA0] hover:bg-gradient-to-r hover:from-[#050FA0] hover:to-[#1A27C2] hover:text-white transition-all border-2 border-[#050FA0]"
             >
               <Home className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">Accueil</span>
@@ -39,7 +39,7 @@ export default function DashboardHeader() {
             <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 max-w-[140px] sm:max-w-none">
               <div
                 className={`h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br flex items-center justify-center font-bold text-white text-xs sm:text-sm shadow-lg shrink-0 ${
-                  isCompany ? "from-[#E31E24] to-[#ff3333]" : "from-[#003087] to-[#0047b3]"
+                  isCompany ? "from-[#E4220F] to-[#F92813]" : "from-[#050FA0] to-[#1A27C2]"
                 }`}
               >
                 {initials}
@@ -51,7 +51,7 @@ export default function DashboardHeader() {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-600 hover:bg-red-50 hover:text-[#E31E24] transition-all border border-transparent hover:border-red-200"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-600 hover:bg-red-50 hover:text-[#E4220F] transition-all border border-transparent hover:border-red-200"
               aria-label="Déconnexion"
             >
               <LogOut className="h-4 w-4 shrink-0" />

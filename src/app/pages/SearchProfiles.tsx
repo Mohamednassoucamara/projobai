@@ -105,7 +105,7 @@ export default function SearchProfiles() {
     if (err) setFavorites(favorites);
   };
 
-  const selectCls = "w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 focus:border-[#003087] outline-none text-sm bg-white";
+  const selectCls = "w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 focus:border-[#050FA0] outline-none text-sm bg-white";
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -126,7 +126,7 @@ export default function SearchProfiles() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Rechercher par poste, compétence ou nom…"
-                className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors bg-white"
+                className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors bg-white"
               />
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function SearchProfiles() {
                   </select>
                 </div>
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={onlyFavorites} onChange={(e) => setOnlyFavorites(e.target.checked)} className="h-4 w-4 accent-[#003087]" />
+                  <input type="checkbox" checked={onlyFavorites} onChange={(e) => setOnlyFavorites(e.target.checked)} className="h-4 w-4 accent-[#050FA0]" />
                   Seulement mes favoris ({favorites.size})
                 </label>
               </div>
@@ -159,7 +159,7 @@ export default function SearchProfiles() {
 
             <div className="lg:col-span-3">
               {loading ? (
-                <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#003087]" /></div>
+                <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#050FA0]" /></div>
               ) : error ? (
                 <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-6 text-amber-900">{error}</div>
               ) : rows.length === 0 ? (
@@ -170,17 +170,17 @@ export default function SearchProfiles() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-sm text-slate-600"><span className="font-bold text-[#003087]">{rows.length}</span> profil{rows.length > 1 ? "s" : ""}</p>
+                  <p className="text-sm text-slate-600"><span className="font-bold text-[#050FA0]">{rows.length}</span> profil{rows.length > 1 ? "s" : ""}</p>
                   {rows.map(({ c, match }, i) => (
                     <motion.div
                       key={c.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(i, 8) * 0.04 }}
-                      className="bg-white rounded-2xl p-5 sm:p-6 border hover:border-[#003087] transition-colors"
+                      className="bg-white rounded-2xl p-5 sm:p-6 border hover:border-[#050FA0] transition-colors"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] text-white flex items-center justify-center font-bold text-xl shrink-0">
+                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] text-white flex items-center justify-center font-bold text-xl shrink-0">
                           {(c.full_name || "?").charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -213,7 +213,7 @@ export default function SearchProfiles() {
                               type="button"
                               onClick={() => toggleFavorite(c.id)}
                               aria-pressed={favorites.has(c.id)}
-                              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold border transition-colors ${favorites.has(c.id) ? "bg-amber-50 border-amber-300 text-amber-800" : "border-slate-300 text-slate-700 hover:border-[#003087]"}`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold border transition-colors ${favorites.has(c.id) ? "bg-amber-50 border-amber-300 text-amber-800" : "border-slate-300 text-slate-700 hover:border-[#050FA0]"}`}
                             >
                               <Star className={`h-4 w-4 ${favorites.has(c.id) ? "fill-amber-400 text-amber-500" : ""}`} />
                               {favorites.has(c.id) ? "Dans mes favoris" : "Ajouter aux favoris"}

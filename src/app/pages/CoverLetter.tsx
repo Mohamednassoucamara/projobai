@@ -204,11 +204,11 @@ export default function CoverLetter() {
                 <motion.div
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
-                  className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#003087] to-[#0047b3] mb-6"
+                  className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] mb-6"
                 >
                   <FileText className="h-10 w-10 text-white" />
                 </motion.div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#003087] to-[#0047b3] bg-clip-text text-transparent">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#050FA0] to-[#1A27C2] bg-clip-text text-transparent">
                   Lettre de Motivation IA
                 </h1>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -227,7 +227,7 @@ export default function CoverLetter() {
                     <div className="space-y-6">
                       <div>
                         <label className="block font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                          <Building className="h-4 w-4 text-[#003087]" />
+                          <Building className="h-4 w-4 text-[#050FA0]" />
                           Nom de l'entreprise *
                         </label>
                         <input
@@ -235,13 +235,13 @@ export default function CoverLetter() {
                           value={formData.companyName}
                           onChange={(e) => handleInputChange("companyName", e.target.value)}
                           placeholder="Orange Guinée"
-                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors text-slate-900"
+                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors text-slate-900"
                         />
                       </div>
 
                       <div>
                         <label className="block font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                          <Target className="h-4 w-4 text-[#003087]" />
+                          <Target className="h-4 w-4 text-[#050FA0]" />
                           Poste visé *
                         </label>
                         <input
@@ -249,7 +249,7 @@ export default function CoverLetter() {
                           value={formData.position}
                           onChange={(e) => handleInputChange("position", e.target.value)}
                           placeholder="Développeur Full Stack"
-                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors text-slate-900"
+                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors text-slate-900"
                         />
                       </div>
 
@@ -263,7 +263,7 @@ export default function CoverLetter() {
                             value={formData.sector}
                             onChange={(e) => handleInputChange("sector", e.target.value)}
                             placeholder="Télécommunications"
-                            className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors text-slate-900"
+                            className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors text-slate-900"
                           />
                         </div>
 
@@ -276,7 +276,7 @@ export default function CoverLetter() {
                             value={formData.recruiterName}
                             onChange={(e) => handleInputChange("recruiterName", e.target.value)}
                             placeholder="M./Mme Nom"
-                            className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors text-slate-900"
+                            className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors text-slate-900"
                           />
                         </div>
                       </div>
@@ -290,7 +290,7 @@ export default function CoverLetter() {
                           onChange={(e) => handleInputChange("experience", e.target.value)}
                           rows={3}
                           placeholder="Ex: 3 ans d'expérience en développement web, spécialisé en React et Node.js..."
-                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors resize-none text-slate-900"
+                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors resize-none text-slate-900"
                         />
                       </div>
 
@@ -303,7 +303,7 @@ export default function CoverLetter() {
                           value={formData.skills}
                           onChange={(e) => handleInputChange("skills", e.target.value)}
                           placeholder="Ex: JavaScript, React, Communication, Travail d'équipe..."
-                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors text-slate-900"
+                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors text-slate-900"
                         />
                       </div>
 
@@ -316,7 +316,7 @@ export default function CoverLetter() {
                           value={formData.qualities}
                           onChange={(e) => handleInputChange("qualities", e.target.value)}
                           placeholder="Ex: Rigoureux, créatif, autonome..."
-                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors text-slate-900"
+                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors text-slate-900"
                         />
                       </div>
 
@@ -329,7 +329,7 @@ export default function CoverLetter() {
                           onChange={(e) => handleInputChange("motivation", e.target.value)}
                           rows={4}
                           placeholder="Expliquez pourquoi vous souhaitez rejoindre cette entreprise et ce poste..."
-                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors resize-none text-slate-900"
+                          className="w-full px-5 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors resize-none text-slate-900"
                         />
                       </div>
                     </div>
@@ -344,7 +344,7 @@ export default function CoverLetter() {
                   >
                     <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-slate-100">
                       <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-[#003087]" />
+                        <Sparkles className="h-5 w-5 text-[#050FA0]" />
                         Ton de la lettre
                       </h3>
                       <div className="space-y-3">
@@ -354,7 +354,7 @@ export default function CoverLetter() {
                             onClick={() => setSelectedTone(key as Tone)}
                             className={`w-full p-4 rounded-xl text-left transition-all ${
                               selectedTone === key
-                                ? "bg-gradient-to-r from-[#003087] to-[#0047b3] text-white shadow-lg"
+                                ? "bg-gradient-to-r from-[#050FA0] to-[#1A27C2] text-white shadow-lg"
                                 : "bg-slate-50 hover:bg-slate-100 text-slate-900"
                             }`}
                           >
@@ -370,9 +370,9 @@ export default function CoverLetter() {
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-[#003087]/10 to-[#0047b3]/10 rounded-2xl p-6 border border-[#003087]/20">
+                    <div className="bg-gradient-to-br from-[#050FA0]/10 to-[#1A27C2]/10 rounded-2xl p-6 border border-[#050FA0]/20">
                       <div className="flex items-start gap-3 mb-4">
-                        <Lightbulb className="h-6 w-6 text-[#003087] flex-shrink-0 mt-1" />
+                        <Lightbulb className="h-6 w-6 text-[#050FA0] flex-shrink-0 mt-1" />
                         <div>
                           <h3 className="font-bold text-slate-900 mb-2">Conseils IA</h3>
                           <ul className="space-y-2 text-sm text-slate-700">
@@ -388,7 +388,7 @@ export default function CoverLetter() {
                     <button
                       onClick={generateLetter}
                       disabled={!isFormValid || isGenerating}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02]"
+                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E4220F]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02]"
                     >
                       {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
                       <span>{isGenerating ? "Rédaction en cours…" : "Rédiger ma lettre"}</span>
@@ -413,16 +413,16 @@ export default function CoverLetter() {
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
                 <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Votre lettre de motivation</h2>
                 <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
-                  <button onClick={() => setStep("form")} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-[#003087] hover:text-[#003087] transition-all font-semibold">
+                  <button onClick={() => setStep("form")} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] transition-all font-semibold">
                     <RotateCcw className="h-4 w-4" /> Recommencer
                   </button>
-                  <button onClick={() => setIsEditing(!isEditing)} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-[#003087] transition-all font-semibold ${isEditing ? "bg-[#003087] text-white" : "text-[#003087] hover:bg-[#003087] hover:text-white"}`}>
+                  <button onClick={() => setIsEditing(!isEditing)} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-[#050FA0] transition-all font-semibold ${isEditing ? "bg-[#050FA0] text-white" : "text-[#050FA0] hover:bg-[#050FA0] hover:text-white"}`}>
                     {isEditing ? <Check className="h-4 w-4" /> : <Edit className="h-4 w-4" />} {isEditing ? "Terminer" : "Modifier le texte"}
                   </button>
                   <button onClick={handleCopy} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-slate-200 text-slate-700 hover:border-green-500 hover:text-green-600 transition-all font-semibold">
                     {showCopySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} {showCopySuccess ? "Copiée" : "Copier"}
                   </button>
-                  <button onClick={handleDownload} disabled={isDownloading} className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 transition-all font-bold disabled:opacity-70">
+                  <button onClick={handleDownload} disabled={isDownloading} className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white hover:shadow-xl hover:shadow-[#E4220F]/40 transition-all font-bold disabled:opacity-70">
                     {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Télécharger en PDF
                   </button>
                 </div>
@@ -450,7 +450,7 @@ export default function CoverLetter() {
                             role="radio"
                             aria-checked={selected}
                             onClick={() => updateCVData({ letterTemplate: id })}
-                            className={`rounded-xl border-2 p-2 text-left transition-colors ${selected ? "border-slate-900 bg-slate-50" : "border-slate-200 hover:border-[#003087]"}`}
+                            className={`rounded-xl border-2 p-2 text-left transition-colors ${selected ? "border-slate-900 bg-slate-50" : "border-slate-200 hover:border-[#050FA0]"}`}
                           >
                             <span className="block aspect-[210/297] w-full rounded bg-white border border-slate-200 overflow-hidden relative mb-2" aria-hidden="true">
                               {id === "moderne" && <span className="absolute inset-x-0 top-0 h-[16%]" style={{ background: cvData.theme }} />}

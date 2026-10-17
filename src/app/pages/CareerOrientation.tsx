@@ -15,7 +15,7 @@ import {
 } from "../../lib/orientationData";
 
 const inputCls =
-  "w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all bg-white";
+  "w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all bg-white";
 
 const QUESTIONS = [
   "Comment trouver un stage à Conakry ?",
@@ -164,16 +164,16 @@ export default function CareerOrientation() {
       <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-8 sm:py-12 flex-1">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div className="flex items-start gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center shrink-0 shadow-lg">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] flex items-center justify-center shrink-0 shadow-lg">
               <Compass className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-[#003087]">Orientation professionnelle</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#050FA0]">Orientation professionnelle</h1>
               <p className="text-slate-600 mt-1 max-w-2xl">Découvrez les métiers qui vous correspondent sur le marché guinéen, avec un plan d&apos;action concret et un conseiller pour répondre à vos questions.</p>
             </div>
           </div>
           {result && !editingProfile && (
-            <button type="button" onClick={() => setEditingProfile(true)} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#003087] text-[#003087] font-bold hover:bg-[#003087] hover:text-white transition-colors shrink-0">
+            <button type="button" onClick={() => setEditingProfile(true)} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#050FA0] text-[#050FA0] font-bold hover:bg-[#050FA0] hover:text-white transition-colors shrink-0">
               <RotateCcw className="h-4 w-4" /> Refaire le questionnaire
             </button>
           )}
@@ -223,7 +223,7 @@ export default function CareerOrientation() {
                       aria-pressed={on}
                       disabled={full}
                       onClick={() => toggleInterest(i.id)}
-                      className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-colors disabled:opacity-40 ${on ? "bg-[#003087] border-[#003087] text-white" : "bg-white border-slate-200 text-slate-700 hover:border-[#003087]"}`}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-colors disabled:opacity-40 ${on ? "bg-[#050FA0] border-[#050FA0] text-white" : "bg-white border-slate-200 text-slate-700 hover:border-[#050FA0]"}`}
                     >
                       {on && <CheckCircle2 className="inline h-4 w-4 mr-1 -mt-0.5" />}{i.label}
                     </button>
@@ -244,11 +244,11 @@ export default function CareerOrientation() {
             </div>
 
             <label className="mt-5 flex items-center gap-3 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" checked={profile.mobilite} onChange={(e) => set("mobilite", e.target.checked)} className="h-5 w-5 accent-[#003087]" />
+              <input type="checkbox" checked={profile.mobilite} onChange={(e) => set("mobilite", e.target.checked)} className="h-5 w-5 accent-[#050FA0]" />
               Je suis prêt(e) à travailler hors de ma ville ou sur des sites (mines, chantiers, projets en région).
             </label>
 
-            {formError && <p role="alert" className="mt-5 text-sm font-medium text-[#E31E24]">{formError}</p>}
+            {formError && <p role="alert" className="mt-5 text-sm font-medium text-[#E4220F]">{formError}</p>}
 
             <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
               {result && (
@@ -256,7 +256,7 @@ export default function CareerOrientation() {
                   Revoir mes résultats
                 </button>
               )}
-              <button type="button" onClick={analyse} disabled={loading} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold hover:shadow-xl hover:shadow-[#E31E24]/30 transition-all disabled:opacity-70">
+              <button type="button" onClick={analyse} disabled={loading} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white font-bold hover:shadow-xl hover:shadow-[#E4220F]/30 transition-all disabled:opacity-70">
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
                 {loading ? "Analyse de votre profil…" : "Découvrir mes pistes"}
               </button>
@@ -270,7 +270,7 @@ export default function CareerOrientation() {
             {notice && <div role="status" className="mb-6 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{notice}</div>}
             {appliedTitle && <div role="status" className="mb-6 rounded-xl border-2 border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">« {appliedTitle} » est maintenant le poste visé de votre CV.</div>}
 
-            <div className="rounded-3xl bg-gradient-to-br from-[#003087] to-[#0047b3] text-white p-6 sm:p-8 mb-6 shadow-xl">
+            <div className="rounded-3xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] text-white p-6 sm:p-8 mb-6 shadow-xl">
               <h2 id="r-title" className="text-xl sm:text-2xl font-bold flex items-center gap-2"><Target className="h-6 w-6" /> Vos pistes professionnelles</h2>
               {result.summary && <p className="mt-2 text-white/90 max-w-3xl">{result.summary}</p>}
               <p className="mt-3 text-xs text-white/70">
@@ -285,7 +285,7 @@ export default function CareerOrientation() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  className={`bg-white rounded-3xl border-2 p-5 sm:p-6 flex flex-col gap-4 ${i === 0 ? "border-[#003087] shadow-xl" : "border-slate-100 shadow-lg"}`}
+                  className={`bg-white rounded-3xl border-2 p-5 sm:p-6 flex flex-col gap-4 ${i === 0 ? "border-[#050FA0] shadow-xl" : "border-slate-100 shadow-lg"}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -308,7 +308,7 @@ export default function CareerOrientation() {
                   {c.skillsToDevelop.length > 0 && (
                     <div>
                       <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5"><Lightbulb className="h-3.5 w-3.5" /> Compétences clés</h4>
-                      <div className="flex flex-wrap gap-1.5">{c.skillsToDevelop.map((s) => <span key={s} className="px-2.5 py-1 rounded-full bg-[#003087]/10 text-[#003087] text-xs font-semibold">{s}</span>)}</div>
+                      <div className="flex flex-wrap gap-1.5">{c.skillsToDevelop.map((s) => <span key={s} className="px-2.5 py-1 rounded-full bg-[#050FA0]/10 text-[#050FA0] text-xs font-semibold">{s}</span>)}</div>
                     </div>
                   )}
                   {c.trainings.length > 0 && (
@@ -323,7 +323,7 @@ export default function CareerOrientation() {
                       <ol className="space-y-2">
                         {c.firstSteps.map((s, k) => (
                           <li key={k} className="flex gap-2.5 text-sm text-slate-800">
-                            <span className="h-5 w-5 shrink-0 rounded-full bg-[#003087] text-white text-[11px] font-bold grid place-items-center mt-0.5">{k + 1}</span>
+                            <span className="h-5 w-5 shrink-0 rounded-full bg-[#050FA0] text-white text-[11px] font-bold grid place-items-center mt-0.5">{k + 1}</span>
                             <span>{s}</span>
                           </li>
                         ))}
@@ -332,14 +332,14 @@ export default function CareerOrientation() {
                   )}
 
                   <div className="mt-auto pt-2 grid gap-2">
-                    <Link to={`/jobs?q=${encodeURIComponent(c.title.split(/[(/]/)[0].trim())}`} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#003087] text-white text-sm font-bold hover:bg-[#002366]">
+                    <Link to={`/jobs?q=${encodeURIComponent(c.title.split(/[(/]/)[0].trim())}`} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#050FA0] text-white text-sm font-bold hover:bg-[#060C6E]">
                       <Briefcase className="h-4 w-4" /> Voir les offres
                     </Link>
                     <div className="grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => applyTitle(c.title)} className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 text-xs font-bold hover:border-[#003087] hover:text-[#003087]">
+                      <button type="button" onClick={() => applyTitle(c.title)} className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 text-xs font-bold hover:border-[#050FA0] hover:text-[#050FA0]">
                         <GraduationCap className="h-4 w-4" /> Viser ce poste
                       </button>
-                      <Link to={`/interview-prep?position=${encodeURIComponent(c.title)}`} className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 text-xs font-bold hover:border-[#003087] hover:text-[#003087]">
+                      <Link to={`/interview-prep?position=${encodeURIComponent(c.title)}`} className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 text-xs font-bold hover:border-[#050FA0] hover:text-[#050FA0]">
                         <Target className="h-4 w-4" /> S&apos;entraîner
                       </Link>
                     </div>
@@ -364,7 +364,7 @@ export default function CareerOrientation() {
         {/* ---------- Conseiller carrière ---------- */}
         <section aria-labelledby="c-title" className="bg-white rounded-3xl border-2 border-slate-100 shadow-xl overflow-hidden">
           <div className="p-5 sm:p-7 border-b border-slate-100 flex items-start gap-3">
-            <div className="h-11 w-11 rounded-xl bg-[#E31E24]/10 text-[#E31E24] grid place-items-center shrink-0"><MessageCircle className="h-5 w-5" /></div>
+            <div className="h-11 w-11 rounded-xl bg-[#E4220F]/10 text-[#E4220F] grid place-items-center shrink-0"><MessageCircle className="h-5 w-5" /></div>
             <div>
               <h2 id="c-title" className="text-xl font-bold text-slate-900">Conseiller carrière</h2>
               <p className="text-sm text-slate-500">Posez vos questions sur votre orientation, votre recherche d&apos;emploi ou votre évolution.</p>
@@ -376,7 +376,7 @@ export default function CareerOrientation() {
               <p className="rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 mb-5">{chatUnavailable} En attendant, voici les réponses aux questions les plus fréquentes.</p>
               <div className="space-y-3">
                 {FAQ.map((f) => (
-                  <details key={f.q} className="group rounded-2xl border-2 border-slate-100 p-4 open:border-[#003087]/30">
+                  <details key={f.q} className="group rounded-2xl border-2 border-slate-100 p-4 open:border-[#050FA0]/30">
                     <summary className="cursor-pointer font-bold text-slate-800 list-none flex items-center justify-between gap-3">
                       {f.q}<ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-90" />
                     </summary>
@@ -393,14 +393,14 @@ export default function CareerOrientation() {
                     <p className="text-sm text-slate-600 mb-3">Exemples de questions :</p>
                     <div className="flex flex-wrap gap-2">
                       {QUESTIONS.map((q) => (
-                        <button key={q} type="button" onClick={() => ask(q)} className="px-3.5 py-2 rounded-full border-2 border-slate-200 text-sm text-slate-700 hover:border-[#003087] hover:text-[#003087] text-left">{q}</button>
+                        <button key={q} type="button" onClick={() => ask(q)} className="px-3.5 py-2 rounded-full border-2 border-slate-200 text-sm text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] text-left">{q}</button>
                       ))}
                     </div>
                   </div>
                 )}
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${m.role === "user" ? "bg-[#003087] text-white rounded-br-md" : "bg-slate-100 text-slate-800 rounded-bl-md"}`}>{m.content}</div>
+                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${m.role === "user" ? "bg-[#050FA0] text-white rounded-br-md" : "bg-slate-100 text-slate-800 rounded-bl-md"}`}>{m.content}</div>
                   </div>
                 ))}
                 {chatBusy && (
@@ -414,7 +414,7 @@ export default function CareerOrientation() {
               >
                 <label htmlFor="c-question" className="sr-only">Votre question</label>
                 <input id="c-question" value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={600} placeholder="Écrivez votre question…" className={`${inputCls} rounded-full`} />
-                <button type="submit" disabled={chatBusy || !question.trim()} aria-label="Envoyer" className="h-12 w-12 shrink-0 rounded-full bg-[#003087] text-white grid place-items-center disabled:opacity-50">
+                <button type="submit" disabled={chatBusy || !question.trim()} aria-label="Envoyer" className="h-12 w-12 shrink-0 rounded-full bg-[#050FA0] text-white grid place-items-center disabled:opacity-50">
                   <Send className="h-5 w-5" />
                 </button>
               </form>

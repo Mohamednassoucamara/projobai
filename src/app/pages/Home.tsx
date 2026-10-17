@@ -1,8 +1,12 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, FileText, Briefcase, MessageSquare, Zap, ChevronDown, ChevronUp, Users, Loader2 } from "lucide-react";
+import {
+  ArrowRight, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp, Users, Loader2, Mail, Compass,
+  Smartphone, Wifi, Wallet, Sparkles, UserPlus, Send, Search, PlusCircle, Inbox, Award, CheckCircle2, Menu, X,
+} from "lucide-react";
 import { motion } from "motion/react";
 import AppLogo from "../components/AppLogo";
+import { HeroIllustration, InterviewIllustration, FeedbackIllustration, SuccessIllustration } from "../components/Illustrations";
 import Footer from "../components/Footer";
 import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
 import { useAuth } from "../contexts/AuthContext";
@@ -68,7 +72,7 @@ function CompanyPublishedOffersSection() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="h-10 w-10 animate-spin text-[#003087]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#050FA0]" />
       </div>
     );
   }
@@ -80,7 +84,7 @@ function CompanyPublishedOffersSection() {
         <p className="text-slate-600 mb-6">Vous n&apos;avez pas encore publié d&apos;offre.</p>
         <Link
           to="/company/post-job"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all"
         >
           Publier ma première offre
           <ArrowRight className="h-5 w-5" />
@@ -97,7 +101,7 @@ function CompanyPublishedOffersSection() {
         const isExpanded = expandedJobs.has(job.id);
 
         return (
-          <div key={job.id} className="rounded-2xl bg-white border-2 border-slate-100 overflow-hidden shadow-sm hover:border-[#003087]/30 transition-all">
+          <div key={job.id} className="rounded-2xl bg-white border-2 border-slate-100 overflow-hidden shadow-sm hover:border-[#050FA0]/30 transition-all">
             <button
               type="button"
               onClick={() => toggleJob(job.id)}
@@ -105,7 +109,7 @@ function CompanyPublishedOffersSection() {
             >
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h3 className="text-xl font-bold text-[#003087]">{job.title}</h3>
+                  <h3 className="text-xl font-bold text-[#050FA0]">{job.title}</h3>
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full ${job.is_active ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
                     {job.is_active ? "Active" : "Inactive"}
                   </span>
@@ -116,9 +120,9 @@ function CompanyPublishedOffersSection() {
                 </p>
               </div>
               {isExpanded ? (
-                <ChevronUp className="h-6 w-6 text-[#003087] shrink-0 ml-4" />
+                <ChevronUp className="h-6 w-6 text-[#050FA0] shrink-0 ml-4" />
               ) : (
-                <ChevronDown className="h-6 w-6 text-[#003087] shrink-0 ml-4" />
+                <ChevronDown className="h-6 w-6 text-[#050FA0] shrink-0 ml-4" />
               )}
             </button>
 
@@ -142,465 +146,261 @@ function CompanyPublishedOffersSection() {
   );
 }
 
+const SERVICES = [
+  { to: "/cv-assistant", icon: FileText, title: "CV professionnel", desc: "Un CV clair aux standards des recruteurs guinéens, optimisé par l'IA et prêt en PDF.", tone: "blue" },
+  { to: "/cover-letter", icon: Mail, title: "Lettre de motivation", desc: "Une lettre personnalisée pour chaque offre, assortie à votre CV.", tone: "red" },
+  { to: "/interview-prep", icon: MessageSquare, title: "Coach entretien", desc: "Des questions de vrais recruteurs, une note sur 10 et des conseils après chaque réponse.", tone: "blue" },
+  { to: "/orientation", icon: Compass, title: "Orientation", desc: "Trois métiers qui vous correspondent sur le marché guinéen, avec un plan d'action.", tone: "red" },
+  { to: "/jobs", icon: Briefcase, title: "Offres et matching", desc: "Chaque offre affiche votre taux de compatibilité avec votre CV.", tone: "blue" },
+  { to: "/profile-choice", icon: Smartphone, title: "Aussi sur WhatsApp", desc: "Les mêmes services depuis votre téléphone, sans application à installer.", tone: "red" },
+] as const;
+
+const STEPS_CANDIDATE = [
+  { icon: UserPlus, title: "Créez votre compte", desc: "Gratuit, en moins d'une minute." },
+  { icon: FileText, title: "Construisez votre CV", desc: "Guidé question par question, puis optimisé par l'IA." },
+  { icon: MessageSquare, title: "Entraînez-vous", desc: "Simulez l'entretien et corrigez vos points faibles." },
+  { icon: Send, title: "Postulez", desc: "Aux offres les plus compatibles, en un clic." },
+];
+
+const STEPS_COMPANY = [
+  { icon: PlusCircle, title: "Publiez votre offre", desc: "En quelques minutes, avec les compétences attendues." },
+  { icon: Inbox, title: "Recevez les candidatures", desc: "Classées par compatibilité avec votre offre." },
+  { icon: Award, title: "Recrutez", desc: "Présélectionnez, invitez en entretien, le candidat est notifié." },
+];
+
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
   const isCompany = isAuthenticated && user?.type === "company";
   const dashboardLink = user?.type === "company" ? "/company/dashboard" : "/dashboard";
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const primaryCta = isAuthenticated && user
+    ? { to: dashboardLink, label: "Accéder à mon espace" }
+    : { to: "/profile-choice", label: "Commencer gratuitement" };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50/30 to-white">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="page-container py-4 sm:py-6"
-      >
-        <div className="flex items-center justify-between gap-3 min-w-0">
+    <div className="min-h-screen bg-white text-ink">
+      {/* En-tête */}
+      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100">
+        <div className="page-container flex items-center justify-between gap-4 py-3">
           <AppLogo />
-
-          {isAuthenticated && user ? (
-            <Link
-              to={dashboardLink}
-              className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border-2 border-slate-200 hover:border-[#003087] transition-all min-w-0 max-w-[55%] sm:max-w-none"
-            >
-              <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br shrink-0 ${user.type === "company" ? "from-[#E31E24] to-[#ff3333]" : "from-[#003087] to-[#0047b3]"} flex items-center justify-center font-bold text-white text-xs sm:text-sm shadow-lg`}>
-                {user.name.split(" ").map(n => n[0]).join("")}
-              </div>
-              <div className="text-left min-w-0 hidden sm:block">
-                <div className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{user.name}</div>
-                <div className="text-xs text-slate-600">{user.type === "company" ? "Entreprise" : "Candidat"}</div>
-              </div>
-            </Link>
-          ) : (
-            <Link
-              to="/profile-choice"
-              className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-medium text-sm sm:text-base shrink-0"
-            >
-              Se connecter
-            </Link>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Hero Section */}
-      <div className="page-container pt-8 sm:pt-12 pb-16 sm:pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.7 }}
-          className="max-w-5xl mx-auto text-center mb-16"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#003087]/10 to-[#E31E24]/10 border border-[#003087]/20 font-semibold mb-6"
-          >
-            <Zap className="h-4 w-4 text-[#E31E24]" />
-            <span className="text-sm text-[#003087]">Propulsé par l'Intelligence Artificielle</span>
-          </motion.div>
-
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
-            <span className="text-[#003087]">L'IA qui vous prépare à</span>{" "}
-            <span className="bg-gradient-to-r from-[#E31E24] to-[#ff3333] bg-clip-text text-transparent">l'emploi</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Créez votre CV, générez votre lettre de motivation et entraînez-vous aux entretiens avec notre assistant intelligent
-          </p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
+          <nav className="hidden md:flex items-center gap-7 text-[15px] font-semibold text-slate-600" aria-label="Navigation principale">
+            <a href="#services" className="hover:text-brand">Services</a>
+            <Link to="/jobs" className="hover:text-brand">Offres d&apos;emploi</Link>
+            <a href="#entreprises" className="hover:text-brand">Entreprises</a>
+            <Link to="/pricing" className="hover:text-brand">Tarifs</Link>
+          </nav>
+          <div className="flex items-center gap-2">
             {isAuthenticated && user ? (
-              <>
-                <Link
-                  to={dashboardLink}
-                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all"
-                >
-                  Accéder au tableau de bord
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                {isCompany ? (
-                  <a
-                    href="#mes-offres-publiees"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
-                  >
-                    Voir mes offres publiées
-                  </a>
-                ) : (
-                  <Link
-                    to="/jobs"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
-                  >
-                    Voir les offres
-                  </Link>
-                )}
-              </>
+              <Link to={dashboardLink} className="flex items-center gap-2 rounded-full border border-slate-200 py-1.5 pl-1.5 pr-4 hover:border-brand transition-colors">
+                <span className={`h-8 w-8 rounded-full grid place-items-center text-xs font-bold text-white ${user.type === "company" ? "bg-accent-red-strong" : "bg-brand"}`}>
+                  {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                </span>
+                <span className="hidden sm:block text-sm font-semibold max-w-[10rem] truncate">{user.name}</span>
+              </Link>
             ) : (
               <>
-                <Link
-                  to="/profile-choice"
-                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all"
-                >
-                  Commencer gratuitement
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/jobs"
-                  className="inline-flex items-center justify-center gap-2 bg-white border-2 border-[#003087] text-[#003087] px-10 py-4 rounded-full text-lg font-bold hover:bg-[#003087] hover:text-white transition-all"
-                >
-                  Voir les offres
-                </Link>
+                <Link to="/login" className="hidden sm:inline-flex px-4 py-2 text-sm font-bold text-brand hover:text-brand-strong">Se connecter</Link>
+                <Link to="/profile-choice" className="inline-flex px-4 py-2.5 rounded-full bg-brand text-white text-sm font-bold hover:bg-brand-strong transition-colors">Créer un compte</Link>
               </>
             )}
-          </motion.div>
-        </motion.div>
-
-        {isCompany && (
-          <motion.section
-            id="mes-offres-publiees"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.7 }}
-            className="mb-32 scroll-mt-24"
-          >
-            <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">
-                <span className="text-[#003087]">Mes offres</span>{" "}
-                <span className="text-[#E31E24]">publiées</span>
-              </h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                Consultez vos annonces et les candidatures reçues pour chaque offre
-              </p>
+            <button type="button" className="md:hidden h-10 w-10 grid place-items-center rounded-full border border-slate-200" aria-expanded={menuOpen} aria-label="Menu" onClick={() => setMenuOpen((o) => !o)}>
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        {menuOpen && (
+          <nav className="md:hidden border-t border-slate-100 bg-white" aria-label="Navigation mobile">
+            <div className="page-container py-3 grid gap-1 text-base font-semibold">
+              {[["#services", "Services"], ["/jobs", "Offres d'emploi"], ["#entreprises", "Entreprises"], ["/pricing", "Tarifs"], ...(!isAuthenticated ? [["/login", "Se connecter"]] : [])].map(([href, label]) =>
+                href.startsWith("#")
+                  ? <a key={href} href={href} onClick={() => setMenuOpen(false)} className="px-2 py-3 rounded-lg hover:bg-slate-50">{label}</a>
+                  : <Link key={href} to={href} className="px-2 py-3 rounded-lg hover:bg-slate-50">{label}</Link>,
+              )}
             </div>
-            <CompanyPublishedOffersSection />
-          </motion.section>
+          </nav>
         )}
+      </header>
 
-        {/* Features Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.7 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-20 sm:mb-32"
-        >
-          <Link to="/cv-assistant" className="group relative p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative">
-              <div className="h-16 w-16 rounded-2xl bg-[#003087] flex items-center justify-center mb-6 shadow-lg shadow-[#003087]/30 group-hover:scale-110 transition-transform">
-                <FileText className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 group-hover:text-[#003087] transition-colors">Créer mon CV avec l'IA</h3>
-              <p className="text-slate-600 leading-relaxed">Assistant intelligent pour un CV professionnel en quelques minutes</p>
-            </div>
-          </Link>
-
-          <Link to="/interview-prep" className="group relative p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative">
-              <div className="h-16 w-16 rounded-2xl bg-[#003087] flex items-center justify-center mb-6 shadow-lg shadow-[#003087]/30 group-hover:scale-110 transition-transform">
-                <MessageSquare className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 group-hover:text-[#003087] transition-colors">Préparer mon entretien</h3>
-              <p className="text-slate-600 leading-relaxed">Simulateur d'entretien avec feedback personnalisé</p>
-            </div>
-          </Link>
-
-          <Link to="/jobs" className="group relative p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/10 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative">
-              <div className="h-16 w-16 rounded-2xl bg-[#003087] flex items-center justify-center mb-6 shadow-lg shadow-[#003087]/30 group-hover:scale-110 transition-transform">
-                <Briefcase className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 group-hover:text-[#003087] transition-colors">Trouver un emploi</h3>
-              <p className="text-slate-600 leading-relaxed">Offres adaptées à votre profil et vos compétences</p>
-            </div>
-          </Link>
-        </motion.div>
-
-        {/* Interview Preparation Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.7 }}
-          className="mb-16"
-        >
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">
-              <span className="text-[#003087]">Préparez-vous</span>{" "}
-              <span className="text-[#E31E24]">à réussir</span>
-            </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Des milliers de candidats se préparent chaque jour avec notre simulateur d'entretien intelligent
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-[520px] bg-gradient-to-b from-brand-soft/70 to-white pointer-events-none" aria-hidden="true" />
+        <div className="page-container relative grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-6 items-center pt-10 sm:pt-16 pb-14 sm:pb-20">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <span className="inline-flex items-center gap-2 rounded-full bg-white border border-brand/15 px-4 py-1.5 text-sm font-semibold text-brand shadow-sm">
+              <Sparkles className="h-4 w-4 text-accent-red" /> Coach carrière IA, conçu pour la Guinée
+            </span>
+            <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[3.6rem] font-bold leading-[1.08] text-ink">
+              L&apos;IA qui vous prépare <span className="text-brand">à l&apos;emploi</span>
+              <span className="text-accent-red">.</span>
+            </h1>
+            <p className="mt-5 text-lg sm:text-xl text-slate-600 max-w-xl leading-relaxed">
+              CV professionnel, lettre de motivation, entraînement aux entretiens et offres compatibles avec votre profil. En français, sur le web et sur WhatsApp.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Link to={primaryCta.to} className="group inline-flex items-center justify-center gap-2 rounded-full bg-accent-red-strong px-7 py-4 text-base font-bold text-white shadow-lg shadow-accent-red/25 hover:bg-[#C91D0B] transition-colors">
+                {primaryCta.label}
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+              {isCompany ? (
+                <a href="#mes-offres-publiees" className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-brand px-7 py-3.5 text-base font-bold text-brand hover:bg-brand hover:text-white transition-colors">Mes offres publiées</a>
+              ) : (
+                <Link to="/jobs" className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-brand px-7 py-3.5 text-base font-bold text-brand hover:bg-brand hover:text-white transition-colors">Voir les offres</Link>
+              )}
+            </div>
+            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
+              <li className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-brand" /> Web et WhatsApp</li>
+              <li className="flex items-center gap-2"><Wallet className="h-4 w-4 text-brand" /> Paiement Orange Money</li>
+              <li className="flex items-center gap-2"><Wifi className="h-4 w-4 text-brand" /> Léger, pensé pour la 3G</li>
+            </ul>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.1 }} className="mx-auto w-full max-w-[560px]">
+            <HeroIllustration className="w-full h-auto" title="Une candidate prépare son CV avec ProJob AI sur son téléphone" />
+          </motion.div>
+        </div>
+      </section>
+
+      {isCompany && (
+        <section id="mes-offres-publiees" className="page-container pb-20 scroll-mt-24">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 text-ink">Mes offres publiées</h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">Consultez vos annonces et les candidatures reçues pour chaque offre.</p>
           </div>
+          <CompanyPublishedOffersSection />
+        </section>
+      )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8 }}
-              className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1573496267526-08a69e46a409?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
-                alt="Professionnelles en entretien"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#003087] via-[#003087]/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Entretiens réussis</h3>
-                <p className="text-sm text-white/90">Préparez-vous efficacement</p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.9 }}
-              className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1758519289636-f4ce8e73c484?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
-                alt="Professionnels en discussion"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#E31E24] via-[#E31E24]/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Feedback personnalisé</h3>
-                <p className="text-sm text-white/90">Améliorez vos compétences</p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.0 }}
-              className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1765005204227-bf58bcdd4449?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
-                alt="Professionnelle confiante"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#003087] via-[#003087]/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Confiance garantie</h3>
-                <p className="text-sm text-white/90">Réussissez vos entretiens</p>
-              </div>
-            </motion.div>
+      {/* Services */}
+      <section id="services" className="bg-canvas py-16 sm:py-24 scroll-mt-20">
+        <div className="page-container">
+          <div className="max-w-2xl mb-10 sm:mb-14">
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-accent-red">Pour les candidats</p>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-bold text-ink">Tout pour décrocher votre prochain emploi</h2>
+            <p className="mt-3 text-lg text-slate-600">De la première ligne du CV jusqu&apos;à l&apos;entretien, ProJob AI vous accompagne à chaque étape.</p>
           </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {SERVICES.map((s) => (
+              <Link key={s.title} to={s.to} className="group flex flex-col rounded-2xl bg-white border border-slate-200/80 p-6 sm:p-7 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/5 transition-all">
+                <span className={`h-12 w-12 rounded-xl grid place-items-center ${s.tone === "red" ? "bg-accent-red-soft text-accent-red-strong" : "bg-brand-soft text-brand"}`}>
+                  <s.icon className="h-6 w-6" />
+                </span>
+                <h3 className="mt-5 text-xl font-bold text-ink">{s.title}</h3>
+                <p className="mt-2 text-slate-600 leading-relaxed">{s.desc}</p>
+                <span className="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-bold text-brand">
+                  Découvrir <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      {/* Préparation */}
+      <section className="py-16 sm:py-24">
+        <div className="page-container">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink">Arrivez préparé, repartez confiant</h2>
+            <p className="mt-3 text-lg text-slate-600">Le coach entretien vous fait répéter avec des questions réalistes, puis vous dit précisément quoi améliorer.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              { Ill: InterviewIllustration, title: "Des questions réalistes", desc: "Adaptées au poste visé et à votre CV, comme chez un vrai recruteur." },
+              { Ill: FeedbackIllustration, title: "Un retour précis", desc: "Une note sur 10, vos points forts et un exemple de meilleure réponse." },
+              { Ill: SuccessIllustration, title: "Des progrès visibles", desc: "Un bilan à la fin de chaque séance pour mesurer votre progression." },
+            ].map(({ Ill, title, desc }) => (
+              <article key={title} className="rounded-2xl overflow-hidden border border-slate-200/80 bg-white">
+                <Ill className="w-full h-auto block" />
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-ink">{title}</h3>
+                  <p className="mt-1.5 text-slate-600">{desc}</p>
+                </div>
+              </article>
+            ))}
+          </div>
           <div className="text-center mt-10">
-            <Link
-              to="/interview-prep"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#003087] to-[#0047b3] text-white px-8 py-3 rounded-full font-bold hover:shadow-xl hover:shadow-[#003087]/30 hover:scale-105 transition-all"
-            >
-              Commencer ma préparation
-              <ArrowRight className="h-5 w-5" />
+            <Link to="/interview-prep" className="inline-flex items-center gap-2 rounded-full bg-brand px-7 py-3.5 font-bold text-white hover:bg-brand-strong transition-colors">
+              Commencer ma préparation <ArrowRight className="h-5 w-5" />
             </Link>
           </div>
-        </motion.div>
-      </div>
-
-      {/* Company Section */}
-      <div className="bg-gradient-to-br from-[#003087] to-[#0047b3] py-14 sm:py-20">
-        <div className="page-container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-3 text-white">Espace entreprise</h2>
-              <p className="text-lg text-white/80">Recrutez les meilleurs talents avec notre plateforme intelligente</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-              <Link
-                to="/company/post-job"
-                className="group relative p-8 rounded-2xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] text-white hover:shadow-2xl hover:shadow-[#E31E24]/50 hover:scale-105 transition-all duration-300"
-              >
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-xl bg-white/20 backdrop-blur-sm mb-4 group-hover:scale-110 transition-transform">
-                    <div className="text-4xl font-light">+</div>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">Publier une offre</h3>
-                  <p className="text-white/90 text-sm">Créez une nouvelle annonce d'emploi</p>
-                </div>
-              </Link>
-
-              <Link
-                to="/company/dashboard"
-                className="group relative p-8 rounded-2xl bg-white hover:shadow-2xl hover:scale-105 transition-all duration-300"
-              >
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-xl bg-[#003087]/10 mb-4 group-hover:bg-[#003087] group-hover:scale-110 transition-all">
-                    <svg className="h-8 w-8 text-[#003087] group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2 text-[#003087]">Candidatures reçues</h3>
-                  <p className="text-slate-600 text-sm">Gérez les candidats intéressés</p>
-                </div>
-              </Link>
-
-              <Link
-                to="/company/search-profiles"
-                className="group relative p-8 rounded-2xl bg-white hover:shadow-2xl hover:scale-105 transition-all duration-300"
-              >
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-xl bg-[#003087]/10 mb-4 group-hover:bg-[#003087] group-hover:scale-110 transition-all">
-                    <svg className="h-8 w-8 text-[#003087] group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2 text-[#003087]">Rechercher des profils</h3>
-                  <p className="text-slate-600 text-sm">Trouvez les candidats idéaux</p>
-                </div>
-              </Link>
-            </div>
-          </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* How It Works Section */}
-      <div className="bg-gradient-to-b from-white to-slate-50 py-16">
-        <div className="page-container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.0, duration: 0.6 }}
-          >
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">
-                <span className="text-[#003087]">Comment ça</span>{" "}
-                <span className="text-[#E31E24]">fonctionne ?</span>
-              </h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                En quelques étapes simples, ProJob AI vous accompagne vers votre réussite professionnelle
-              </p>
-            </div>
-
-            {/* For Candidates */}
-            <div className="mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#003087]/10 text-[#003087] font-bold text-sm mb-8 mx-auto block w-fit">
-                Pour les candidats
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                {[
-                  {
-                    step: "01",
-                    title: "Créez votre profil",
-                    description: "Inscrivez-vous en quelques secondes",
-                    icon: "👤"
-                  },
-                  {
-                    step: "02",
-                    title: "Générez votre CV",
-                    description: "Notre IA crée votre CV professionnel",
-                    icon: "📄"
-                  },
-                  {
-                    step: "03",
-                    title: "Préparez-vous",
-                    description: "Entraînez-vous aux entretiens avec l'IA",
-                    icon: "💬"
-                  },
-                  {
-                    step: "04",
-                    title: "Postulez",
-                    description: "Trouvez et postulez en un clic",
-                    icon: "🎯"
-                  }
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 + i * 0.1 }}
-                    className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all group"
-                  >
-                    <div className="text-center">
-                      <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] text-white text-3xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        {item.icon}
-                      </div>
-                      <div className="absolute -top-3 -right-2 w-10 h-10 rounded-full bg-[#E31E24] text-white flex items-center justify-center font-bold text-sm shadow-lg">
-                        {item.step}
-                      </div>
-                      <h4 className="text-lg font-bold mb-2 text-[#003087]">{item.title}</h4>
-                      <p className="text-sm text-slate-600">{item.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* For Companies */}
-            <div className="bg-gradient-to-br from-[#003087]/5 to-[#E31E24]/5 rounded-2xl p-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E31E24]/10 text-[#E31E24] font-bold text-sm mb-8 mx-auto block w-fit">
-                Pour les entreprises
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                {[
-                  {
-                    step: "01",
-                    title: "Publiez vos offres",
-                    description: "Créez vos annonces en quelques minutes",
-                    icon: "📢"
-                  },
-                  {
-                    step: "02",
-                    title: "Recevez des candidatures",
-                    description: "Les candidats qualifiés postulent",
-                    icon: "📨"
-                  },
-                  {
-                    step: "03",
-                    title: "Recrutez",
-                    description: "Trouvez votre talent idéal",
-                    icon: "⭐"
-                  }
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.6 + i * 0.1 }}
-                    className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all group"
-                  >
-                    <div className="text-center">
-                      <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] text-white text-3xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        {item.icon}
-                      </div>
-                      <div className="absolute -top-3 -right-2 w-10 h-10 rounded-full bg-[#003087] text-white flex items-center justify-center font-bold text-sm shadow-lg">
-                        {item.step}
-                      </div>
-                      <h4 className="text-lg font-bold mb-2 text-[#003087]">{item.title}</h4>
-                      <p className="text-sm text-slate-600">{item.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            <div className="text-center mt-12">
-              <Link
-                to="/profile-choice"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-3 rounded-full font-bold hover:shadow-xl hover:shadow-[#E31E24]/30 hover:scale-105 transition-all"
-              >
-                Commencer maintenant
-                <ArrowRight className="h-5 w-5" />
+      {/* Entreprises */}
+      <section id="entreprises" className="bg-brand-strong text-white py-16 sm:py-24 scroll-mt-20 relative overflow-hidden">
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand/60 blur-2xl" aria-hidden="true" />
+        <div className="page-container relative grid lg:grid-cols-[1fr_1.3fr] gap-10 items-center">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#FF8A7A]">Pour les entreprises</p>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-bold">Recrutez plus vite les bons profils</h2>
+            <p className="mt-3 text-lg text-white/80">Publiez vos offres et recevez des candidatures classées par compatibilité. Mines, BTP, banques, ONG : trouvez des candidats préparés.</p>
+            <ul className="mt-6 space-y-2.5 text-white/90">
+              {["Classement automatique des candidatures", "CVthèque de candidats volontaires", "Le candidat est notifié à chaque étape"].map((t) => (
+                <li key={t} className="flex items-center gap-2.5"><CheckCircle2 className="h-5 w-5 text-[#FF8A7A]" /> {t}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              { to: "/company/post-job", icon: PlusCircle, title: "Publier une offre", desc: "Créez une annonce en quelques minutes", highlight: true },
+              { to: "/company/dashboard", icon: Users, title: "Candidatures reçues", desc: "Suivez et triez vos candidats" },
+              { to: "/company/search-profiles", icon: Search, title: "Rechercher des profils", desc: "Explorez la CVthèque" },
+            ].map((c) => (
+              <Link key={c.title} to={c.to} className={`group rounded-2xl p-6 transition-all ${c.highlight ? "bg-accent-red-strong hover:bg-[#C91D0B]" : "bg-white/10 hover:bg-white/15 border border-white/15"}`}>
+                <c.icon className="h-7 w-7" />
+                <h3 className="mt-4 text-lg font-bold">{c.title}</h3>
+                <p className="mt-1 text-sm text-white/80">{c.desc}</p>
               </Link>
-            </div>
-          </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Comment ça fonctionne */}
+      <section className="py-16 sm:py-24">
+        <div className="page-container">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink">Comment ça fonctionne</h2>
+            <p className="mt-3 text-lg text-slate-600">Quelques étapes simples, que vous soyez candidat ou recruteur.</p>
+          </div>
+          {[
+            { label: "Candidats", steps: STEPS_CANDIDATE, accent: "brand" },
+            { label: "Entreprises", steps: STEPS_COMPANY, accent: "red" },
+          ].map((group) => (
+            <div key={group.label} className="mb-10 last:mb-0">
+              <h3 className={`mb-5 text-sm font-bold uppercase tracking-[0.14em] ${group.accent === "red" ? "text-accent-red-strong" : "text-brand"}`}>{group.label}</h3>
+              <ol className={`grid gap-4 sm:grid-cols-2 ${group.steps.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+                {group.steps.map((st, i) => (
+                  <li key={st.title} className="relative rounded-2xl border border-slate-200/80 bg-white p-6">
+                    <div className="flex items-center gap-3">
+                      <span className={`h-11 w-11 rounded-xl grid place-items-center ${group.accent === "red" ? "bg-accent-red-soft text-accent-red-strong" : "bg-brand-soft text-brand"}`}>
+                        <st.icon className="h-5 w-5" />
+                      </span>
+                      <span className="font-display text-sm font-bold text-slate-400">Étape {i + 1}</span>
+                    </div>
+                    <h4 className="mt-4 text-lg font-bold text-ink">{st.title}</h4>
+                    <p className="mt-1 text-slate-600">{st.desc}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Appel final */}
+      <section className="pb-16 sm:pb-24">
+        <div className="page-container">
+          <div className="rounded-3xl bg-gradient-to-br from-brand to-brand-mid px-6 py-12 sm:px-12 sm:py-14 text-white flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold">Prêt à décrocher votre prochain poste ?</h2>
+              <p className="mt-2 text-white/85 text-lg">Créez votre CV gratuitement et commencez à vous entraîner aujourd&apos;hui.</p>
+            </div>
+            <Link to={primaryCta.to} className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-4 font-bold text-brand hover:bg-brand-soft transition-colors shrink-0">
+              {primaryCta.label} <ArrowRight className="h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

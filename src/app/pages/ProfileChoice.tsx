@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 
 export default function ProfileChoice() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#003087]/5 via-white to-[#E31E24]/5 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#050FA0]/5 via-white to-[#E4220F]/5 flex flex-col">
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -15,7 +15,7 @@ export default function ProfileChoice() {
           className="max-w-6xl w-full"
         >
         <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-12">
-          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] font-medium transition-colors text-sm sm:text-base">
+          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-[#050FA0] font-medium transition-colors text-sm sm:text-base">
             <ArrowLeft className="h-5 w-5 shrink-0" />
             <span>Retour à l'accueil</span>
           </Link>
@@ -29,8 +29,8 @@ export default function ProfileChoice() {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              <span className="text-[#003087]">Choisissez votre</span>{" "}
-              <span className="bg-gradient-to-r from-[#E31E24] to-[#ff3333] bg-clip-text text-transparent">profil</span>
+              <span className="text-[#050FA0]">Choisissez votre</span>{" "}
+              <span className="bg-gradient-to-r from-[#E4220F] to-[#F92813] bg-clip-text text-transparent">profil</span>
             </h1>
             <p className="text-xl text-slate-600">Sélectionnez le type de compte qui vous correspond</p>
           </motion.div>
@@ -44,26 +44,26 @@ export default function ProfileChoice() {
           >
             <Link
               to="/signup-candidate"
-              className="group relative block p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#003087] hover:shadow-2xl hover:shadow-[#003087]/20 transition-all duration-300 overflow-hidden h-full"
+              className="group relative block p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#050FA0] hover:shadow-2xl hover:shadow-[#050FA0]/20 transition-all duration-300 overflow-hidden h-full"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#003087]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#050FA0]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <div className="text-center mb-8">
                   <motion.div
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 300 }}
-                    className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#003087] to-[#0047b3] shadow-xl shadow-[#003087]/40 mb-6"
+                    className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] shadow-xl shadow-[#050FA0]/40 mb-6"
                   >
                     <User className="h-10 w-10 text-white" />
                   </motion.div>
-                  <h2 className="text-3xl font-bold mb-3 text-[#003087]">Je suis candidat</h2>
+                  <h2 className="text-3xl font-bold mb-3 text-[#050FA0]">Je suis candidat</h2>
                   <p className="text-lg text-slate-600 mb-8">Propulsez votre carrière avec l'IA</p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-[#003087]/10 flex items-center justify-center flex-shrink-0">
-                      <FileText className="h-5 w-5 text-[#003087]" />
+                    <div className="h-10 w-10 rounded-lg bg-[#050FA0]/10 flex items-center justify-center flex-shrink-0">
+                      <FileText className="h-5 w-5 text-[#050FA0]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">CV intelligent</h3>
@@ -72,8 +72,8 @@ export default function ProfileChoice() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-[#003087]/10 flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="h-5 w-5 text-[#003087]" />
+                    <div className="h-10 w-10 rounded-lg bg-[#050FA0]/10 flex items-center justify-center flex-shrink-0">
+                      <MessageSquare className="h-5 w-5 text-[#050FA0]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">Préparation entretien</h3>
@@ -82,8 +82,8 @@ export default function ProfileChoice() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-[#003087]/10 flex items-center justify-center flex-shrink-0">
-                      <Briefcase className="h-5 w-5 text-[#003087]" />
+                    <div className="h-10 w-10 rounded-lg bg-[#050FA0]/10 flex items-center justify-center flex-shrink-0">
+                      <Briefcase className="h-5 w-5 text-[#050FA0]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">Offres d'emploi</h3>
@@ -93,7 +93,7 @@ export default function ProfileChoice() {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-slate-200">
-                  <div className="flex items-center justify-center gap-2 text-[#003087] font-bold group-hover:gap-3 transition-all">
+                  <div className="flex items-center justify-center gap-2 text-[#050FA0] font-bold group-hover:gap-3 transition-all">
                     <span>Commencer gratuitement</span>
                     <ArrowLeft className="h-5 w-5 rotate-180" />
                   </div>
@@ -109,26 +109,26 @@ export default function ProfileChoice() {
           >
             <Link
               to="/signup-company"
-              className="group relative block p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E31E24] hover:shadow-2xl hover:shadow-[#E31E24]/20 transition-all duration-300 overflow-hidden h-full"
+              className="group relative block p-7 sm:p-10 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E4220F] hover:shadow-2xl hover:shadow-[#E4220F]/20 transition-all duration-300 overflow-hidden h-full"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#E31E24]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#E4220F]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <div className="text-center mb-8">
                   <motion.div
                     whileHover={{ scale: 1.1, rotate: -5 }}
                     transition={{ type: "spring", stiffness: 300 }}
-                    className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] shadow-xl shadow-[#E31E24]/40 mb-6"
+                    className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-[#E4220F] to-[#F92813] shadow-xl shadow-[#E4220F]/40 mb-6"
                   >
                     <Building2 className="h-10 w-10 text-white" />
                   </motion.div>
-                  <h2 className="text-3xl font-bold mb-3 text-[#E31E24]">Je suis une entreprise</h2>
+                  <h2 className="text-3xl font-bold mb-3 text-[#E4220F]">Je suis une entreprise</h2>
                   <p className="text-lg text-slate-600 mb-8">Recrutez les meilleurs talents</p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-[#E31E24]/10 flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="h-5 w-5 text-[#E31E24]" />
+                    <div className="h-10 w-10 rounded-lg bg-[#E4220F]/10 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="h-5 w-5 text-[#E4220F]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">Publier des offres</h3>
@@ -137,8 +137,8 @@ export default function ProfileChoice() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-[#E31E24]/10 flex items-center justify-center flex-shrink-0">
-                      <Users className="h-5 w-5 text-[#E31E24]" />
+                    <div className="h-10 w-10 rounded-lg bg-[#E4220F]/10 flex items-center justify-center flex-shrink-0">
+                      <Users className="h-5 w-5 text-[#E4220F]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">Gérer les candidatures</h3>
@@ -147,8 +147,8 @@ export default function ProfileChoice() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-[#E31E24]/10 flex items-center justify-center flex-shrink-0">
-                      <Search className="h-5 w-5 text-[#E31E24]" />
+                    <div className="h-10 w-10 rounded-lg bg-[#E4220F]/10 flex items-center justify-center flex-shrink-0">
+                      <Search className="h-5 w-5 text-[#E4220F]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">Recherche de profils</h3>
@@ -158,7 +158,7 @@ export default function ProfileChoice() {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-slate-200">
-                  <div className="flex items-center justify-center gap-2 text-[#E31E24] font-bold group-hover:gap-3 transition-all">
+                  <div className="flex items-center justify-center gap-2 text-[#E4220F] font-bold group-hover:gap-3 transition-all">
                     <span>Créer mon compte entreprise</span>
                     <ArrowLeft className="h-5 w-5 rotate-180" />
                   </div>

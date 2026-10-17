@@ -67,7 +67,7 @@ export default function CVPhotoField({ compact = false }: { compact?: boolean })
           )}
           {busy && (
             <div className="absolute inset-0 bg-white/70 grid place-items-center">
-              <Loader2 className="h-6 w-6 animate-spin text-[#003087]" />
+              <Loader2 className="h-6 w-6 animate-spin text-[#050FA0]" />
             </div>
           )}
         </div>
@@ -79,7 +79,7 @@ export default function CVPhotoField({ compact = false }: { compact?: boolean })
               type="button"
               onClick={() => inputRef.current?.click()}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#003087] text-white text-sm font-bold hover:bg-[#002366] disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#050FA0] text-white text-sm font-bold hover:bg-[#060C6E] disabled:opacity-60"
             >
               <Camera className="h-4 w-4" /> {cvData.photo ? "Changer la photo" : "Ajouter une photo"}
             </button>
@@ -101,11 +101,11 @@ export default function CVPhotoField({ compact = false }: { compact?: boolean })
         <div className="grid sm:grid-cols-2 gap-3 mt-4">
           <label className="text-sm text-slate-700">
             <span className="block font-medium mb-1">Zoom</span>
-            <input type="range" min={1} max={2.2} step={0.1} value={zoom} onChange={(e) => reframe(Number(e.target.value), offsetY)} className="w-full accent-[#003087]" />
+            <input type="range" min={1} max={2.2} step={0.1} value={zoom} onChange={(e) => reframe(Number(e.target.value), offsetY)} className="w-full accent-[#050FA0]" />
           </label>
           <label className="text-sm text-slate-700">
             <span className="block font-medium mb-1">Position verticale</span>
-            <input type="range" min={-1} max={1} step={0.1} value={offsetY} onChange={(e) => reframe(zoom, Number(e.target.value))} className="w-full accent-[#003087]" />
+            <input type="range" min={-1} max={1} step={0.1} value={offsetY} onChange={(e) => reframe(zoom, Number(e.target.value))} className="w-full accent-[#050FA0]" />
           </label>
         </div>
       )}

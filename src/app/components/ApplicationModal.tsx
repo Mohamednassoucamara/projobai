@@ -129,7 +129,7 @@ export default function ApplicationModal({
                 <div className="p-5 sm:p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-[#003087]">
+                      <h2 className="text-2xl sm:text-3xl font-bold text-[#050FA0]">
                         Postuler
                       </h2>
                       <p className="text-slate-600 mt-1">
@@ -154,7 +154,7 @@ export default function ApplicationModal({
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-bold text-[#003087] mb-3">
+                      <label className="block text-sm font-bold text-[#050FA0] mb-3">
                         Nom complet *
                       </label>
                       <input
@@ -164,12 +164,12 @@ export default function ApplicationModal({
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Votre nom et prénom"
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-[#003087] mb-3">
+                      <label className="block text-sm font-bold text-[#050FA0] mb-3">
                         Email *
                       </label>
                       <input
@@ -179,12 +179,12 @@ export default function ApplicationModal({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre.email@exemple.com"
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-[#003087] mb-3">
+                      <label className="block text-sm font-bold text-[#050FA0] mb-3">
                         Téléphone *
                       </label>
                       <input
@@ -194,12 +194,12 @@ export default function ApplicationModal({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+224 XXX XX XX XX"
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-[#003087] mb-3">
+                      <label className="block text-sm font-bold text-[#050FA0] mb-3">
                         CV (PDF) *
                       </label>
                       <div className="relative">
@@ -213,9 +213,9 @@ export default function ApplicationModal({
                         />
                         <label
                           htmlFor="cv-upload"
-                          className="flex items-center gap-3 w-full px-4 py-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#003087] cursor-pointer transition-all bg-slate-50 hover:bg-[#003087]/5"
+                          className="flex items-center gap-3 w-full px-4 py-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#050FA0] cursor-pointer transition-all bg-slate-50 hover:bg-[#050FA0]/5"
                         >
-                          <Upload className="h-5 w-5 text-[#003087]" />
+                          <Upload className="h-5 w-5 text-[#050FA0]" />
                           <span className="text-slate-600">
                             {cvFile ? cvFile.name : "Télécharger votre CV"}
                           </span>
@@ -224,7 +224,7 @@ export default function ApplicationModal({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-[#003087] mb-3">
+                      <label className="block text-sm font-bold text-[#050FA0] mb-3">
                         Lettre de motivation (PDF) - Optionnel
                       </label>
                       <div className="relative">
@@ -237,9 +237,9 @@ export default function ApplicationModal({
                         />
                         <label
                           htmlFor="cover-letter-upload"
-                          className="flex items-center gap-3 w-full px-4 py-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#003087] cursor-pointer transition-all bg-slate-50 hover:bg-[#003087]/5"
+                          className="flex items-center gap-3 w-full px-4 py-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#050FA0] cursor-pointer transition-all bg-slate-50 hover:bg-[#050FA0]/5"
                         >
-                          <FileText className="h-5 w-5 text-[#003087]" />
+                          <FileText className="h-5 w-5 text-[#050FA0]" />
                           <span className="text-slate-600">
                             {coverLetterFile
                               ? coverLetterFile.name
@@ -250,7 +250,7 @@ export default function ApplicationModal({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-[#003087] mb-3">
+                      <label className="block text-sm font-bold text-[#050FA0] mb-3">
                         Message de motivation
                       </label>
                       <textarea
@@ -259,7 +259,7 @@ export default function ApplicationModal({
                         value={motivationMessage}
                         onChange={(e) => setMotivationMessage(e.target.value)}
                         placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce poste..."
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all resize-none"
                       />
                     </div>
 
@@ -275,7 +275,7 @@ export default function ApplicationModal({
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex-1 px-6 py-3.5 sm:py-4 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
+                        className="flex-1 px-6 py-3.5 sm:py-4 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white font-bold hover:shadow-xl hover:shadow-[#E4220F]/40 sm:hover:scale-[1.02] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
                       >
                         {isSubmitting ? (
                           <>
@@ -299,7 +299,7 @@ export default function ApplicationModal({
                   >
                     <CheckCircle className="h-10 w-10 text-white" />
                   </motion.div>
-                  <h3 className="text-3xl font-bold text-[#003087] mb-3">
+                  <h3 className="text-3xl font-bold text-[#050FA0] mb-3">
                     Candidature envoyée !
                   </h3>
                   <p className="text-xl text-slate-600 mb-2">

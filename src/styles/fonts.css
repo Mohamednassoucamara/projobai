@@ -1,0 +1,4 @@
+/* Polices auto-hébergées (pas de dépendance à Google Fonts, rapide en 3G).
+   Sora : titres. Figtree : textes et interface. */
+@import "@fontsource-variable/sora";
+@import "@fontsource-variable/figtree";

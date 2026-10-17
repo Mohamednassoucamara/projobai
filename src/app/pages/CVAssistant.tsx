@@ -119,7 +119,7 @@ export default function CVAssistant() {
           <div className="mx-auto max-w-4xl w-full px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center justify-between gap-3 min-w-0">
-            <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors shrink-0">
+            <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#050FA0] transition-colors shrink-0">
               <ArrowLeft className="h-5 w-5" />
               <span className="font-medium text-sm sm:text-base">Retour</span>
             </Link>
@@ -128,12 +128,12 @@ export default function CVAssistant() {
             </div>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto sm:flex-1 sm:justify-center">
-              <div className="text-xs sm:text-sm font-medium text-[#003087] shrink-0">{done ? "Terminé" : `Étape ${shownStep}/${TOTAL_STEPS}`}</div>
+              <div className="text-xs sm:text-sm font-medium text-[#050FA0] shrink-0">{done ? "Terminé" : `Étape ${shownStep}/${TOTAL_STEPS}`}</div>
               <div className="h-2 flex-1 sm:w-32 sm:flex-none bg-slate-100 rounded-full overflow-hidden">
                 <motion.div
                   animate={{ width: `${(done ? 1 : (shownStep - 1) / TOTAL_STEPS) * 100}%` }}
                   transition={{ duration: 0.5 }}
-                  className="h-full bg-gradient-to-r from-[#003087] to-[#0047b3] rounded-full"
+                  className="h-full bg-gradient-to-r from-[#050FA0] to-[#1A27C2] rounded-full"
                 />
               </div>
             </div>
@@ -161,7 +161,7 @@ export default function CVAssistant() {
                 <div className={`max-w-md px-6 py-4 rounded-3xl whitespace-pre-line ${
                   message.role === "ai"
                     ? "bg-slate-100 text-slate-900"
-                    : "bg-gradient-to-r from-[#003087] to-[#0047b3] text-white"
+                    : "bg-gradient-to-r from-[#050FA0] to-[#1A27C2] text-white"
                 }`}>
                   {message.text}
                 </div>
@@ -176,21 +176,21 @@ export default function CVAssistant() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Tapez votre réponse..."
-              className="flex-1 px-6 py-4 rounded-full border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all"
+              className="flex-1 px-6 py-4 rounded-full border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all"
             />
             <button
               onClick={handleSend}
-              className="h-14 w-14 rounded-full bg-gradient-to-r from-[#003087] to-[#0047b3] text-white flex items-center justify-center hover:shadow-xl hover:shadow-[#003087]/30 transition-all"
+              className="h-14 w-14 rounded-full bg-gradient-to-r from-[#050FA0] to-[#1A27C2] text-white flex items-center justify-center hover:shadow-xl hover:shadow-[#050FA0]/30 transition-all"
             >
               <Send className="h-5 w-5" />
             </button>
           </div>
 
 <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm font-medium">
-            <Link to="/cv-preview" className={done ? "px-5 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white font-bold" : "text-[#003087] hover:text-[#E31E24] transition-colors"}>
+            <Link to="/cv-preview" className={done ? "px-5 py-3 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white font-bold" : "text-[#050FA0] hover:text-[#E4220F] transition-colors"}>
               {done ? "Voir et télécharger mon CV" : "Passer à l'aperçu du CV"}
             </Link>
-            <Link to="/cv-edit" className="text-[#003087] hover:text-[#E31E24] transition-colors">
+            <Link to="/cv-edit" className="text-[#050FA0] hover:text-[#E4220F] transition-colors">
               Modifier ou optimiser avec l'IA
             </Link>
           </div>

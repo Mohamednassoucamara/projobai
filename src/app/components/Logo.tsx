@@ -1,16 +1,11 @@
-import logoImage from "../../assets/logo.png";
-import { LOGO_IMG_CLASS } from "./AppLogo";
+import AppLogo, { LOGO_IMG_CLASS } from "./AppLogo";
 
 interface LogoProps {
   className?: string;
   showText?: boolean;
+  variant?: "light" | "dark";
 }
 
-export function Logo({ className = LOGO_IMG_CLASS, showText = true }: LogoProps) {
-  return (
-    <div className="flex items-center gap-3 min-w-0">
-      <img src={logoImage} alt="ProJob AI" className={className} width={260} height={86} />
-      {!showText && null}
-    </div>
-  );
+export function Logo({ className = LOGO_IMG_CLASS, variant = "light" }: LogoProps) {
+  return <AppLogo to="" className={className} variant={variant} />;
 }

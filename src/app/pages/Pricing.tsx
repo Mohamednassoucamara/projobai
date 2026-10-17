@@ -61,15 +61,16 @@ export default function Pricing() {
       buttonText: "Passer à Premium",
       buttonVariant: "solid",
       popular: true,
-      gradient: "from-[#E31E24] to-[#ff3333]",
+      gradient: "from-[#E4220F] to-[#F92813]",
     },
   ];
 
   const stats = [
-    { value: "2000+", label: "Candidats inscrits" },
-    { value: "500+", label: "Offres d'emploi" },
-    { value: "85%", label: "Taux de réussite" },
-    { value: "24/7", label: "Support disponible" },
+    // Faits sur le service (pas de chiffres d'audience non vérifiés)
+    { value: "0 GNF", label: "Pour commencer" },
+    { value: "Orange Money", label: "Paiement mobile accepté" },
+    { value: "Web + WhatsApp", label: "Accès sans application" },
+    { value: "100 %", label: "En français" },
   ];
 
   return (
@@ -83,13 +84,13 @@ export default function Pricing() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-20"
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#003087]/10 to-[#E31E24]/10 px-6 py-3 rounded-full mb-6 border border-[#003087]/20">
-              <Rocket className="h-5 w-5 text-[#E31E24]" />
-              <span className="font-semibold text-[#003087]">Boostez votre carrière dès aujourd'hui</span>
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#050FA0]/10 to-[#E4220F]/10 px-6 py-3 rounded-full mb-6 border border-[#050FA0]/20">
+              <Rocket className="h-5 w-5 text-[#E4220F]" />
+              <span className="font-semibold text-[#050FA0]">Boostez votre carrière dès aujourd'hui</span>
             </div>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold mb-6">
-              <span className="text-[#003087]">Choisissez votre</span>{" "}
-              <span className="bg-gradient-to-r from-[#E31E24] to-[#ff3333] bg-clip-text text-transparent">formule</span>
+              <span className="text-[#050FA0]">Choisissez votre</span>{" "}
+              <span className="bg-gradient-to-r from-[#E4220F] to-[#F92813] bg-clip-text text-transparent">formule</span>
             </h1>
             <p className="text-2xl text-slate-600 max-w-3xl mx-auto">
               Des solutions adaptées à vos besoins professionnels pour réussir votre carrière en Guinée
@@ -110,7 +111,7 @@ export default function Pricing() {
                 transition={{ delay: 0.2 + i * 0.1 }}
                 className="text-center bg-white rounded-2xl p-6 border-2 border-slate-100 shadow-lg"
               >
-                <div className="text-4xl font-bold bg-gradient-to-r from-[#003087] to-[#0047b3] bg-clip-text text-transparent mb-2">
+                <div className="text-2xl sm:text-3xl font-bold font-display text-brand mb-2">
                   {stat.value}
                 </div>
                 <div className="text-sm text-slate-600">{stat.label}</div>
@@ -129,7 +130,7 @@ export default function Pricing() {
                 className="relative"
               >
                 {plan.popular && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-8 py-3 rounded-full text-sm font-bold flex items-center gap-2 shadow-xl z-10">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-8 py-3 rounded-full text-sm font-bold flex items-center gap-2 shadow-xl z-10">
                     <Sparkles className="h-5 w-5" />
                     Le plus populaire
                   </div>
@@ -138,7 +139,7 @@ export default function Pricing() {
                 <div
                   className={`bg-white rounded-3xl p-10 h-full flex flex-col relative overflow-hidden ${
                     plan.popular
-                      ? "border-2 border-[#E31E24] shadow-2xl shadow-[#E31E24]/30"
+                      ? "border-2 border-[#E4220F] shadow-2xl shadow-[#E4220F]/30"
                       : "border-2 border-slate-200 shadow-xl"
                   }`}
                 >
@@ -152,18 +153,18 @@ export default function Pricing() {
                         <Users className="h-8 w-8 text-white" />
                       )}
                     </div>
-                    <h2 className="text-4xl font-bold text-[#003087] mb-3">
+                    <h2 className="text-4xl font-bold text-[#050FA0] mb-3">
                       {plan.name}
                     </h2>
                     <p className="text-lg text-slate-600 mb-8">{plan.description}</p>
                     <div className="flex items-end gap-3 mb-2">
                       {plan.price === "0" ? (
-                        <span className="text-6xl font-bold bg-gradient-to-r from-[#003087] to-[#0047b3] bg-clip-text text-transparent">
+                        <span className="text-6xl font-bold bg-gradient-to-r from-[#050FA0] to-[#1A27C2] bg-clip-text text-transparent">
                           Gratuit
                         </span>
                       ) : (
                         <>
-                          <span className="text-6xl font-bold bg-gradient-to-r from-[#E31E24] to-[#ff3333] bg-clip-text text-transparent">
+                          <span className="text-6xl font-bold bg-gradient-to-r from-[#E4220F] to-[#F92813] bg-clip-text text-transparent">
                             {plan.price}
                           </span>
                           <span className="text-xl text-slate-600 mb-3 font-medium">GNF / mois</span>
@@ -171,13 +172,13 @@ export default function Pricing() {
                       )}
                     </div>
                     {plan.popular && (
-                      <p className="text-sm text-[#E31E24] font-semibold">Économisez 30% avec l'abonnement annuel</p>
+                      <p className="text-sm text-[#E4220F] font-semibold">Économisez 30% avec l'abonnement annuel</p>
                     )}
                   </div>
 
                   <div className="flex-1 mb-8 relative">
                     <div className="border-t-2 border-slate-100 pt-6 mb-6">
-                      <p className="text-sm font-bold text-[#003087] mb-4">Fonctionnalités incluses :</p>
+                      <p className="text-sm font-bold text-[#050FA0] mb-4">Fonctionnalités incluses :</p>
                     </div>
                     <ul className="space-y-4">
                       {plan.features.map((feature, idx) => (
@@ -191,8 +192,8 @@ export default function Pricing() {
                           <div
                             className={`mt-0.5 h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md ${
                               plan.popular
-                                ? "bg-gradient-to-br from-[#E31E24] to-[#ff3333]"
-                                : "bg-gradient-to-br from-[#003087] to-[#0047b3]"
+                                ? "bg-gradient-to-br from-[#E4220F] to-[#F92813]"
+                                : "bg-gradient-to-br from-[#050FA0] to-[#1A27C2]"
                             }`}
                           >
                             <Check className="h-5 w-5 text-white stroke-[3]" />
@@ -207,14 +208,14 @@ export default function Pricing() {
                     to="/profile-choice"
                     className={`relative block text-center px-8 py-5 rounded-2xl font-bold text-lg transition-all group overflow-hidden ${
                       plan.buttonVariant === "solid"
-                        ? "bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white shadow-xl shadow-[#E31E24]/40 hover:shadow-2xl hover:shadow-[#E31E24]/50 hover:scale-[1.02]"
-                        : "border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white shadow-lg hover:shadow-xl"
+                        ? "bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white shadow-xl shadow-[#E4220F]/40 hover:shadow-2xl hover:shadow-[#E4220F]/50 hover:scale-[1.02]"
+                        : "border-2 border-[#050FA0] text-[#050FA0] hover:bg-[#050FA0] hover:text-white shadow-lg hover:shadow-xl"
                     }`}
                   >
                     <span className="relative z-10">{plan.buttonText}</span>
                     {plan.popular && (
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-[#ff3333] to-[#E31E24]"
+                        className="absolute inset-0 bg-gradient-to-r from-[#F92813] to-[#E4220F]"
                         initial={{ x: "100%" }}
                         whileHover={{ x: 0 }}
                         transition={{ duration: 0.3 }}
@@ -233,8 +234,8 @@ export default function Pricing() {
             className="mb-20"
           >
             <h2 className="text-4xl font-bold text-center mb-4">
-              <span className="text-[#003087]">Pourquoi choisir</span>{" "}
-              <span className="text-[#E31E24]">ProJob AI ?</span>
+              <span className="text-[#050FA0]">Pourquoi choisir</span>{" "}
+              <span className="text-[#E4220F]">ProJob AI ?</span>
             </h2>
             <p className="text-center text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
               Découvrez les avantages qui font de ProJob AI votre meilleur allié professionnel
@@ -247,12 +248,12 @@ export default function Pricing() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.1 + i * 0.1 }}
                   whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl p-6 border-2 border-slate-100 shadow-lg hover:shadow-2xl hover:border-[#003087]/30 transition-all group"
+                  className="bg-white rounded-2xl p-6 border-2 border-slate-100 shadow-lg hover:shadow-2xl hover:border-[#050FA0]/30 transition-all group"
                 >
-                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
                     <benefit.icon className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-[#003087] mb-2">
+                  <h3 className="text-lg font-bold text-[#050FA0] mb-2">
                     {benefit.title}
                   </h3>
                   <p className="text-slate-600 text-sm leading-relaxed">
@@ -269,8 +270,8 @@ export default function Pricing() {
             transition={{ delay: 1.5 }}
             className="text-center"
           >
-            <div className="relative bg-gradient-to-br from-[#003087] to-[#0047b3] rounded-3xl p-12 shadow-2xl max-w-4xl mx-auto overflow-hidden">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#E31E24]/20 to-transparent rounded-full blur-3xl" />
+            <div className="relative bg-gradient-to-br from-[#050FA0] to-[#1A27C2] rounded-3xl p-12 shadow-2xl max-w-4xl mx-auto overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#E4220F]/20 to-transparent rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-3xl" />
 
               <div className="relative z-10">
@@ -286,7 +287,7 @@ export default function Pricing() {
                 </p>
                 <a
                   href="mailto:contact@projob.ia"
-                  className="inline-flex items-center gap-3 bg-white text-[#003087] px-10 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                  className="inline-flex items-center gap-3 bg-white text-[#050FA0] px-10 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
                 >
                   <span>Nous contacter</span>
                   <ArrowLeft className="h-5 w-5 rotate-180" />

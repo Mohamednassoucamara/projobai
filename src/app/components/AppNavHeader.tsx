@@ -28,7 +28,7 @@ export default function AppNavHeader({
         <div className="flex items-center justify-between gap-2 min-w-0">
           <Link
             to={backTo}
-            className="flex items-center gap-1.5 sm:gap-2 text-slate-600 hover:text-[#003087] transition-colors min-w-0 flex-1"
+            className="flex items-center gap-1.5 sm:gap-2 text-slate-600 hover:text-[#050FA0] transition-colors min-w-0 flex-1"
           >
             <ArrowLeft className="h-5 w-5 shrink-0" />
             <span className="font-medium text-sm sm:text-base truncate">{backLabel}</span>

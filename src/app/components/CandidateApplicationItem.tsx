@@ -41,12 +41,12 @@ export default function CandidateApplicationItem({ app }: { app: CandidateApplic
   const statusStyle = STATUS_STYLES[app.status] || "bg-slate-100 text-slate-700";
 
   return (
-    <li className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-[#003087]/30 hover:shadow-md transition-all">
+    <li className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-[#050FA0]/30 hover:shadow-md transition-all">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
           <Link
             to={`/jobs/${job?.id}`}
-            className="text-lg font-bold text-slate-800 hover:text-[#003087] transition-colors line-clamp-2"
+            className="text-lg font-bold text-slate-800 hover:text-[#050FA0] transition-colors line-clamp-2"
           >
             {job?.title || "Offre d'emploi"}
           </Link>
@@ -77,7 +77,7 @@ export default function CandidateApplicationItem({ app }: { app: CandidateApplic
           {job?.id && (
             <Link
               to={`/jobs/${job.id}`}
-              className="inline-flex items-center gap-1 text-sm font-medium text-[#003087] hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-[#050FA0] hover:underline"
             >
               Voir l'offre
               <ArrowRight className="h-3.5 w-3.5" />

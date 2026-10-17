@@ -195,7 +195,7 @@ export default function CVPreview() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-3 sm:gap-6 min-w-0">
               <AppLogo />
-              <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#003087] transition-colors min-w-0">
+              <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-[#050FA0] transition-colors min-w-0">
                 <ArrowLeft className="h-5 w-5 shrink-0" />
                 <span className="font-medium text-sm sm:text-base truncate">Retour au tableau de bord</span>
               </Link>
@@ -203,7 +203,7 @@ export default function CVPreview() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <Link
                 to="/cv-edit"
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#003087] text-[#003087] hover:bg-[#003087] hover:text-white transition-all font-bold"
+                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-[#050FA0] text-[#050FA0] hover:bg-[#050FA0] hover:text-white transition-all font-bold"
               >
                 <Edit className="h-4 w-4" />
                 <span>Modifier</span>
@@ -212,7 +212,7 @@ export default function CVPreview() {
                 type="button"
                 onClick={handleDownload}
                 disabled={isGenerating}
-                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all font-bold disabled:opacity-70 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white hover:shadow-xl hover:shadow-[#E4220F]/40 sm:hover:scale-[1.02] transition-all font-bold disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isGenerating ? <><Loader2 className="h-4 w-4 animate-spin" /><span>Création du PDF…</span></> : <><Download className="h-4 w-4" /><span>Télécharger en PDF</span></>}
               </button>
@@ -225,7 +225,7 @@ export default function CVPreview() {
         {error && (
           <div role="alert" className="mb-6 rounded-2xl border-2 border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <span>{error}</span>
-            {missing.length > 0 && <Link to="/cv-edit" className="font-bold text-[#003087] hover:underline shrink-0">Compléter mon CV</Link>}
+            {missing.length > 0 && <Link to="/cv-edit" className="font-bold text-[#050FA0] hover:underline shrink-0">Compléter mon CV</Link>}
           </div>
         )}
 
@@ -246,7 +246,7 @@ export default function CVPreview() {
             <div className="hidden lg:block"><ColorPicker /></div>
             <div className="hidden lg:block"><MotifPicker /></div>
 
-            <div className="bg-gradient-to-br from-[#003087] to-[#0047b3] rounded-3xl p-6 sm:p-8 text-white shadow-2xl">
+            <div className="bg-gradient-to-br from-[#050FA0] to-[#1A27C2] rounded-3xl p-6 sm:p-8 text-white shadow-2xl">
               <div className="flex items-start gap-3 mb-5">
                 <div className="h-11 w-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                   <Sparkles className="h-5 w-5 text-white" />
@@ -269,7 +269,7 @@ export default function CVPreview() {
                   </li>
                 ))}
               </ul>
-              <Link to="/cv-edit" className="mt-6 flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white text-[#003087] font-bold hover:bg-white/90 transition-colors">
+              <Link to="/cv-edit" className="mt-6 flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white text-[#050FA0] font-bold hover:bg-white/90 transition-colors">
                 <Sparkles className="h-4 w-4" /> Optimiser avec l&apos;IA
               </Link>
             </div>

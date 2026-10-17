@@ -117,7 +117,7 @@ export default function PostJob() {
           className="text-center p-12"
         >
           <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-[#003087] mb-3">Offre publiée avec succès !</h2>
+          <h2 className="text-3xl font-bold text-[#050FA0] mb-3">Offre publiée avec succès !</h2>
           <p className="text-slate-600">Redirection vers le tableau de bord...</p>
         </motion.div>
       </div>
@@ -150,7 +150,7 @@ export default function PostJob() {
                   onChange={handleChange}
                   placeholder="Développeur Web Full Stack"
                   required
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                 />
               </div>
 
@@ -163,7 +163,7 @@ export default function PostJob() {
                   rows={6}
                   placeholder="Décrivez les responsabilités, missions et objectifs du poste..."
                   required
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors resize-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors resize-none"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export default function PostJob() {
                     onChange={handleChange}
                     placeholder="Conakry, Guinée"
                     required
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   />
                 </div>
                 <div>
@@ -186,7 +186,7 @@ export default function PostJob() {
                     name="job_type"
                     value={form.job_type}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   >
                     <option>CDI</option>
                     <option>CDD</option>
@@ -203,7 +203,7 @@ export default function PostJob() {
                     name="education_level"
                     value={form.education_level}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   >
                     <option>Bac</option>
                     <option>Bac+2</option>
@@ -218,7 +218,7 @@ export default function PostJob() {
                     name="experience_level"
                     value={form.experience_level}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   >
                     <option>Débutant accepté</option>
                     <option>1-2 ans</option>
@@ -237,7 +237,7 @@ export default function PostJob() {
                     value={form.salary_min}
                     onChange={handleChange}
                     placeholder="800000"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   />
                 </div>
                 <div>
@@ -248,7 +248,7 @@ export default function PostJob() {
                     value={form.salary_max}
                     onChange={handleChange}
                     placeholder="1200000"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -261,7 +261,7 @@ export default function PostJob() {
                   value={form.skills}
                   onChange={handleChange}
                   placeholder="React, TypeScript, Node.js..."
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                 />
                 <p className="text-sm text-slate-500 mt-2">Séparez les compétences par des virgules</p>
               </div>
@@ -273,21 +273,21 @@ export default function PostJob() {
                   name="deadline"
                   value={form.deadline}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] outline-none transition-colors"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                 />
               </div>
 
               <div className="pt-6 border-t flex gap-3">
                 <Link
                   to="/company/dashboard"
-                  className="flex-1 text-center px-6 py-3 rounded-full border-2 border-slate-200 font-medium hover:border-[#003087] transition-colors"
+                  className="flex-1 text-center px-6 py-3 rounded-full border-2 border-slate-200 font-medium hover:border-[#050FA0] transition-colors"
                 >
                   Annuler
                 </Link>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-3 rounded-full font-bold hover:shadow-xl hover:shadow-[#E31E24]/30 transition-all disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-6 py-3 rounded-full font-bold hover:shadow-xl hover:shadow-[#E4220F]/30 transition-all disabled:opacity-50"
                 >
                   {isLoading ? (
                     <><Loader2 className="h-4 w-4 animate-spin" />Publication...</>

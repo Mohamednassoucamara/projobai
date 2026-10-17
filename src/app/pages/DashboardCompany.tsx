@@ -71,9 +71,9 @@ export default function DashboardCompany() {
   }, []);
 
   const displayStats = [
-    { value: isLoading ? "..." : String(stats.activeJobs || jobs.filter(j => j.is_active).length), label: "Offres actives", color: "from-[#003087] to-[#0047b3]", icon: Briefcase },
-    { value: isLoading ? "..." : String(stats.totalApplications), label: "Candidatures reçues", color: "from-[#E31E24] to-[#ff3333]", icon: Users },
-    { value: isLoading ? "..." : String(stats.favorites), label: "Profils favoris", color: "from-[#003087] to-[#0047b3]", icon: Star },
+    { value: isLoading ? "..." : String(stats.activeJobs || jobs.filter(j => j.is_active).length), label: "Offres actives", color: "from-[#050FA0] to-[#1A27C2]", icon: Briefcase },
+    { value: isLoading ? "..." : String(stats.totalApplications), label: "Candidatures reçues", color: "from-[#E4220F] to-[#F92813]", icon: Users },
+    { value: isLoading ? "..." : String(stats.favorites), label: "Profils favoris", color: "from-[#050FA0] to-[#1A27C2]", icon: Star },
     { value: isLoading ? "..." : String(stats.hired), label: "Postes pourvus", color: "from-green-500 to-green-600", icon: Star },
   ];
 
@@ -109,8 +109,8 @@ export default function DashboardCompany() {
       <div className="page-container py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="page-title mb-8 sm:mb-12">
-            <span className="text-[#003087]">Tableau de bord</span>{" "}
-            <span className="text-[#E31E24]">Entreprise</span>
+            <span className="text-[#050FA0]">Tableau de bord</span>{" "}
+            <span className="text-[#E4220F]">Entreprise</span>
           </h1>
 
           {/* Stats */}
@@ -140,7 +140,7 @@ export default function DashboardCompany() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-10 sm:mb-12">
             <Link
               to="/company/post-job"
-              className="group p-8 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] text-white hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all relative overflow-hidden"
+              className="group p-8 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#E4220F] to-[#F92813] text-white hover:shadow-2xl hover:shadow-[#E4220F]/40 sm:hover:scale-105 transition-all relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
               <div className="relative">
@@ -154,7 +154,7 @@ export default function DashboardCompany() {
 
             <a
               href="#candidatures-recues"
-              className="block p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E31E24]/40 hover:shadow-lg transition-all"
+              className="block p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#E4220F]/40 hover:shadow-lg transition-all"
             >
               <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-6">
                 <Users className="h-8 w-8 text-blue-600" />
@@ -170,7 +170,7 @@ export default function DashboardCompany() {
 
             <Link
               to="/company/search-profiles"
-              className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#003087] transition-all"
+              className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 hover:border-[#050FA0] transition-all"
             >
               <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-6">
                 <Star className="h-8 w-8 text-blue-600" />
@@ -186,7 +186,7 @@ export default function DashboardCompany() {
             className="mb-10 sm:mb-12 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#E31E24] to-[#ff3333] flex items-center justify-center shadow-lg">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#E4220F] to-[#F92813] flex items-center justify-center shadow-lg">
                 <Users className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -201,7 +201,7 @@ export default function DashboardCompany() {
 
             {isLoading ? (
               <div className="flex justify-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-[#003087]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#050FA0]" />
               </div>
             ) : allApplications.length === 0 ? (
               <div className="text-center py-10 rounded-xl bg-slate-50 border border-dashed border-slate-200">
@@ -224,14 +224,14 @@ export default function DashboardCompany() {
           <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-bold">Vos offres et candidatures</h2>
-              <Link to="/company/post-job" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#003087] text-white text-sm font-semibold hover:bg-[#0047b3] transition-colors">
+              <Link to="/company/post-job" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#050FA0] text-white text-sm font-semibold hover:bg-[#1A27C2] transition-colors">
                 <Plus className="h-4 w-4" />
                 Nouvelle offre
               </Link>
             </div>
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-[#003087]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#050FA0]" />
               </div>
             ) : (
               <div className="space-y-4">
@@ -241,7 +241,7 @@ export default function DashboardCompany() {
                   const isExpanded = expandedJobs.has(offer.id);
 
                   return (
-                    <div key={offer.id || i} className="rounded-2xl border-2 border-slate-100 overflow-hidden hover:border-[#003087]/30 transition-all">
+                    <div key={offer.id || i} className="rounded-2xl border-2 border-slate-100 overflow-hidden hover:border-[#050FA0]/30 transition-all">
                       <button
                         type="button"
                         onClick={() => toggleJobApplications(offer.id)}
@@ -260,9 +260,9 @@ export default function DashboardCompany() {
                           </p>
                         </div>
                         {isExpanded ? (
-                          <ChevronUp className="h-5 w-5 text-[#003087] shrink-0" />
+                          <ChevronUp className="h-5 w-5 text-[#050FA0] shrink-0" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-[#003087] shrink-0" />
+                          <ChevronDown className="h-5 w-5 text-[#050FA0] shrink-0" />
                         )}
                       </button>
                       {isExpanded && (

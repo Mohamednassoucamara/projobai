@@ -71,7 +71,7 @@ export default function JobDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-[#003087]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#050FA0]" />
       </div>
     );
   }
@@ -80,9 +80,9 @@ export default function JobDetail() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="h-16 w-16 text-[#E31E24] mx-auto mb-4" />
+          <AlertCircle className="h-16 w-16 text-[#E4220F] mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Offre introuvable</h2>
-          <Link to="/jobs" className="text-[#003087] font-semibold hover:underline">Retour aux offres</Link>
+          <Link to="/jobs" className="text-[#050FA0] font-semibold hover:underline">Retour aux offres</Link>
         </div>
       </div>
     );
@@ -139,13 +139,13 @@ export default function JobDetail() {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleApplyClick}
-                className="flex-1 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E31E24]/40 sm:hover:scale-[1.02] transition-all"
+                className="flex-1 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-[#E4220F]/40 sm:hover:scale-[1.02] transition-all"
               >
                 Postuler maintenant
               </button>
               <Link
                 to={user?.type === "candidate" ? letterLink : "/cv-edit"}
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#003087] text-[#003087] px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:bg-[#003087] hover:text-white transition-all text-center"
+                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#050FA0] text-[#050FA0] px-6 py-3.5 sm:py-4 rounded-xl font-bold hover:bg-[#050FA0] hover:text-white transition-all text-center"
               >
                 <Sparkles className="h-5 w-5" />
                 Préparer ma lettre pour cette offre
@@ -185,7 +185,7 @@ export default function JobDetail() {
                   <h2 className="text-2xl font-bold mb-4">Responsabilités</h2>
                   <ul className="space-y-3 text-slate-700">
                     {job.responsibilities.map((r: string, i: number) => (
-                      <li key={i} className="flex gap-3"><span className="text-[#E31E24]">•</span><span>{r}</span></li>
+                      <li key={i} className="flex gap-3"><span className="text-[#E4220F]">•</span><span>{r}</span></li>
                     ))}
                   </ul>
                 </div>
@@ -196,7 +196,7 @@ export default function JobDetail() {
                   <h2 className="text-2xl font-bold mb-4">Compétences requises</h2>
                   <div className="flex flex-wrap gap-2">
                     {skills.map((skill: string) => (
-                      <span key={skill} className="px-4 py-2 bg-[#003087]/10 text-[#003087] rounded-full font-medium">
+                      <span key={skill} className="px-4 py-2 bg-[#050FA0]/10 text-[#050FA0] rounded-full font-medium">
                         {skill}
                       </span>
                     ))}
@@ -209,7 +209,7 @@ export default function JobDetail() {
                   <h2 className="text-2xl font-bold mb-4">Profil recherché</h2>
                   <ul className="space-y-3 text-slate-700">
                     {job.requirements.map((r: string, i: number) => (
-                      <li key={i} className="flex gap-3"><span className="text-[#E31E24]">•</span><span>{r}</span></li>
+                      <li key={i} className="flex gap-3"><span className="text-[#E4220F]">•</span><span>{r}</span></li>
                     ))}
                   </ul>
                 </div>
@@ -238,7 +238,7 @@ export default function JobDetail() {
                   {job.deadline && (
                     <div className="flex justify-between">
                       <span className="text-slate-600">Date limite</span>
-                      <span className="font-medium text-[#E31E24]">
+                      <span className="font-medium text-[#E4220F]">
                         {new Date(job.deadline).toLocaleDateString("fr-FR")}
                       </span>
                     </div>
@@ -249,7 +249,7 @@ export default function JobDetail() {
                     href={job.company_profiles.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 block text-center text-sm text-[#003087] font-semibold hover:underline"
+                    className="mt-4 block text-center text-sm text-[#050FA0] font-semibold hover:underline"
                   >
                     Visiter le site web
                   </a>

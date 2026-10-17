@@ -1,23 +1,25 @@
 import { Link } from "react-router";
-import logoImage from "../../assets/logo.png";
+import logoLight from "../../assets/projob-logo.png";
+import logoDark from "../../assets/projob-logo-dark.png";
 
-/** Classes sûres pour le logo horizontal (évite le débordement mobile). */
-export const LOGO_IMG_CLASS =
-  "brand-logo h-9 w-auto max-w-[9.5rem] sm:h-11 sm:max-w-[11rem] md:h-12 md:max-w-[13rem] object-contain object-left shrink-0";
+/** Taille du logo dans les en-têtes : lisible sur mobile, sans déborder. */
+export const LOGO_IMG_CLASS = "brand-logo h-10 w-auto sm:h-12 object-contain object-left shrink-0";
 
 type AppLogoProps = {
   to?: string;
   className?: string;
+  /** "dark" : version pour fonds foncés (pied de page, bandeaux). */
+  variant?: "light" | "dark";
 };
 
-export default function AppLogo({ to = "/", className = LOGO_IMG_CLASS }: AppLogoProps) {
+export default function AppLogo({ to = "/", className = LOGO_IMG_CLASS, variant = "light" }: AppLogoProps) {
   const image = (
     <img
-      src={logoImage}
-      alt="ProJob AI"
+      src={variant === "dark" ? logoDark : logoLight}
+      alt="ProJob AI, par Nassouba"
       className={className}
-      width={260}
-      height={86}
+      width={900}
+      height={296}
       decoding="async"
     />
   );
@@ -25,7 +27,7 @@ export default function AppLogo({ to = "/", className = LOGO_IMG_CLASS }: AppLog
   if (!to) return image;
 
   return (
-    <Link to={to} className="inline-flex shrink-0 min-w-0">
+    <Link to={to} className="inline-flex shrink-0 min-w-0 rounded-lg" aria-label="ProJob AI, accueil">
       {image}
     </Link>
   );

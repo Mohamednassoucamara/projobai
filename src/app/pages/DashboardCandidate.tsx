@@ -86,8 +86,8 @@ export default function DashboardCandidate() {
       <div className="page-container py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h1 className="page-title mb-8 sm:mb-12">
-            <span className="text-[#003087]">Bonjour</span>{" "}
-            <span className="text-[#E31E24]">{user?.name.split(" ")[0]}</span> 👋
+            <span className="text-[#050FA0]">Bonjour</span>{" "}
+            <span className="text-[#E4220F]">{user?.name.split(" ")[0]}</span>
           </h1>
 
           {/* Profile Completion Card */}
@@ -95,7 +95,7 @@ export default function DashboardCandidate() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="mb-12 p-10 rounded-3xl bg-gradient-to-br from-[#003087] to-[#002060] text-white shadow-2xl shadow-[#003087]/30 relative overflow-hidden"
+            className="mb-12 p-10 rounded-3xl bg-gradient-to-br from-[#050FA0] to-[#060C6E] text-white shadow-2xl shadow-[#050FA0]/30 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
             <div className="relative">
@@ -122,14 +122,14 @@ export default function DashboardCandidate() {
                     initial={{ width: 0 }}
                     animate={{ width: `${profileCompletion}%` }}
                     transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
-                    className={`h-full rounded-full shadow-lg ${profileCompletion === 100 ? "bg-green-500" : "bg-[#E31E24]"}`}
+                    className={`h-full rounded-full shadow-lg ${profileCompletion === 100 ? "bg-green-500" : "bg-[#E4220F]"}`}
                   />
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <Link
                   to={hasStartedProfile ? "/cv-edit" : "/cv-assistant"}
-                  className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E31E24]/40 sm:hover:scale-105 transition-all text-center"
+                  className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-[#E4220F]/40 sm:hover:scale-105 transition-all text-center"
                 >
                   {profileCompletion === 100 ? "Modifier mon profil" : hasStartedProfile ? "Continuer mon profil" : "Créer mon profil"}
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -149,11 +149,11 @@ export default function DashboardCandidate() {
           {/* Quick Actions */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mb-12 sm:mb-16">
             {[
-              { to: "/cv-assistant", icon: FileText, title: "Mon CV", desc: "Créer ou modifier", color: "#003087" },
-              { to: "/cover-letter", icon: Mail, title: "Lettre de motivation", desc: "Générer avec l'IA", color: "#E31E24" },
-              { to: "/interview-prep", icon: MessageSquare, title: "Entretien", desc: "S'entraîner", color: "#003087" },
+              { to: "/cv-assistant", icon: FileText, title: "Mon CV", desc: "Créer ou modifier", color: "#050FA0" },
+              { to: "/cover-letter", icon: Mail, title: "Lettre de motivation", desc: "Générer avec l'IA", color: "#E4220F" },
+              { to: "/interview-prep", icon: MessageSquare, title: "Entretien", desc: "S'entraîner", color: "#050FA0" },
               { to: "/orientation", icon: Compass, title: "Orientation", desc: "Trouver ma voie", color: "#0F6E5A" },
-              { to: "/jobs", icon: Briefcase, title: "Offres d'emploi", desc: "Parcourir", color: "#E31E24" },
+              { to: "/jobs", icon: Briefcase, title: "Offres d'emploi", desc: "Parcourir", color: "#E4220F" },
             ].map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.05 }}>
                 <Link
@@ -185,7 +185,7 @@ export default function DashboardCandidate() {
             className="mb-12 sm:mb-16 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xl shadow-slate-200/50"
           >
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-12 w-12 rounded-2xl bg-[#E31E24] flex items-center justify-center shadow-lg shadow-[#E31E24]/30">
+              <div className="h-12 w-12 rounded-2xl bg-[#E4220F] flex items-center justify-center shadow-lg shadow-[#E4220F]/30">
                 <ClipboardList className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -196,7 +196,7 @@ export default function DashboardCandidate() {
 
             {loadingApplications ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-[#003087]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#050FA0]" />
               </div>
             ) : myApplications.length === 0 ? (
               <div className="text-center py-10 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
@@ -205,7 +205,7 @@ export default function DashboardCandidate() {
                 <p className="text-sm text-slate-500 mb-6">Parcourez les offres et postulez pour suivre vos candidatures ici.</p>
                 <Link
                   to="/jobs"
-                  className="inline-flex items-center gap-2 bg-[#003087] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#002060] transition-colors"
+                  className="inline-flex items-center gap-2 bg-[#050FA0] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#060C6E] transition-colors"
                 >
                   Voir les offres
                   <ArrowRight className="h-4 w-4" />
@@ -228,7 +228,7 @@ export default function DashboardCandidate() {
             className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xl shadow-slate-200/50"
           >
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-12 w-12 rounded-2xl bg-[#003087] flex items-center justify-center shadow-lg shadow-[#003087]/30">
+              <div className="h-12 w-12 rounded-2xl bg-[#050FA0] flex items-center justify-center shadow-lg shadow-[#050FA0]/30">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -239,7 +239,7 @@ export default function DashboardCandidate() {
 
             {loadingJobs ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-[#003087]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#050FA0]" />
               </div>
             ) : (
               <div className="space-y-4">
@@ -257,19 +257,19 @@ export default function DashboardCandidate() {
                   <motion.div key={job.id || i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }}>
                     <Link
                       to={`/jobs/${job.id}`}
-                      className="group block p-6 rounded-2xl border-2 border-slate-100 hover:border-[#003087] hover:shadow-xl hover:shadow-[#003087]/10 transition-all"
+                      className="group block p-6 rounded-2xl border-2 border-slate-100 hover:border-[#050FA0] hover:shadow-xl hover:shadow-[#050FA0]/10 transition-all"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold mb-2 group-hover:text-[#003087] transition-colors">{job.title}</h3>
+                          <h3 className="text-xl font-bold mb-2 group-hover:text-[#050FA0] transition-colors">{job.title}</h3>
                           <p className="text-slate-600 mb-1">{job.company_profiles?.company_name || job.company}</p>
                           <p className="text-sm text-slate-500">{job.location}</p>
                         </div>
                         {job.match !== null && (
                           <div className="text-right">
-                            <div className="text-3xl font-bold text-[#E31E24] mb-1 tabular-nums">{job.match}%</div>
+                            <div className="text-3xl font-bold text-[#E4220F] mb-1 tabular-nums">{job.match}%</div>
                             <div className="text-xs text-slate-600 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3 text-[#003087]" />
+                              <CheckCircle2 className="h-3 w-3 text-[#050FA0]" />
                               <span>{job.match >= 70 ? "Très compatible" : job.match >= 45 ? "Compatible" : "Peu compatible"}</span>
                             </div>
                           </div>
@@ -279,7 +279,7 @@ export default function DashboardCandidate() {
                   </motion.div>
                 ))}
                 <div className="pt-4">
-                  <Link to="/jobs" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-[#003087] text-[#003087] font-bold hover:bg-[#003087] hover:text-white transition-all">
+                  <Link to="/jobs" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-[#050FA0] text-[#050FA0] font-bold hover:bg-[#050FA0] hover:text-white transition-all">
                     Voir toutes les offres
                     <ArrowRight className="h-4 w-4" />
                   </Link>

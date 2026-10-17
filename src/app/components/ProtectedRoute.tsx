@@ -21,7 +21,7 @@ export function ProtectedRoute({ children, type }: ProtectedRouteProps) {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-[#003087] to-[#0047b3] mb-4 shadow-2xl">
+          <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-[#050FA0] to-[#1A27C2] mb-4 shadow-2xl">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

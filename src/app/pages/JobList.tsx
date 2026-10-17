@@ -78,21 +78,21 @@ export default function JobList() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="mb-12">
             <h1 className="page-title mb-3">
-              <span className="text-[#003087]">Découvrez</span>{" "}
-              <span className="text-[#E31E24]">votre prochain emploi</span>
+              <span className="text-[#050FA0]">Découvrez</span>{" "}
+              <span className="text-[#E4220F]">votre prochain emploi</span>
             </h1>
             <p className="page-subtitle">Les meilleures offres disponibles en Guinée</p>
           </div>
 
           <div className="mb-8">
             <div className="relative">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-[#003087]" />
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-[#050FA0]" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher un poste, une entreprise, un secteur..."
-                className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 rounded-2xl border-2 border-slate-200 focus:border-[#003087] focus:ring-4 focus:ring-[#003087]/10 outline-none transition-all text-base sm:text-lg shadow-sm"
+                className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 rounded-2xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-4 focus:ring-[#050FA0]/10 outline-none transition-all text-base sm:text-lg shadow-sm"
               />
             </div>
           </div>
@@ -101,8 +101,8 @@ export default function JobList() {
             <div className="lg:col-span-1 order-2 lg:order-1">
               <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-slate-100 shadow-lg lg:sticky lg:top-24">
                 <div className="flex items-center gap-2 mb-6">
-                  <Filter className="h-5 w-5 text-[#003087]" />
-                  <h3 className="font-bold text-lg text-[#003087]">Filtres</h3>
+                  <Filter className="h-5 w-5 text-[#050FA0]" />
+                  <h3 className="font-bold text-lg text-[#050FA0]">Filtres</h3>
                 </div>
                 <div className="space-y-5">
                   <div>
@@ -110,7 +110,7 @@ export default function JobList() {
                     <select
                       value={filters.location}
                       onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-2 focus:ring-[#003087]/20 outline-none text-sm transition-all"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-2 focus:ring-[#050FA0]/20 outline-none text-sm transition-all"
                     >
                       <option value="">Toutes les villes</option>
                       <option value="Conakry">Conakry</option>
@@ -124,7 +124,7 @@ export default function JobList() {
                     <select
                       value={filters.education_level}
                       onChange={(e) => setFilters({ ...filters, education_level: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-2 focus:ring-[#003087]/20 outline-none text-sm transition-all"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-2 focus:ring-[#050FA0]/20 outline-none text-sm transition-all"
                     >
                       <option value="">Tous les niveaux</option>
                       <option>Bac</option>
@@ -139,7 +139,7 @@ export default function JobList() {
                     <select
                       value={filters.job_type}
                       onChange={(e) => setFilters({ ...filters, job_type: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#003087] focus:ring-2 focus:ring-[#003087]/20 outline-none text-sm transition-all"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] focus:ring-2 focus:ring-[#050FA0]/20 outline-none text-sm transition-all"
                     >
                       <option value="">Tous les contrats</option>
                       <option>CDI</option>
@@ -150,7 +150,7 @@ export default function JobList() {
                   </div>
                   <button
                     onClick={() => { setSearch(""); setFilters({ location: "", job_type: "", education_level: "" }); }}
-                    className="w-full border-2 border-slate-200 text-slate-600 px-4 py-3 rounded-xl font-semibold hover:border-[#003087] hover:text-[#003087] transition-colors"
+                    className="w-full border-2 border-slate-200 text-slate-600 px-4 py-3 rounded-xl font-semibold hover:border-[#050FA0] hover:text-[#050FA0] transition-colors"
                   >
                     Réinitialiser
                   </button>
@@ -164,12 +164,12 @@ export default function JobList() {
                   {isLoading ? (
                     <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Chargement...</span>
                   ) : (
-                    <><span className="font-bold text-[#003087]">{filtered.length} offre{filtered.length > 1 ? "s" : ""}</span> correspondent à votre recherche</>
+                    <><span className="font-bold text-[#050FA0]">{filtered.length} offre{filtered.length > 1 ? "s" : ""}</span> correspondent à votre recherche</>
                   )}
                 </p>
                 {canMatch && !isLoading && filtered.length > 1 && (
                   <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                    <input type="checkbox" checked={sortByMatch} onChange={(e) => setSortByMatch(e.target.checked)} className="h-4 w-4 accent-[#003087]" />
+                    <input type="checkbox" checked={sortByMatch} onChange={(e) => setSortByMatch(e.target.checked)} className="h-4 w-4 accent-[#050FA0]" />
                     Trier par compatibilité
                   </label>
                 )}
@@ -177,7 +177,7 @@ export default function JobList() {
 
               {isLoading ? (
                 <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-10 w-10 animate-spin text-[#003087]" />
+                  <Loader2 className="h-10 w-10 animate-spin text-[#050FA0]" />
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-slate-500">
@@ -204,9 +204,9 @@ export default function JobList() {
                         transition={{ delay: i * 0.05 }}
                         className="group"
                       >
-                        <div className={`relative bg-white rounded-2xl p-5 sm:p-8 border-2 ${job.featured ? "border-[#E31E24] shadow-xl shadow-[#E31E24]/10" : "border-slate-100 hover:border-[#003087]"} transition-all hover:shadow-xl`}>
+                        <div className={`relative bg-white rounded-2xl p-5 sm:p-8 border-2 ${job.featured ? "border-[#E4220F] shadow-xl shadow-[#E4220F]/10" : "border-slate-100 hover:border-[#050FA0]"} transition-all hover:shadow-xl`}>
                           {job.featured && (
-                            <div className="absolute -top-3 left-6 bg-gradient-to-r from-[#E31E24] to-[#ff3333] text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
+                            <div className="absolute -top-3 left-6 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
                               <Sparkles className="h-4 w-4" />
                               Offre Premium
                             </div>
@@ -214,11 +214,11 @@ export default function JobList() {
                           <div className="mb-4">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start gap-3 mb-3">
-                                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-br from-[#003087] to-[#0047b3] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg shrink-0">
+                                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg shrink-0">
                                   {companyName.charAt(0)}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <h3 className="text-xl sm:text-2xl font-bold text-[#003087] group-hover:text-[#E31E24] transition-colors break-words">{job.title}</h3>
+                                  <h3 className="text-xl sm:text-2xl font-bold text-[#050FA0] group-hover:text-[#E4220F] transition-colors break-words">{job.title}</h3>
                                   <p className="text-base sm:text-lg text-slate-700 font-medium break-words">{companyName}</p>
                                 </div>
                                 {match && (
@@ -230,12 +230,12 @@ export default function JobList() {
                               </div>
                               <div className="flex flex-wrap gap-3 mb-4">
                                 <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full">
-                                  <MapPin className="h-4 w-4 text-[#003087]" />
+                                  <MapPin className="h-4 w-4 text-[#050FA0]" />
                                   <span className="text-sm font-medium text-slate-700">{job.location}</span>
                                 </div>
                                 {job.education_level && (
                                   <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full">
-                                    <GraduationCap className="h-4 w-4 text-[#003087]" />
+                                    <GraduationCap className="h-4 w-4 text-[#050FA0]" />
                                     <span className="text-sm font-medium text-slate-700">{job.education_level}</span>
                                   </div>
                                 )}
@@ -244,7 +244,7 @@ export default function JobList() {
                                   <span className="text-sm font-bold">{job.job_type}</span>
                                 </div>
                                 {isNew && (
-                                  <div className="flex items-center gap-2 px-4 py-2 bg-[#E31E24] text-white rounded-full">
+                                  <div className="flex items-center gap-2 px-4 py-2 bg-[#E4220F] text-white rounded-full">
                                     <TrendingUp className="h-4 w-4" />
                                     <span className="text-sm font-bold">Nouveau</span>
                                   </div>
@@ -255,13 +255,13 @@ export default function JobList() {
                                   <Calendar className="h-4 w-4" />
                                   <span className="text-sm">{timeAgo(job.published_at)}</span>
                                 </div>
-                                {salary && <span className="text-sm font-semibold text-[#003087]">{salary}</span>}
+                                {salary && <span className="text-sm font-semibold text-[#050FA0]">{salary}</span>}
                               </div>
                             </div>
                           </div>
                           <Link
                             to={`/jobs/${job.id}`}
-                            className="block mt-4 w-full bg-gradient-to-r from-[#003087] to-[#0047b3] text-white text-center px-6 py-3 rounded-xl font-bold hover:shadow-xl hover:shadow-[#003087]/30 hover:scale-[1.02] transition-all"
+                            className="block mt-4 w-full bg-gradient-to-r from-[#050FA0] to-[#1A27C2] text-white text-center px-6 py-3 rounded-xl font-bold hover:shadow-xl hover:shadow-[#050FA0]/30 hover:scale-[1.02] transition-all"
                           >
                             Voir l'offre complète
                           </Link>

@@ -11,7 +11,7 @@ export function ColorPicker({ note = "Le CV et la lettre utilisent la même coul
   return (
     <div className="bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg">
       <div className="flex items-center gap-2 mb-1">
-        <Palette className="h-5 w-5 text-[#003087]" />
+        <Palette className="h-5 w-5 text-[#050FA0]" />
         <h3 className="text-lg font-bold text-slate-900">Couleur</h3>
       </div>
       <p className="text-sm text-slate-500 mb-4">{note}</p>
@@ -27,7 +27,7 @@ export function ColorPicker({ note = "Le CV et la lettre utilisent la même coul
               aria-label={c.name}
               title={c.name}
               onClick={() => updateCVData({ theme: c.hex })}
-              className={`relative h-11 rounded-xl transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#003087] ${selected ? "ring-2 ring-offset-2 ring-slate-900" : ""}`}
+              className={`relative h-11 rounded-xl transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#050FA0] ${selected ? "ring-2 ring-offset-2 ring-slate-900" : ""}`}
               style={{ background: c.hex }}
             >
               {selected && <Check className="h-5 w-5 text-white absolute inset-0 m-auto" />}
@@ -62,7 +62,7 @@ export function MotifPicker() {
   return (
     <div className="bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg">
       <div className="flex items-center gap-2 mb-1">
-        <Shapes className="h-5 w-5 text-[#003087]" />
+        <Shapes className="h-5 w-5 text-[#050FA0]" />
         <h3 className="text-lg font-bold text-slate-900">Motif</h3>
       </div>
       <p className="text-sm text-slate-500 mb-4">Un décor discret dans la zone de couleur.</p>
@@ -76,7 +76,7 @@ export function MotifPicker() {
               role="radio"
               aria-checked={selected}
               onClick={() => updateCVData({ motif: m.id })}
-              className={`flex flex-col items-center gap-1.5 rounded-xl p-1 text-[11px] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#003087] ${selected ? "text-slate-900" : "text-slate-500 hover:text-slate-800"}`}
+              className={`flex flex-col items-center gap-1.5 rounded-xl p-1 text-[11px] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#050FA0] ${selected ? "text-slate-900" : "text-slate-500 hover:text-slate-800"}`}
             >
               <span
                 className={`block h-11 w-full rounded-lg ${selected ? "ring-2 ring-offset-2 ring-slate-900" : ""}`}

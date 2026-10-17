@@ -7,7 +7,7 @@ type Application = Database["public"]["Tables"]["applications"]["Row"];
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-slate-200 text-slate-700",
-  reviewed: "bg-[#003087]/10 text-[#003087]",
+  reviewed: "bg-[#050FA0]/10 text-[#050FA0]",
   shortlisted: "bg-amber-100 text-amber-800",
   interview: "bg-violet-100 text-violet-800",
   accepted: "bg-emerald-100 text-emerald-800",
@@ -95,7 +95,7 @@ function DocumentLink({ path, label }: { path: string; label: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 text-sm font-medium text-[#003087] hover:underline"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-[#050FA0] hover:underline"
     >
       <FileText className="h-3.5 w-3.5" />
       {label}
@@ -148,7 +148,7 @@ export default function CompanyApplicationItem({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           {offerTitle && (
-            <p className="text-xs font-semibold text-[#003087] uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-[#050FA0] uppercase tracking-wide mb-1">
               {offerTitle}
             </p>
           )}
@@ -162,13 +162,13 @@ export default function CompanyApplicationItem({
           {profile?.email && (
             <p className="text-sm text-slate-600 flex items-center gap-1.5 mt-2">
               <Mail className="h-3.5 w-3.5 shrink-0" />
-              <a href={`mailto:${profile.email}`} className="hover:text-[#003087]">{profile.email}</a>
+              <a href={`mailto:${profile.email}`} className="hover:text-[#050FA0]">{profile.email}</a>
             </p>
           )}
           {profile?.phone && (
             <p className="text-sm text-slate-600 flex items-center gap-1.5 mt-0.5">
               <Phone className="h-3.5 w-3.5 shrink-0" />
-              <a href={`tel:${profile.phone}`} className="hover:text-[#003087]">{profile.phone}</a>
+              <a href={`tel:${profile.phone}`} className="hover:text-[#050FA0]">{profile.phone}</a>
             </p>
           )}
           {app.motivation_message && (
@@ -204,7 +204,7 @@ export default function CompanyApplicationItem({
                 ? confirmReject
                   ? "bg-red-600 border-red-600 text-white"
                   : "border-red-200 text-red-700 hover:bg-red-50"
-                : "border-slate-300 text-slate-700 hover:border-[#003087] hover:text-[#003087] bg-white"
+                : "border-slate-300 text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] bg-white"
             }`}
           >
             {busy === a.status && <Loader2 className="h-3 w-3 animate-spin" />}
