@@ -1,7 +1,7 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import AppNavHeader from "../components/AppNavHeader";
 import { supabase } from "../../lib/supabase";
@@ -9,6 +9,10 @@ import { sanitizeText } from "../../lib/security";
 
 export default function PostJob() {
   const navigate = useNavigate();
+  // Mode modification : /company/jobs/:id/edit
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = Boolean(editId);
+  const [loadingJob, setLoadingJob] = useState(isEdit);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -25,6 +29,37 @@ export default function PostJob() {
     salary_min: "",
     salary_max: "",
   });
+
+  // Charger l'offre à modifier (RLS : seule l'entreprise propriétaire la reçoit)
+  useEffect(() => {
+    if (!editId) return;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: job, error: err } = await supabase
+        .from("jobs")
+        .select("*, job_skills(skill_name)")
+        .eq("id", editId)
+        .eq("company_id", user?.id ?? "")
+        .maybeSingle();
+      if (err || !job) {
+        setError("Cette offre est introuvable ou ne vous appartient pas.");
+      } else {
+        setForm({
+          title: job.title || "",
+          description: job.description || "",
+          location: job.location || "",
+          job_type: job.job_type || "CDI",
+          experience_level: job.experience_level || "Débutant accepté",
+          education_level: job.education_level || "Licence",
+          skills: ((job as { job_skills?: { skill_name: string }[] }).job_skills || []).map((s) => s.skill_name).join(", "),
+          deadline: job.expires_at ? String(job.expires_at).slice(0, 10) : "",
+          salary_min: job.salary_min != null ? String(Math.round(Number(job.salary_min))) : "",
+          salary_max: job.salary_max != null ? String(Math.round(Number(job.salary_max))) : "",
+        });
+      }
+      setLoadingJob(false);
+    })();
+  }, [editId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -70,39 +105,52 @@ export default function PostJob() {
         : [];
 
       const jobPayload: Record<string, any> = {
-        company_id: user.id,
         title: sanitizeText(form.title, 150),
         description: sanitizeText(form.description, 5000),
         location: sanitizeText(form.location, 200),
         job_type: form.job_type,
         experience_level: form.experience_level,
         education_level: form.education_level,
-        is_active: true,
-        published_at: new Date().toISOString(),
+        expires_at: form.deadline ? new Date(form.deadline).toISOString() : null,
+        salary_min: form.salary_min ? parseInt(form.salary_min) : null,
+        salary_max: form.salary_max ? parseInt(form.salary_max) : null,
       };
 
-      if (form.deadline) jobPayload.expires_at = new Date(form.deadline).toISOString();
-      if (form.salary_min) jobPayload.salary_min = parseInt(form.salary_min);
-      if (form.salary_max) jobPayload.salary_max = parseInt(form.salary_max);
+      let jobId: string;
+      if (isEdit && editId) {
+        const { data: job, error: jobError } = await supabase
+          .from("jobs")
+          .update({ ...jobPayload, updated_at: new Date().toISOString() })
+          .eq("id", editId)
+          .eq("company_id", user.id)
+          .select("id")
+          .single();
+        if (jobError) throw jobError;
+        jobId = job.id;
+        // Compétences : on remplace l'ancienne liste par la nouvelle
+        const { error: delErr } = await supabase.from("job_skills").delete().eq("job_id", jobId);
+        if (delErr) throw delErr;
+      } else {
+        const { data: job, error: jobError } = await supabase
+          .from("jobs")
+          .insert({ ...jobPayload, company_id: user.id, is_active: true, published_at: new Date().toISOString() })
+          .select("id")
+          .single();
+        if (jobError) throw jobError;
+        jobId = job.id;
+      }
 
-      const { data: job, error: jobError } = await supabase
-        .from("jobs")
-        .insert(jobPayload)
-        .select()
-        .single();
-
-      if (jobError) throw jobError;
-
-      if (skillsArray.length > 0 && job) {
-        await supabase.from("job_skills").insert(
-          skillsArray.map((skill) => ({ job_id: job.id, skill_name: skill }))
+      if (skillsArray.length > 0) {
+        const { error: skillsErr } = await supabase.from("job_skills").insert(
+          skillsArray.slice(0, 20).map((skill) => ({ job_id: jobId, skill_name: sanitizeText(skill, 80) }))
         );
+        if (skillsErr) console.warn("[ProJob AI] Compétences non enregistrées (migration 010 appliquée ?)", skillsErr);
       }
 
       setSuccess(true);
       setTimeout(() => navigate("/company/dashboard"), 2000);
     } catch (err: any) {
-      setError(err?.message || "Erreur lors de la publication. Veuillez réessayer.");
+      setError(err?.message || (isEdit ? "Erreur lors de l'enregistrement. Veuillez réessayer." : "Erreur lors de la publication. Veuillez réessayer."));
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +165,7 @@ export default function PostJob() {
           className="text-center p-12"
         >
           <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-[#050FA0] mb-3">Offre publiée avec succès !</h2>
+          <h2 className="text-3xl font-bold text-[#050FA0] mb-3">{isEdit ? "Offre mise à jour !" : "Offre publiée avec succès !"}</h2>
           <p className="text-slate-600">Redirection vers le tableau de bord...</p>
         </motion.div>
       </div>
@@ -130,8 +178,13 @@ export default function PostJob() {
 
       <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Publier une offre d'emploi</h1>
-          <p className="text-base sm:text-lg text-slate-600 mb-8 sm:mb-12">Trouvez le candidat idéal pour votre entreprise</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{isEdit ? "Modifier l'offre d'emploi" : "Publier une offre d'emploi"}</h1>
+          <p className="text-base sm:text-lg text-slate-600 mb-8 sm:mb-12">
+            {isEdit ? "Les candidatures déjà reçues sont conservées." : "Trouvez le candidat idéal pour votre entreprise"}
+          </p>
+          {loadingJob && (
+            <div className="flex items-center gap-2 text-slate-500 mb-6"><Loader2 className="h-5 w-5 animate-spin" /> Chargement de l'offre…</div>
+          )}
 
           <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border">
             {error && (
@@ -286,13 +339,13 @@ export default function PostJob() {
                 </Link>
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || loadingJob}
                   className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-6 py-3 rounded-full font-bold hover:shadow-xl hover:shadow-[#E4220F]/30 transition-all disabled:opacity-50"
                 >
                   {isLoading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" />Publication...</>
+                    <><Loader2 className="h-4 w-4 animate-spin" />{isEdit ? "Enregistrement…" : "Publication..."}</>
                   ) : (
-                    "Publier l'offre"
+                    isEdit ? "Enregistrer les modifications" : "Publier l'offre"
                   )}
                 </button>
               </div>

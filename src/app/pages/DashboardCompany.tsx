@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp, Pencil, Trash2, PauseCircle, PlayCircle, AlertTriangle, Eye } from "lucide-react";
 import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
 import DashboardHeader from "../components/DashboardHeader";
 import { motion } from "motion/react";
@@ -16,6 +16,41 @@ export default function DashboardCompany() {
   const [stats, setStats] = useState({ activeJobs: 0, totalApplications: 0, favorites: 0, hired: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [busyJob, setBusyJob] = useState<string | null>(null);
+  const [actionMsg, setActionMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const flash = (ok: boolean, text: string) => {
+    setActionMsg({ ok, text });
+    window.setTimeout(() => setActionMsg(null), 4000);
+  };
+
+  // Clôturer / republier : l'offre disparaît (ou réapparaît) pour les candidats, les candidatures restent.
+  const toggleActive = async (offer: { id: string; is_active: boolean; title: string }) => {
+    setBusyJob(offer.id);
+    const next = !offer.is_active;
+    const { error } = await supabase.from("jobs").update({ is_active: next }).eq("id", offer.id);
+    setBusyJob(null);
+    if (error) return flash(false, "La modification n'a pas pu être enregistrée. Réessayez.");
+    setJobs((list) => list.map((j) => (j.id === offer.id ? { ...j, is_active: next } : j)));
+    setStats((st) => ({ ...st, activeJobs: st.activeJobs + (next ? 1 : -1) }));
+    flash(true, next ? `« ${offer.title} » est de nouveau visible par les candidats.` : `« ${offer.title} » est clôturée : elle n'est plus visible par les candidats.`);
+  };
+
+  // Suppression définitive : l'offre et ses candidatures sont effacées.
+  const deleteOffer = async (offer: { id: string; title: string; is_active: boolean }) => {
+    setBusyJob(offer.id);
+    const { error } = await supabase.from("jobs").delete().eq("id", offer.id);
+    setBusyJob(null);
+    setConfirmDelete(null);
+    if (error) return flash(false, "L'offre n'a pas pu être supprimée. Réessayez.");
+    const removedApps = (applicationsByJob[offer.id] || []).length;
+    setJobs((list) => list.filter((j) => j.id !== offer.id));
+    setAllApplications((list) => list.filter((a) => (a as { job_id?: string }).job_id !== offer.id));
+    setApplicationsByJob((m) => { const n = { ...m }; delete n[offer.id]; return n; });
+    setStats((st) => ({ ...st, activeJobs: st.activeJobs - (offer.is_active ? 1 : 0), totalApplications: Math.max(0, st.totalApplications - removedApps) }));
+    flash(true, `« ${offer.title} » a été supprimée.`);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -229,13 +264,18 @@ export default function DashboardCompany() {
                 Nouvelle offre
               </Link>
             </div>
+            {actionMsg && (
+              <div role="status" className={`mb-4 rounded-xl px-4 py-3 text-sm font-medium border-2 ${actionMsg.ok ? "bg-emerald-50 border-emerald-200 text-emerald-900" : "bg-red-50 border-red-200 text-red-800"}`}>
+                {actionMsg.text}
+              </div>
+            )}
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-[#050FA0]" />
               </div>
             ) : (
               <div className="space-y-4">
-                {jobs.slice(0, 10).map((offer: any, i: number) => {
+                {jobs.map((offer: any, i: number) => {
                   const applications = applicationsByJob[offer.id] || [];
                   const count = applications.length || offer.applications_count || 0;
                   const isExpanded = expandedJobs.has(offer.id);
@@ -245,13 +285,14 @@ export default function DashboardCompany() {
                       <button
                         type="button"
                         onClick={() => toggleJobApplications(offer.id)}
-                        className="w-full p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                        aria-expanded={isExpanded}
+                        className="w-full px-6 pt-6 pb-4 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
                       >
                         <div>
                           <div className="flex flex-wrap items-center gap-2 mb-1">
                             <h3 className="font-bold">{offer.title}</h3>
                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${offer.is_active ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
-                              {offer.is_active ? "Active" : "Inactive"}
+                              {offer.is_active ? "En ligne" : "Clôturée"}
                             </span>
                           </div>
                           <p className="text-sm text-slate-600 flex items-center gap-1">
@@ -265,6 +306,53 @@ export default function DashboardCompany() {
                           <ChevronDown className="h-5 w-5 text-[#050FA0] shrink-0" />
                         )}
                       </button>
+
+                      {/* Actions sur l'offre */}
+                      <div className="px-6 pb-5 flex flex-wrap gap-2">
+                        <Link to={`/company/jobs/${offer.id}/edit`} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0]">
+                          <Pencil className="h-4 w-4" /> Modifier
+                        </Link>
+                        <button type="button" disabled={busyJob === offer.id} onClick={() => toggleActive(offer)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] disabled:opacity-50">
+                          {busyJob === offer.id ? <Loader2 className="h-4 w-4 animate-spin" /> : offer.is_active ? <PauseCircle className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
+                          {offer.is_active ? "Clôturer" : "Remettre en ligne"}
+                        </button>
+                        {offer.is_active && (
+                          <Link to={`/jobs/${offer.id}`} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0]">
+                            <Eye className="h-4 w-4" /> Voir l&apos;annonce
+                          </Link>
+                        )}
+                        <button type="button" disabled={busyJob === offer.id} onClick={() => setConfirmDelete(offer.id)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 sm:ml-auto">
+                          <Trash2 className="h-4 w-4" /> Supprimer
+                        </button>
+                      </div>
+
+                      {confirmDelete === offer.id && (
+                        <div role="alertdialog" aria-labelledby={`del-${offer.id}`} className="mx-6 mb-5 rounded-xl border-2 border-red-200 bg-red-50 p-4">
+                          <p id={`del-${offer.id}`} className="flex items-start gap-2 font-semibold text-red-900">
+                            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+                            Supprimer définitivement « {offer.title} » ?
+                          </p>
+                          <p className="mt-1 text-sm text-red-800">
+                            {count > 0
+                              ? `Les ${count} candidature${count > 1 ? "s" : ""} reçue${count > 1 ? "s" : ""} seront aussi effacée${count > 1 ? "s" : ""}, sans retour possible. Pour simplement arrêter de recevoir des candidatures, choisissez plutôt « Clôturer ».`
+                              : "Cette action est définitive."}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button type="button" onClick={() => deleteOffer(offer)} disabled={busyJob === offer.id} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 disabled:opacity-60">
+                              {busyJob === offer.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Oui, supprimer
+                            </button>
+                            {offer.is_active && count > 0 && (
+                              <button type="button" onClick={() => { setConfirmDelete(null); void toggleActive(offer); }} className="px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:border-[#050FA0]">
+                                Clôturer à la place
+                              </button>
+                            )}
+                            <button type="button" onClick={() => setConfirmDelete(null)} className="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:text-slate-900">
+                              Annuler
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       {isExpanded && (
                         <div className="px-6 pb-6 border-t border-slate-100">
                           {applications.length === 0 ? (

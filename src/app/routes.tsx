@@ -119,6 +119,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "/company/jobs/:id/edit",
+        element: (
+          <ProtectedRoute type="company">
+            <PostJob />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "/company/search-profiles",
         element: (
           <ProtectedRoute type="company">
