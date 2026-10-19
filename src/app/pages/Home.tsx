@@ -240,7 +240,7 @@ export default function Home() {
         <div className="page-container relative grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-6 items-center pt-10 sm:pt-16 pb-14 sm:pb-20">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <span className="inline-flex items-center gap-2 rounded-full bg-white border border-brand/15 px-4 py-1.5 text-sm font-semibold text-brand shadow-sm">
-              <Sparkles className="h-4 w-4 text-accent-red" /> Coach carrière IA, conçu pour la Guinée
+              <Sparkles className="h-4 w-4 text-accent-red" /> Coach carrière IA
             </span>
             <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[3.6rem] font-bold leading-[1.08] text-ink">
               L&apos;IA qui vous prépare <span className="text-brand">à l&apos;emploi</span>
