@@ -14,7 +14,7 @@ const MODEL = Deno.env.get("AI_MODEL") || "claude-haiku-5-5";
 const MAX_INPUT_CHARS = 24_000;
 
 const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ||
-  "https://projobai.netlify.app,http://localhost:5173,http://localhost:4173")
+  "https://projobai.com,https://www.projobai.com,https://projobai.netlify.app,http://localhost:5173,http://localhost:4173")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
