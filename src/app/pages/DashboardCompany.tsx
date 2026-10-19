@@ -1,6 +1,10 @@
 import { Link } from "react-router";
-import { useEffect, useState } from "react";
-import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp, Pencil, Trash2, PauseCircle, PlayCircle, AlertTriangle, Eye } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp, Pencil, Trash2, PauseCircle, PlayCircle, AlertTriangle, Eye, CalendarDays, BarChart3, Share2, ArrowDownWideNarrow } from "lucide-react";
+import { matchJob, MATCH_DISCLAIMER, type MatchResult } from "../../lib/matching";
+import { PIPELINE } from "../../lib/ats";
+import { atsService } from "../../services/ats.service";
+import ShareJobMenu from "../components/ShareJobMenu";
 import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
 import DashboardHeader from "../components/DashboardHeader";
 import { motion } from "motion/react";
@@ -19,6 +23,11 @@ export default function DashboardCompany() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [busyJob, setBusyJob] = useState<string | null>(null);
   const [actionMsg, setActionMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [applicantCVs, setApplicantCVs] = useState<Record<string, Record<string, unknown>> | null>(null);
+  const [stageFilter, setStageFilter] = useState<string>("all");
+  const [jobFilter, setJobFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"score" | "date">("score");
+  const [shareJob, setShareJob] = useState<string | null>(null);
 
   const flash = (ok: boolean, text: string) => {
     setActionMsg({ ok, text });
@@ -58,6 +67,9 @@ export default function DashboardCompany() {
         setLoadError("");
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (!authUser) return;
+
+        // CV structurés des candidats (migration 011) : sans eux, pas de score, mais le reste fonctionne.
+        atsService.getApplicantCVs().then(setApplicantCVs, () => setApplicantCVs({}));
 
         const [jobsData, applicationsData, favCount] = await Promise.all([
           companyService.getJobs(authUser.id),
@@ -112,7 +124,41 @@ export default function DashboardCompany() {
     { value: isLoading ? "..." : String(stats.hired), label: "Postes pourvus", color: "from-green-500 to-green-600", icon: Star },
   ];
 
-  const activeJobs = jobs.filter(j => j.is_active);
+  // Score de compatibilité de chaque candidature avec son offre.
+  const matches = useMemo(() => {
+    const out: Record<string, MatchResult | null> = {};
+    if (!applicantCVs) return out;
+    const byId = new Map(jobs.map((j) => [j.id, j]));
+    for (const app of allApplications) {
+      const job = byId.get((app as { job_id?: string }).job_id || "");
+      const cv = applicantCVs[app.id] as Parameters<typeof matchJob>[1] | undefined;
+      out[app.id] = job && cv && (cv.skills?.length || cv.jobTitle) ? matchJob(job, cv) : null;
+    }
+    return out;
+  }, [applicantCVs, jobs, allApplications]);
+
+  const rankList = (list: CompanyApplicationData[]) =>
+    [...list].sort((a, b) =>
+      sortBy === "score"
+        ? (matches[b.id]?.score ?? -1) - (matches[a.id]?.score ?? -1) || +new Date(b.applied_at) - +new Date(a.applied_at)
+        : +new Date(b.applied_at) - +new Date(a.applied_at),
+    );
+
+  const stageCounts = useMemo(() => {
+    const c: Record<string, number> = { all: 0 };
+    for (const a of allApplications) {
+      if (jobFilter !== "all" && (a as { job_id?: string }).job_id !== jobFilter) continue;
+      c.all++;
+      c[a.status] = (c[a.status] || 0) + 1;
+    }
+    return c;
+  }, [allApplications, jobFilter]);
+
+  const visibleApplications = rankList(
+    allApplications.filter(
+      (a) => (stageFilter === "all" || a.status === stageFilter) && (jobFilter === "all" || (a as { job_id?: string }).job_id === jobFilter),
+    ),
+  );
 
   // Garder les compteurs et les deux listes cohérents après un changement de statut.
   const handleStatusChange = (id: string, status: string) => {
@@ -215,6 +261,23 @@ export default function DashboardCompany() {
             </Link>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 -mt-4 mb-10 sm:mb-12">
+            <Link to="/company/interviews" className="flex items-center gap-4 p-5 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-violet-400 transition-colors">
+              <span className="h-12 w-12 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><CalendarDays className="h-6 w-6" /></span>
+              <span>
+                <span className="block text-lg font-bold">Agenda des entretiens</span>
+                <span className="block text-sm text-slate-600">Planification, liens visio, évaluations</span>
+              </span>
+            </Link>
+            <Link to="/company/stats" className="flex items-center gap-4 p-5 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-[#050FA0] transition-colors">
+              <span className="h-12 w-12 rounded-xl bg-[#050FA0]/10 text-[#050FA0] flex items-center justify-center shrink-0"><BarChart3 className="h-6 w-6" /></span>
+              <span>
+                <span className="block text-lg font-bold">Statistiques RH</span>
+                <span className="block text-sm text-slate-600">Conversion, délais, coûts, sources</span>
+              </span>
+            </Link>
+          </div>
+
           {/* Candidatures reçues — liste complète */}
           <div
             id="candidatures-recues"
@@ -247,11 +310,63 @@ export default function DashboardCompany() {
                 </p>
               </div>
             ) : (
-              <ul className="space-y-3">
-                {allApplications.map((app) => (
-                  <CompanyApplicationItem key={app.id} app={app} onStatusChange={handleStatusChange} />
-                ))}
-              </ul>
+              <>
+                <div className="flex flex-col lg:flex-row lg:items-end gap-3 mb-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Étape</p>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrer par étape">
+                      {[{ status: "all", short: "Toutes" }, ...PIPELINE, { status: "rejected", short: "Non retenues" }].map((st) => {
+                        const on = stageFilter === st.status;
+                        return (
+                          <button
+                            key={st.status}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => setStageFilter(st.status)}
+                            className={`px-3 py-1.5 rounded-full text-sm font-semibold border-2 transition-colors ${on ? "bg-[#050FA0] border-[#050FA0] text-white" : "bg-white border-slate-200 text-slate-700 hover:border-[#050FA0]"}`}
+                          >
+                            {st.short} <span className={`tabular-nums ${on ? "text-white/80" : "text-slate-500"}`}>{stageCounts[st.status] || 0}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <label className="text-sm">
+                      <span className="block font-semibold text-slate-700 mb-1">Offre</span>
+                      <select value={jobFilter} onChange={(e) => setJobFilter(e.target.value)} className="px-3 py-2 rounded-lg border-2 border-slate-200 bg-white text-sm max-w-[13rem]">
+                        <option value="all">Toutes les offres</option>
+                        {jobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
+                      </select>
+                    </label>
+                    <label className="text-sm">
+                      <span className="flex items-center gap-1 font-semibold text-slate-700 mb-1"><ArrowDownWideNarrow className="h-4 w-4" /> Classer par</span>
+                      <select value={sortBy} onChange={(e) => setSortBy(e.target.value as "score" | "date")} className="px-3 py-2 rounded-lg border-2 border-slate-200 bg-white text-sm">
+                        <option value="score">Pertinence</option>
+                        <option value="date">Date</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                {sortBy === "score" && (
+                  <p className="mb-4 text-xs text-slate-500">{MATCH_DISCLAIMER}</p>
+                )}
+                {visibleApplications.length === 0 ? (
+                  <p className="text-center text-slate-500 py-8 rounded-xl bg-slate-50 border border-dashed border-slate-200">Aucune candidature à cette étape.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {visibleApplications.map((app, i) => (
+                      <CompanyApplicationItem
+                        key={app.id}
+                        app={app}
+                        onStatusChange={handleStatusChange}
+                        match={applicantCVs ? matches[app.id] ?? null : undefined}
+                        rank={sortBy === "score" && matches[app.id] ? i + 1 : undefined}
+                      />
+                    ))}
+                  </ul>
+                )}
+              </>
             )}
           </div>
 
@@ -321,10 +436,17 @@ export default function DashboardCompany() {
                             <Eye className="h-4 w-4" /> Voir l&apos;annonce
                           </Link>
                         )}
+                        {offer.is_active && (
+                          <button type="button" onClick={() => setShareJob(shareJob === offer.id ? null : offer.id)} aria-expanded={shareJob === offer.id} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0]">
+                            <Share2 className="h-4 w-4" /> Partager
+                          </button>
+                        )}
                         <button type="button" disabled={busyJob === offer.id} onClick={() => setConfirmDelete(offer.id)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 sm:ml-auto">
                           <Trash2 className="h-4 w-4" /> Supprimer
                         </button>
                       </div>
+
+                      {shareJob === offer.id && <ShareJobMenu jobId={offer.id} title={offer.title} />}
 
                       {confirmDelete === offer.id && (
                         <div role="alertdialog" aria-labelledby={`del-${offer.id}`} className="mx-6 mb-5 rounded-xl border-2 border-red-200 bg-red-50 p-4">
@@ -359,8 +481,14 @@ export default function DashboardCompany() {
                             <p className="text-slate-500 text-sm py-4">Aucune candidature pour cette offre.</p>
                           ) : (
                             <ul className="space-y-3 pt-4">
-                              {applications.map((app) => (
-                                <CompanyApplicationItem key={app.id} app={app} onStatusChange={handleStatusChange} />
+                              {rankList(applications).map((app, i) => (
+                                <CompanyApplicationItem
+                                  key={app.id}
+                                  app={app}
+                                  onStatusChange={handleStatusChange}
+                                  match={applicantCVs ? matches[app.id] ?? null : undefined}
+                                  rank={sortBy === "score" && matches[app.id] ? i + 1 : undefined}
+                                />
                               ))}
                             </ul>
                           )}

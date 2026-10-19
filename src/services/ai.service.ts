@@ -117,6 +117,19 @@ export const aiService = {
     return call<unknown>("career_orientation", { profile, cv: cv ? cvPayload(cv) : undefined });
   },
 
+  /** Range le texte brut d'un CV importé dans la structure ProJob. */
+  parseCV(text: string) {
+    return call<Partial<CVForAi> & { phone?: string; email?: string }>("parse_cv", { text: text.slice(0, 24_000) });
+  },
+
+  /** Propose une version du CV ciblée sur une offre, sans rien inventer. */
+  tailorCV(cv: CVForAi, job: Record<string, unknown>) {
+    return call<{ profile?: string; skills?: string[]; experiences?: { description?: string[] }[]; keywords?: string[]; advice?: string[] }>(
+      "tailor_cv",
+      { cv: cvPayload(cv), job },
+    );
+  },
+
   careerChat(messages: { role: "user" | "assistant"; content: string }[], context: Record<string, unknown>) {
     return call<{ reply?: string }>("career_chat", { messages, context });
   },

@@ -28,6 +28,7 @@ export default function PostJob() {
     deadline: "",
     salary_min: "",
     salary_max: "",
+    recruitment_cost: "",
   });
 
   // Charger l'offre à modifier (RLS : seule l'entreprise propriétaire la reçoit)
@@ -55,7 +56,11 @@ export default function PostJob() {
           deadline: job.expires_at ? String(job.expires_at).slice(0, 10) : "",
           salary_min: job.salary_min != null ? String(Math.round(Number(job.salary_min))) : "",
           salary_max: job.salary_max != null ? String(Math.round(Number(job.salary_max))) : "",
+          recruitment_cost: "",
         });
+        // Budget interne (table job_budgets, migration 011)
+        const { data: budget } = await supabase.from("job_budgets").select("amount").eq("job_id", editId).maybeSingle();
+        if (budget?.amount != null) setForm((f) => ({ ...f, recruitment_cost: String(Math.round(Number(budget.amount))) }));
       }
       setLoadingJob(false);
     })();
@@ -118,25 +123,27 @@ export default function PostJob() {
 
       let jobId: string;
       if (isEdit && editId) {
-        const { data: job, error: jobError } = await supabase
+        const update = (payload: Record<string, any>) => supabase
           .from("jobs")
-          .update({ ...jobPayload, updated_at: new Date().toISOString() })
+          .update({ ...payload, updated_at: new Date().toISOString() })
           .eq("id", editId)
           .eq("company_id", user.id)
           .select("id")
           .single();
-        if (jobError) throw jobError;
+        const { data: job, error: jobError } = await update(jobPayload);
+        if (jobError || !job) throw jobError;
         jobId = job.id;
         // Compétences : on remplace l'ancienne liste par la nouvelle
         const { error: delErr } = await supabase.from("job_skills").delete().eq("job_id", jobId);
         if (delErr) throw delErr;
       } else {
-        const { data: job, error: jobError } = await supabase
+        const insert = (payload: Record<string, any>) => supabase
           .from("jobs")
-          .insert({ ...jobPayload, company_id: user.id, is_active: true, published_at: new Date().toISOString() })
+          .insert({ ...payload, company_id: user.id, is_active: true, published_at: new Date().toISOString() })
           .select("id")
           .single();
-        if (jobError) throw jobError;
+        const { data: job, error: jobError } = await insert(jobPayload);
+        if (jobError || !job) throw jobError;
         jobId = job.id;
       }
 
@@ -145,6 +152,15 @@ export default function PostJob() {
           skillsArray.slice(0, 20).map((skill) => ({ job_id: jobId, skill_name: sanitizeText(skill, 80) }))
         );
         if (skillsErr) console.warn("[ProJob AI] Compétences non enregistrées (migration 010 appliquée ?)", skillsErr);
+      }
+
+      // Budget de recrutement : table interne séparée, jamais lisible par les candidats.
+      const amount = form.recruitment_cost ? Math.max(0, parseInt(form.recruitment_cost)) : null;
+      if (amount !== null) {
+        const { error: budgetErr } = await supabase.from("job_budgets").upsert({ job_id: jobId, company_id: user.id, amount, updated_at: new Date().toISOString() });
+        if (budgetErr) console.warn("[ProJob AI] Budget non enregistré (migration 011 appliquée ?)", budgetErr);
+      } else if (isEdit) {
+        await supabase.from("job_budgets").delete().eq("job_id", jobId);
       }
 
       setSuccess(true);
@@ -304,6 +320,21 @@ export default function PostJob() {
                     className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="recruitment_cost" className="block font-medium mb-2">Budget de recrutement (GNF) <span className="text-slate-500 font-normal">— facultatif</span></label>
+                <input
+                  id="recruitment_cost"
+                  type="number"
+                  min={0}
+                  name="recruitment_cost"
+                  value={form.recruitment_cost}
+                  onChange={handleChange}
+                  placeholder="Annonces, cabinet, tests, déplacements…"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#050FA0] outline-none transition-colors"
+                />
+                <p className="text-sm text-slate-500 mt-2">Information interne, jamais visible des candidats. Sert à calculer le coût par recrutement dans vos statistiques.</p>
               </div>
 
               <div>

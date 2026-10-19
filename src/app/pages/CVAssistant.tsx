@@ -5,6 +5,7 @@ import { useState } from "react";
 import AppLogo from "../components/AppLogo";
 import Footer from "../components/Footer";
 import { useCVData } from "../contexts/CVDataContext";
+import CVImport from "../components/CVImport";
 
 const TOTAL_STEPS = 11;
 const SKIP = /^(aucun|aucune|non|pas encore|rien|-)$/i;
@@ -145,6 +146,11 @@ export default function CVAssistant() {
         </div>
 
         <div className="flex-1 mx-auto max-w-4xl w-full px-4 sm:px-6 py-6 sm:py-8 flex flex-col">
+          {step <= 2 && (
+            <div className="mb-6">
+              <CVImport variant="banner" redirectTo="/cv-edit" />
+            </div>
+          )}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

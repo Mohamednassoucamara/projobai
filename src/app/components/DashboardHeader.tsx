@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router";
 import { Home, LogOut } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import AppLogo from "./AppLogo";
+import NotificationBell from "./NotificationBell";
 
 export default function DashboardHeader() {
   const { user, logout } = useAuth();
@@ -37,6 +38,7 @@ export default function DashboardHeader() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <NotificationBell />
             <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 max-w-[140px] sm:max-w-none">
               <div
                 className={`h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br flex items-center justify-center font-bold text-white text-xs sm:text-sm shadow-lg shrink-0 ${

@@ -6,8 +6,8 @@ const STATUS_LABELS: Record<string, string> = {
   reviewed: "Examinée",
   shortlisted: "Présélectionnée",
   interview: "Entretien",
-  accepted: "Acceptée",
-  rejected: "Refusée",
+  accepted: "Retenue",
+  rejected: "Non retenue",
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -34,6 +34,31 @@ export type CandidateApplicationData = {
     };
   };
 };
+
+const STEPS = ["pending", "reviewed", "shortlisted", "interview", "accepted"];
+const STEP_LABELS = ["Envoyée", "Consultée", "Présélection", "Entretien", "Décision"];
+
+/** Avancement de la candidature, étape par étape. */
+function Progress({ status }: { status: string }) {
+  const rejected = status === "rejected";
+  const idx = rejected ? -1 : STEPS.indexOf(status);
+  return (
+    <ol className="mt-4 grid grid-cols-5 gap-1" aria-label="Avancement de la candidature">
+      {STEP_LABELS.map((label, i) => {
+        const done = !rejected && i <= idx;
+        const last = i === STEPS.length - 1;
+        return (
+          <li key={label} aria-current={i === idx ? "step" : undefined}>
+            <span className={`block h-1.5 rounded-full ${rejected ? (last ? "bg-red-400" : "bg-slate-200") : done ? (last ? "bg-emerald-500" : "bg-[#050FA0]") : "bg-slate-200"}`} />
+            <span className={`block mt-1 text-[10px] sm:text-[11px] leading-tight ${done || (rejected && last) ? "font-semibold text-slate-700" : "text-slate-400"}`}>
+              {last ? (rejected ? "Non retenue" : status === "accepted" ? "Retenue" : label) : label}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 
 export default function CandidateApplicationItem({ app }: { app: CandidateApplicationData }) {
   const job = app.jobs;
@@ -88,6 +113,7 @@ export default function CandidateApplicationItem({ app }: { app: CandidateApplic
           )}
         </div>
       </div>
+      <Progress status={app.status} />
     </li>
   );
 }

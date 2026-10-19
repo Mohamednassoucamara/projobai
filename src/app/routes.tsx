@@ -18,6 +18,10 @@ import PostJob from "./pages/PostJob";
 import SearchProfiles from "./pages/SearchProfiles";
 import Pricing from "./pages/Pricing";
 import CareerOrientation from "./pages/CareerOrientation";
+import ApplicationDossier from "./pages/ApplicationDossier";
+import CompanyInterviews from "./pages/CompanyInterviews";
+import CompanyStats from "./pages/CompanyStats";
+import CVAdapt from "./pages/CVAdapt";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
@@ -131,6 +135,38 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute type="company">
             <SearchProfiles />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/company/applications/:id",
+        element: (
+          <ProtectedRoute type="company">
+            <ApplicationDossier />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/company/interviews",
+        element: (
+          <ProtectedRoute type="company">
+            <CompanyInterviews />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/company/stats",
+        element: (
+          <ProtectedRoute type="company">
+            <CompanyStats />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/cv-adapt/:id",
+        element: (
+          <ProtectedRoute type="candidate">
+            <CVAdapt />
           </ProtectedRoute>
         ),
       },

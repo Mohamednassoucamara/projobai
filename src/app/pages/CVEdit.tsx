@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, X, Save, Sparkles, Loader2, Undo2, Eye, CheckCircle2, 
 import { motion } from "motion/react";
 import Footer from "../components/Footer";
 import CVPhotoField from "../components/CVPhotoField";
+import CVImport from "../components/CVImport";
 import { useCVData, type CVData } from "../contexts/CVDataContext";
 import { aiService, aiErrorMessage } from "../../services/ai.service";
 
@@ -193,7 +194,18 @@ export default function CVEdit() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-3xl shadow-xl border-2 border-slate-100 p-5 sm:p-10"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#050FA0] mb-8">Modifier votre CV</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#050FA0] mb-6">Modifier votre CV</h1>
+
+          <div className="mb-8">
+            <CVImport
+              variant="banner"
+              onApplied={(patch) => {
+                setFormData((f) => ({ ...f, ...patch }));
+                if (patch.skills) setSkillsText(patch.skills.join(", "));
+                setAiNote({ ok: true, text: "CV importé : vérifiez chaque rubrique ci-dessous et corrigez si besoin." });
+              }}
+            />
+          </div>
 
           {/* Informations personnelles */}
           <section className="mb-10">

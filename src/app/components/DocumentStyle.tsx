@@ -1,7 +1,7 @@
 import { Check, Palette, Shapes } from "lucide-react";
 import { useCVData } from "../contexts/CVDataContext";
 import { CV_COLORS, safeAccent, tint, rgbToHex } from "../../lib/cvTheme";
-import { MOTIFS, motifDataUrl } from "../../lib/motifs";
+import { MOTIFS, motifDataUrl, type MotifId } from "../../lib/motifs";
 
 /** Couleur commune au CV et à la lettre de motivation. */
 export function ColorPicker({ note = "Le CV et la lettre utilisent la même couleur." }: { note?: string }) {
@@ -83,6 +83,52 @@ export function MotifPicker() {
                 style={{ backgroundColor: accent, backgroundImage: motifDataUrl(m.id, 24, 24, line), backgroundSize: "100% 100%" }}
               />
               {m.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Modèles par métier : une couleur et un motif adaptés aux codes du secteur. */
+export const SECTOR_PRESETS: { id: string; name: string; hint: string; theme: string; motif: MotifId }[] = [
+  { id: "mines", name: "Mines & BTP", hint: "Sobre et solide", theme: "#9A3F22", motif: "lignes" },
+  { id: "banque", name: "Banque & finance", hint: "Classique, sans décor", theme: "#1F3A5F", motif: "aucun" },
+  { id: "ong", name: "ONG & international", hint: "Ouvert et chaleureux", theme: "#0F6E5A", motif: "vagues" },
+  { id: "admin", name: "Administration", hint: "Formel et neutre", theme: "#2E3440", motif: "aucun" },
+  { id: "tech", name: "Informatique & télécoms", hint: "Moderne", theme: "#1D5FA8", motif: "points" },
+  { id: "commerce", name: "Commerce & vente", hint: "Dynamique", theme: "#7A1F2B", motif: "losanges" },
+  { id: "sante", name: "Santé", hint: "Clair et rassurant", theme: "#0F6E5A", motif: "points" },
+  { id: "hotellerie", name: "Hôtellerie & tourisme", hint: "Élégant", theme: "#8A6410", motif: "vagues" },
+];
+
+export function SectorPresetPicker() {
+  const { cvData, updateCVData } = useCVData();
+  return (
+    <div className="bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg">
+      <div className="flex items-center gap-2 mb-1">
+        <Palette className="h-5 w-5 text-[#050FA0]" />
+        <h3 className="text-lg font-bold text-slate-900">Modèle par métier</h3>
+      </div>
+      <p className="text-sm text-slate-500 mb-4">Couleur et motif adaptés aux habitudes de votre secteur. Vous pouvez ensuite les changer.</p>
+      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Modèle par métier">
+        {SECTOR_PRESETS.map((p) => {
+          const on = cvData.theme.toLowerCase() === p.theme.toLowerCase() && cvData.motif === p.motif;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => updateCVData({ theme: p.theme, motif: p.motif })}
+              className={`text-left rounded-xl border-2 p-2.5 transition-colors ${on ? "border-slate-900" : "border-slate-200 hover:border-slate-300"}`}
+            >
+              <span className="flex items-center gap-2">
+                <span className="h-4 w-4 rounded-full shrink-0" style={{ background: p.theme }} aria-hidden="true" />
+                <span className="text-xs font-bold text-slate-900 leading-tight">{p.name}</span>
+              </span>
+              <span className="block text-[11px] text-slate-500 mt-0.5 ml-6">{p.hint}</span>
             </button>
           );
         })}

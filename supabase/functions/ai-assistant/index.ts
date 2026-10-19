@@ -40,7 +40,9 @@ type Action =
   | "interview_feedback"
   | "interview_summary"
   | "career_orientation"
-  | "career_chat";
+  | "career_chat"
+  | "parse_cv"
+  | "tailor_cv";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -78,6 +80,32 @@ Profil du candidat : ${clip(p.context)}`;
       if (history.length) history[0] = { role: "user", content: `${intro}\n\nQuestion : ${history[0].content}` };
       return { maxTokens: 900, prompt: "", messages: history, text: true };
     }
+    case "parse_cv":
+      return {
+        maxTokens: 3000,
+        prompt: `Voici le texte brut d'un CV (extrait d'un PDF ou d'un document Word, la mise en page peut être désordonnée).
+Range fidèlement les informations dans la structure ci-dessous. Recopie les informations telles quelles, ne les reformule pas et n'invente rien : laisse vide ("" ou []) ce qui est absent.
+Les expériences et formations vont de la plus récente à la plus ancienne. "period" garde les dates du CV (ex. "2019 - 2022", "Mars 2021 - Présent").
+Les niveaux de langue sont l'un de : "Langue maternelle", "Courant", "Intermédiaire", "Notions".
+Réponds uniquement avec un objet JSON :
+{"fullName":"","jobTitle":"","phone":"","email":"","location":"","profile":"","experiences":[{"title":"","company":"","period":"","description":["mission"]}],"education":[{"degree":"","institution":"","period":""}],"skills":["compétence"],"languages":[{"name":"","level":""}]}
+
+Texte du CV :
+${String(p.text || "").slice(0, MAX_INPUT_CHARS)}`,
+      };
+    case "tailor_cv":
+      return {
+        maxTokens: 1600,
+        prompt: `Adapte ce CV à l'offre d'emploi ci-dessous, pour un recruteur en Guinée.
+Règles : n'ajoute aucune compétence, expérience ou diplôme que le candidat n'a pas ; reformule seulement pour mettre en avant ce qui correspond à l'offre et reprends les mots-clés de l'offre quand le CV les justifie.
+Réponds uniquement avec un objet JSON :
+{"profile":"résumé de 3 à 4 phrases ciblé sur ce poste","skills":["les compétences du CV, les plus utiles pour ce poste en premier, 10 maximum"],"experiences":[{"description":["missions reformulées pour ce poste, 3 maximum"]}],"keywords":["mots-clés de l'offre déjà justifiés par le CV"],"advice":["3 conseils concrets pour cette candidature, dont comment combler les compétences manquantes"]}
+Garde le même nombre d'expériences dans le même ordre.
+
+Offre : ${clip(p.job)}
+
+CV : ${clip(p.cv)}`,
+      };
     case "improve_cv":
       return {
         maxTokens: 1500,
@@ -179,6 +207,8 @@ Deno.serve(async (req) => {
     "interview_summary",
     "career_orientation",
     "career_chat",
+    "parse_cv",
+    "tailor_cv",
   ];
   if (!body.action || !allowed.includes(body.action)) return json({ error: "unknown_action" }, 400, origin);
 

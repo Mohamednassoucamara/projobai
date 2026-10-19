@@ -9,6 +9,7 @@ import { getCurrentUserId } from "../../lib/supabase";
 import { matchJob, hasMatchableCV } from "../../lib/matching";
 import DashboardHeader from "../components/DashboardHeader";
 import Footer from "../components/Footer";
+import CandidateInterviews from "../components/CandidateInterviews";
 import CandidateApplicationItem, { type CandidateApplicationData } from "../components/CandidateApplicationItem";
 
 
@@ -175,6 +176,8 @@ export default function DashboardCandidate() {
               </motion.div>
             ))}
           </div>
+
+          <CandidateInterviews />
 
           {/* Mes candidatures */}
           <motion.div

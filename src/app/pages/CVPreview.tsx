@@ -8,7 +8,7 @@ import { useCVData } from "../contexts/CVDataContext";
 import { generateCvPdf } from "../../lib/cvPdf";
 import CVPhotoField from "../components/CVPhotoField";
 import { safeAccent, tint, rgbToHex, initials } from "../../lib/cvTheme";
-import { ColorPicker, MotifPicker } from "../components/DocumentStyle";
+import { ColorPicker, MotifPicker, SectorPresetPicker } from "../components/DocumentStyle";
 import { motifDataUrl } from "../../lib/motifs";
 
 /** Unités de l'aperçu : 1 mm de la feuille A4 = largeur du conteneur / 210. */
@@ -233,6 +233,7 @@ export default function CVPreview() {
           <div className="lg:col-span-2 min-w-0">
             <div className="lg:hidden mb-6 space-y-4">
               <div className="bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-lg"><CVPhotoField compact /></div>
+              <SectorPresetPicker />
               <ColorPicker />
               <MotifPicker />
             </div>
@@ -243,6 +244,7 @@ export default function CVPreview() {
 
           <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-28">
             <div className="hidden lg:block bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-lg"><CVPhotoField compact /></div>
+            <div className="hidden lg:block"><SectorPresetPicker /></div>
             <div className="hidden lg:block"><ColorPicker /></div>
             <div className="hidden lg:block"><MotifPicker /></div>
 

@@ -508,16 +508,16 @@ export const applicationService = {
   /**
    * Postuler à une offre
    */
-  async apply(application: Omit<Application, 'id' | 'applied_at' | 'updated_at' | 'status'>) {
-    const { data, error } = await supabase
-      .from('applications')
-      .insert({
-        ...application,
-        status: 'pending',
-      })
-      .select()
-      .single();
+  async apply(application: Omit<Application, 'id' | 'applied_at' | 'updated_at' | 'status'> & { source?: string }) {
+    const insert = (row: Record<string, unknown>) =>
+      supabase.from('applications').insert({ ...row, status: 'pending' }).select().single();
 
+    let { data, error } = await insert(application);
+    // Base sans la migration 011 : la colonne « source » n'existe pas encore.
+    if (error && application.source && /source/i.test(error.message)) {
+      const { source: _ignored, ...rest } = application;
+      ({ data, error } = await insert(rest));
+    }
     if (error) throw error;
     return data;
   },
@@ -547,6 +547,8 @@ export const applicationService = {
     motivationMessage?: string;
     cvFile: File;
     coverLetterFile?: File;
+    /** Provenance du lien (whatsapp, facebook…) pour les statistiques RH. */
+    source?: string;
   }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Vous devez être connecté pour postuler');
@@ -634,6 +636,7 @@ export const applicationService = {
       cv_url: cvPath,
       cover_letter: coverLetterPath,
       motivation_message: params.motivationMessage?.trim() || null,
+      source: params.source || 'projob',
     });
 
     return application;

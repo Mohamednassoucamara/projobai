@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Mail, Phone, FileText, Loader2 } from "lucide-react";
+import { Link } from "react-router";
+import { Mail, Phone, FileText, Loader2, FolderOpen, CalendarPlus } from "lucide-react";
+import { matchTone, type MatchResult } from "../../lib/matching";
+import { STATUS_LABELS as SHARED_LABELS, SOURCES } from "../../lib/ats";
 import { storageService, companyService } from "../../services/supabase.service";
 import type { Database } from "../../types/database.types";
 
@@ -18,19 +21,11 @@ const STATUS_STYLES: Record<string, string> = {
 const ACTIONS: { status: Application["status"]; label: string }[] = [
   { status: "reviewed", label: "Marquer comme examinée" },
   { status: "shortlisted", label: "Présélectionner" },
-  { status: "interview", label: "Inviter en entretien" },
   { status: "accepted", label: "Retenir" },
   { status: "rejected", label: "Refuser" },
 ];
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: "En attente",
-  reviewed: "Examinée",
-  shortlisted: "Présélectionnée",
-  interview: "Entretien",
-  accepted: "Acceptée",
-  rejected: "Refusée",
-};
+const STATUS_LABELS = SHARED_LABELS;
 
 type ApplicantProfile = {
   full_name?: string;
@@ -46,6 +41,7 @@ export type CompanyApplicationData = {
   motivation_message?: string | null;
   cv_url?: string | null;
   cover_letter?: string | null;
+  source?: string | null;
   jobs?: { title?: string };
   candidate_profiles?: {
     job_title?: string | null;
@@ -54,7 +50,7 @@ export type CompanyApplicationData = {
   };
 };
 
-function DocumentLink({ path, label }: { path: string; label: string }) {
+export function DocumentLink({ path, label }: { path: string; label: string }) {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -106,9 +102,15 @@ function DocumentLink({ path, label }: { path: string; label: string }) {
 export default function CompanyApplicationItem({
   app,
   onStatusChange,
+  match,
+  rank,
 }: {
   app: CompanyApplicationData;
   onStatusChange?: (id: string, status: string) => void;
+  /** Score de compatibilité avec l'offre (null si le candidat n'a pas de CV structuré). */
+  match?: MatchResult | null;
+  /** Position dans le classement par pertinence. */
+  rank?: number;
 }) {
   const [status, setStatus] = useState(app.status);
   const [busy, setBusy] = useState<string | null>(null);
@@ -188,11 +190,40 @@ export default function CompanyApplicationItem({
             })}
           </p>
         </div>
-        <span className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${STATUS_STYLES[status] || STATUS_STYLES.reviewed}`}>
-          {STATUS_LABELS[status] || status}
-        </span>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_STYLES[status] || STATUS_STYLES.reviewed}`}>
+            {STATUS_LABELS[status] || status}
+          </span>
+          {match ? (
+            <span
+              className={`text-xs font-bold px-2.5 py-1 rounded-full border tabular-nums ${matchTone(match.score).cls}`}
+              title="Compatibilité avec l'offre : ouvrez le dossier pour l'explication"
+            >
+              {rank ? `n° ${rank} · ` : ""}{match.score}% compatible
+            </span>
+          ) : match === null ? (
+            <span className="text-[11px] text-slate-500">Score indisponible (CV non rempli sur ProJob)</span>
+          ) : null}
+          {app.source && app.source !== "projob" && (
+            <span className="text-[11px] font-medium text-slate-500">via {SOURCES[app.source] || app.source}</span>
+          )}
+        </div>
       </div>
       <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-200">
+        <Link
+          to={`/company/applications/${app.id}`}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#050FA0] text-white hover:bg-[#060C6E]"
+        >
+          <FolderOpen className="h-3.5 w-3.5" /> Ouvrir le dossier
+        </Link>
+        {status !== "rejected" && status !== "accepted" && (
+          <Link
+            to={`/company/applications/${app.id}#entretien`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-violet-300 text-violet-800 bg-white hover:bg-violet-50"
+          >
+            <CalendarPlus className="h-3.5 w-3.5" /> Planifier un entretien
+          </Link>
+        )}
         {ACTIONS.filter((a) => a.status !== status && (a.status !== "reviewed" || status === "pending")).map((a) => (
           <button
             key={a.status}

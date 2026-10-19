@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router";
-import { MapPin, Briefcase, GraduationCap, Calendar, Sparkles, Loader2, AlertCircle } from "lucide-react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { MapPin, Briefcase, GraduationCap, Calendar, Sparkles, Loader2, AlertCircle, Wand2, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import Footer from "../components/Footer";
 import AppNavHeader from "../components/AppNavHeader";
@@ -9,6 +9,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { jobService } from "../../services/supabase.service";
 import { useCVData } from "../contexts/CVDataContext";
 import { matchJob, matchTone, hasMatchableCV } from "../../lib/matching";
+import { rememberSource } from "../../lib/ats";
+import MatchExplanation from "../components/MatchExplanation";
 
 
 function timeAgo(dateStr: string) {
@@ -37,6 +39,19 @@ export default function JobDetail() {
   const { isAuthenticated, user } = useAuth();
   const { cvData } = useCVData();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [otherJobs, setOtherJobs] = useState<any[]>([]);
+
+  // Provenance du lien (WhatsApp, Facebook…) : enregistrée avec la candidature pour les statistiques RH.
+  useEffect(() => {
+    if (id) rememberSource(id, searchParams.get("source"));
+  }, [id, searchParams]);
+
+  // Autres offres à proposer au candidat, classées selon son CV.
+  useEffect(() => {
+    if (user?.type !== "candidate") return;
+    jobService.getActiveJobs({ limit: 40 }).then((list) => setOtherJobs(list || []), () => setOtherJobs([]));
+  }, [user?.type]);
 
   useEffect(() => {
     const loadJob = async () => {
@@ -93,6 +108,14 @@ export default function JobDetail() {
   const salary = formatSalary(job.salary_min, job.salary_max);
   const descParagraphs = (job.description || "").split("\n").filter(Boolean);
   const match = user?.type === "candidate" && hasMatchableCV(cvData) ? matchJob(job, cvData) : null;
+  const similar = match
+    ? otherJobs
+        .filter((j) => j.id !== job.id)
+        .map((j) => ({ j, m: matchJob(j, cvData).score }))
+        .filter((x) => x.m >= 40)
+        .sort((a, b) => b.m - a.m)
+        .slice(0, 3)
+    : [];
   const letterLink = `/cover-letter?${new URLSearchParams({
     company: companyName,
     position: job.title || "",
@@ -153,18 +176,22 @@ export default function JobDetail() {
             </div>
 
             {match && (
-              <div className={`mt-6 rounded-2xl border-2 p-4 sm:p-5 ${matchTone(match.score).cls}`}>
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <p className="font-bold">Compatibilité avec votre CV : <span className="tabular-nums">{match.score}%</span> · {matchTone(match.score).label}</p>
-                  <Link to="/cv-edit" className="text-sm font-bold underline">Mettre à jour mon CV</Link>
+              <div className="mt-6">
+                <MatchExplanation match={match} audience="candidate" />
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Link to={`/cv-adapt/${job.id}`} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#050FA0] text-white text-sm font-bold hover:bg-[#060C6E]">
+                    <Wand2 className="h-4 w-4" /> Adapter mon CV à cette offre
+                  </Link>
+                  <Link to="/cv-edit" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-300 text-sm font-bold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0]">
+                    Mettre à jour mon CV
+                  </Link>
                 </div>
-                {match.matched.length > 0 && (
-                  <p className="text-sm mt-2"><span className="font-semibold">Vous avez :</span> {match.matched.join(", ")}</p>
-                )}
-                {match.missing.length > 0 && (
-                  <p className="text-sm mt-1"><span className="font-semibold">À mettre en avant ou à acquérir :</span> {match.missing.slice(0, 6).join(", ")}</p>
-                )}
               </div>
+            )}
+            {user?.type === "candidate" && !match && (
+              <p className="mt-6 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-700">
+                Ajoutez vos compétences dans <Link to="/cv-edit" className="font-bold text-[#050FA0] underline">votre CV</Link> pour voir votre compatibilité avec cette offre et l&apos;explication du score.
+              </p>
             )}
           </div>
 
@@ -257,6 +284,28 @@ export default function JobDetail() {
               </div>
             </div>
           </div>
+          {similar.length > 0 && (
+            <section className="mt-8 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border" aria-labelledby="autres-offres">
+              <h2 id="autres-offres" className="text-2xl font-bold mb-1">Autres offres pour vous</h2>
+              <p className="text-sm text-slate-600 mb-5">Classées selon la compatibilité avec votre CV.</p>
+              <ul className="grid sm:grid-cols-3 gap-4">
+                {similar.map(({ j, m }) => (
+                  <li key={j.id}>
+                    <Link to={`/jobs/${j.id}`} className="group flex h-full flex-col rounded-2xl border-2 border-slate-100 p-4 hover:border-[#050FA0] transition-colors">
+                      <span className="font-bold text-slate-900 group-hover:text-[#050FA0] line-clamp-2">{j.title}</span>
+                      <span className="text-sm text-slate-600 mt-1">{j.company_profiles?.company_name || "Entreprise"} · {j.location}</span>
+                      <span className={`mt-auto pt-3 inline-flex items-center gap-1 self-start text-xs font-bold px-2.5 py-1 rounded-full border ${matchTone(m).cls}`}>
+                        {m}% · {matchTone(m).label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/jobs" className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[#050FA0] hover:underline">
+                Toutes les offres <ArrowRight className="h-4 w-4" />
+              </Link>
+            </section>
+          )}
         </motion.div>
       </div>
 

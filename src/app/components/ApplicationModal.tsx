@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { validateUploadedFile } from "../../lib/security";
 import { applicationService } from "../../services/supabase.service";
 import { handleSupabaseError } from "../../lib/supabase";
+import { recalledSource } from "../../lib/ats";
 
 interface ApplicationModalProps {
   isOpen: boolean;
@@ -76,6 +77,7 @@ export default function ApplicationModal({
         motivationMessage: motivationMessage.trim() || undefined,
         cvFile,
         coverLetterFile: coverLetterFile || undefined,
+        source: recalledSource(jobId),
       });
       setStep("success");
       setTimeout(() => {

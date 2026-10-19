@@ -9,3 +9,7 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare module "mammoth/mammoth.browser.min.js" {
+  export function extractRawText(input: { arrayBuffer: ArrayBuffer }): Promise<{ value: string }>;
+}
