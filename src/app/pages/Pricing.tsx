@@ -286,7 +286,7 @@ export default function Pricing() {
                   Contactez-nous dès maintenant !
                 </p>
                 <a
-                  href="mailto:contact@projob.ia"
+                  href="mailto:contact@pjob.nassouba.com"
                   className="inline-flex items-center gap-3 bg-white text-[#050FA0] px-10 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
                 >
                   <span>Nous contacter</span>

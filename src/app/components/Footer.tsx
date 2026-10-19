@@ -85,13 +85,13 @@ export default function Footer() {
             <h3 className="font-bold text-lg mb-4">Contactez-nous</h3>
             <div className="space-y-4">
               <a
-                href="mailto:contact@projob.ia"
+                href="mailto:contact@pjob.nassouba.com"
                 className="flex items-center gap-3 text-slate-200 hover:text-white transition-colors group"
               >
                 <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-[#E4220F] transition-colors">
                   <Mail className="h-5 w-5" />
                 </div>
-                <span>contact@projob.ia</span>
+                <span>contact@pjob.nassouba.com</span>
               </a>
 
               <div className="pt-4">
