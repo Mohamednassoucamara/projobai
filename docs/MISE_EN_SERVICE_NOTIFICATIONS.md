@@ -36,14 +36,17 @@ supabase secrets set NOTIFY_FROM="ProJob AI <notifications@projobai.com>"
    - nom : `projob_notification`
    - catégorie : Utilitaire
    - langue : Français
-   - corps :
+   - corps (Meta refuse un modèle qui commence ou finit par une variable) :
      ```
-     {{1}}
+     Bonjour, vous avez une nouvelle notification sur ProJob AI.
 
+     *{{1}}*
      {{2}}
 
-     ProJob AI — Nassouba Technologie
+     Merci d'utiliser ProJob AI — Nassouba Technologie.
      ```
+   - exemples demandés par Meta : {{1}} = « Convocation à un entretien »,
+     {{2}} = « Poste Comptable chez SMB Mines, le 25/10/2026 à 10h00. https://projobai.com/dashboard »
    Attendre son approbation par Meta (quelques minutes à 24 h).
 3. Créer un jeton d'accès permanent (utilisateur système) et noter l'identifiant du numéro (Phone number ID).
 4. Enregistrer les secrets :
