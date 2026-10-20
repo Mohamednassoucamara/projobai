@@ -5,7 +5,8 @@
 // Secrets (Supabase → Edge Functions → Secrets) :
 //   CRON_SECRET                 mot de passe partagé avec la tâche planifiée (obligatoire)
 //   RESEND_API_KEY              clé Resend pour l'e-mail (facultatif)
-//   NOTIFY_FROM                 expéditeur, ex. "ProJob AI <contact@pjob.nassouba.com>"
+//   NOTIFY_FROM                 expéditeur (domaine vérifié dans Resend), défaut "ProJob AI <notifications@projobai.com>"
+//   NOTIFY_REPLY_TO             adresse de réponse, défaut contact@pjob.nassouba.com
 //   WHATSAPP_TOKEN              jeton permanent de l'API WhatsApp Cloud (Meta) (facultatif)
 //   WHATSAPP_PHONE_NUMBER_ID    identifiant du numéro WhatsApp Business
 //   WHATSAPP_TEMPLATE           nom du modèle approuvé (défaut : projob_notification)
@@ -17,7 +18,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SITE = (Deno.env.get("SITE_URL") || "https://projobai.com").replace(/\/$/, "");
-const FROM = Deno.env.get("NOTIFY_FROM") || "ProJob AI <contact@pjob.nassouba.com>";
+const FROM = Deno.env.get("NOTIFY_FROM") || "ProJob AI <notifications@projobai.com>";
+const REPLY_TO = Deno.env.get("NOTIFY_REPLY_TO") || "contact@pjob.nassouba.com";
 const BATCH = 40;
 
 type Row = {
@@ -59,6 +61,7 @@ async function sendEmail(r: Row, url: string) {
     body: JSON.stringify({
       from: FROM,
       to: [to],
+      reply_to: REPLY_TO,
       subject: `${r.title} — ProJob AI`,
       html: emailHtml(r, url),
       text: `${r.title}\n\n${r.message}\n\n${url}`,

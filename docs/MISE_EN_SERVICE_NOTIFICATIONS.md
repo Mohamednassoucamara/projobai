@@ -17,14 +17,15 @@ du tableau de bord) mais ne partent ni par e-mail ni par WhatsApp.
 
 ## 2. E-mail (Resend)
 
-1. Créer un compte sur resend.com et ajouter le domaine `pjob.nassouba.com` (Domains → Add domain),
+1. Créer un compte sur resend.com et vérifier le domaine `projobai.com` (Domains → Add domain),
    puis ajouter chez l'hébergeur DNS les enregistrements indiqués (SPF, DKIM).
 2. Créer une clé API (API Keys).
 3. Dans un terminal, dans le dossier du projet :
 
 ```bash
 supabase secrets set RESEND_API_KEY=re_xxxxxxxx
-supabase secrets set NOTIFY_FROM="ProJob AI <contact@pjob.nassouba.com>"
+supabase secrets set NOTIFY_FROM="ProJob AI <notifications@projobai.com>"
+# Les réponses des destinataires arrivent sur contact@pjob.nassouba.com (modifiable avec NOTIFY_REPLY_TO)
 ```
 
 ## 3. WhatsApp (API WhatsApp Cloud de Meta)
