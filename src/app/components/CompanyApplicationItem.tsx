@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { Mail, Phone, FileText, Loader2, FolderOpen, CalendarPlus } from "lucide-react";
 import { matchTone, type MatchResult } from "../../lib/matching";
 import { STATUS_LABELS as SHARED_LABELS, SOURCES } from "../../lib/ats";
+import { usePlan } from "../contexts/PlanContext";
+import { PremiumBadge } from "./PremiumGate";
 import { storageService, companyService } from "../../services/supabase.service";
 import type { Database } from "../../types/database.types";
 
@@ -116,6 +118,7 @@ export default function CompanyApplicationItem({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmReject, setConfirmReject] = useState(false);
+  const { can } = usePlan();
 
   useEffect(() => setStatus(app.status), [app.status]);
 
@@ -221,7 +224,7 @@ export default function CompanyApplicationItem({
             to={`/company/applications/${app.id}#entretien`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-violet-300 text-violet-800 bg-white hover:bg-violet-50"
           >
-            <CalendarPlus className="h-3.5 w-3.5" /> Planifier un entretien
+            <CalendarPlus className="h-3.5 w-3.5" /> Planifier un entretien {!can("interviews") && <PremiumBadge />}
           </Link>
         )}
         {ACTIONS.filter((a) => a.status !== status && (a.status !== "reviewed" || status === "pending")).map((a) => (

@@ -10,12 +10,15 @@ import { matchJob, hasMatchableCV } from "../../lib/matching";
 import DashboardHeader from "../components/DashboardHeader";
 import Footer from "../components/Footer";
 import CandidateInterviews from "../components/CandidateInterviews";
+import { PremiumBadge } from "../components/PremiumGate";
+import { usePlan } from "../contexts/PlanContext";
 import CandidateApplicationItem, { type CandidateApplicationData } from "../components/CandidateApplicationItem";
 
 
 export default function DashboardCandidate() {
   const { user } = useAuth();
   const { cvData } = useCVData();
+  const { can } = usePlan();
   const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [myApplications, setMyApplications] = useState<CandidateApplicationData[]>([]);
@@ -152,8 +155,8 @@ export default function DashboardCandidate() {
             {[
               { to: "/cv-assistant", icon: FileText, title: "Mon CV", desc: "Créer ou modifier", color: "#050FA0" },
               { to: "/cover-letter", icon: Mail, title: "Lettre de motivation", desc: "Générer avec l'IA", color: "#E4220F" },
-              { to: "/interview-prep", icon: MessageSquare, title: "Entretien", desc: "S'entraîner", color: "#050FA0" },
-              { to: "/orientation", icon: Compass, title: "Orientation", desc: "Trouver ma voie", color: "#0F6E5A" },
+              { to: "/interview-prep", icon: MessageSquare, title: "Entretien", desc: "S'entraîner", color: "#050FA0", feature: "interview_coach" as const },
+              { to: "/orientation", icon: Compass, title: "Orientation", desc: "Trouver ma voie", color: "#0F6E5A", feature: "career_coach" as const },
               { to: "/jobs", icon: Briefcase, title: "Offres d'emploi", desc: "Parcourir", color: "#E4220F" },
             ].map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.05 }}>
@@ -169,7 +172,7 @@ export default function DashboardCandidate() {
                     <div className="h-16 w-16 rounded-2xl shadow-lg flex items-center justify-center mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all" style={{ background: `linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%)` }}>
                       <item.icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="font-bold text-xl mb-2 text-slate-800">{item.title}</h3>
+                    <h3 className="font-bold text-xl mb-2 text-slate-800 flex items-center gap-2 flex-wrap">{item.title} {"feature" in item && item.feature && !can(item.feature) && <PremiumBadge />}</h3>
                     <p className="text-sm text-slate-600 font-medium">{item.desc}</p>
                   </div>
                 </Link>

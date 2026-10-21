@@ -1,302 +1,212 @@
-import { Link } from "react-router";
-import { Check, ArrowLeft, Sparkles, Zap, Shield, Clock, Target, Users, TrendingUp, Award, Rocket } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router";
+import { Check, Crown, Minus, Smartphone, ShieldCheck, CalendarClock, Users, Briefcase } from "lucide-react";
 import { motion } from "motion/react";
 import Footer from "../components/Footer";
 import AppNavHeader from "../components/AppNavHeader";
+import { useAuth } from "../contexts/AuthContext";
+import { DEFAULT_PLANS, fetchPlans, gnf, type Audience, type Period, type Plan } from "../../lib/billing";
+
+const COMPARE: Record<Audience, { label: string; free: boolean }[]> = {
+  candidate: [
+    { label: "CV professionnel (PDF, photo, couleurs, modèles par métier)", free: true },
+    { label: "Import de votre CV existant (PDF ou Word)", free: true },
+    { label: "Lettre de motivation", free: true },
+    { label: "Offres d'emploi, candidatures et score de compatibilité", free: true },
+    { label: "Suivi des candidatures et convocations aux entretiens", free: true },
+    { label: "CV optimisé par l'IA", free: false },
+    { label: "CV adapté à chaque offre", free: false },
+    { label: "Coaching carrière (orientation professionnelle)", free: false },
+    { label: "Coach d'entretien IA", free: false },
+  ],
+  company: [
+    { label: "Publication d'offres d'emploi", free: true },
+    { label: "Réception et suivi des candidatures par étape", free: true },
+    { label: "Notifications automatiques aux candidats", free: true },
+    { label: "CVthèque", free: true },
+    { label: "IA : extraction des CV et classement des meilleurs profils", free: false },
+    { label: "Entretiens : planification, visio, agenda, évaluation", free: false },
+    { label: "Statistiques RH", free: false },
+    { label: "Partage des offres avec suivi des sources", free: false },
+    { label: "Historique et commentaires internes", free: false },
+  ],
+};
 
 export default function Pricing() {
-  const benefits = [
-    {
-      icon: Zap,
-      title: "Résultats rapides",
-      description: "Optimisez votre profil et trouvez un emploi plus rapidement",
-    },
-    {
-      icon: Shield,
-      title: "Sécurisé & confidentiel",
-      description: "Vos données sont protégées et restent confidentielles",
-    },
-    {
-      icon: Target,
-      title: "Ciblage précis",
-      description: "Des recommandations personnalisées selon votre profil",
-    },
-    {
-      icon: Award,
-      title: "Expertise IA",
-      description: "Propulsé par l'intelligence artificielle de pointe",
-    },
-  ];
+  const { user } = useAuth();
+  const [params, setParams] = useSearchParams();
+  const [plans, setPlans] = useState<Plan[]>(DEFAULT_PLANS);
+  const [period, setPeriod] = useState<Period>("month");
+  const audience: Audience = params.get("pour") === "entreprises" || (!params.get("pour") && user?.type === "company") ? "company" : "candidate";
 
-  const plans = [
-    {
-      name: "Gratuit",
-      price: "0",
-      description: "Parfait pour commencer votre recherche d'emploi",
-      features: [
-        "Création de CV basique",
-        "Accès aux offres d'emploi",
-        "3 candidatures par mois",
-        "Support par email",
-      ],
-      buttonText: "Commencer gratuitement",
-      buttonVariant: "outline",
-      popular: false,
-      gradient: "from-slate-500 to-slate-600",
-    },
-    {
-      name: "Premium",
-      price: "50.000",
-      description: "Pour maximiser vos chances de réussite",
-      features: [
-        "CV optimisé par IA",
-        "Préparation d'entretien illimitée",
-        "Candidatures illimitées",
-        "Offres premium en priorité",
-        "Alertes personnalisées",
-        "Support prioritaire 24/7",
-        "Coaching carrière",
-        "Analyse de profil approfondie",
-      ],
-      buttonText: "Passer à Premium",
-      buttonVariant: "solid",
-      popular: true,
-      gradient: "from-[#E4220F] to-[#F92813]",
-    },
-  ];
+  useEffect(() => { fetchPlans().then(setPlans, () => undefined); }, []);
 
-  const stats = [
-    // Faits sur le service (pas de chiffres d'audience non vérifiés)
-    { value: "0 GNF", label: "Pour commencer" },
-    { value: "Orange Money", label: "Paiement mobile accepté" },
-    { value: "Web + WhatsApp", label: "Accès sans application" },
-    { value: "100 %", label: "En français" },
-  ];
+  const shown = useMemo(() => plans.filter((p) => p.audience === audience).sort((a, b) => a.rank - b.rank), [plans, audience]);
+  const premium = shown.find((p) => p.price_month_gnf > 0);
+  const saving = premium ? premium.price_month_gnf * 12 - premium.price_year_gnf : 0;
+
+  const signup = audience === "company" ? "/signup-company" : "/signup-candidate";
+  const sameType = user && user.type === audience;
+  const dashboard = audience === "company" ? "/company/dashboard" : "/dashboard";
+
+  const ctaFor = (p: Plan) => {
+    const paid = p.price_month_gnf > 0;
+    if (!user) return { to: signup, label: paid ? "Essayer 7 jours gratuitement" : "Créer mon compte gratuit" };
+    if (!sameType) return null;
+    return paid ? { to: `/abonnement?periode=${period}`, label: "Passer au Premium" } : { to: dashboard, label: "Mon tableau de bord" };
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
-      <AppNavHeader backTo="/" backLabel="Retour à l'accueil" />
+      <AppNavHeader backTo={user ? dashboard : "/"} backLabel={user ? "Retour au tableau de bord" : "Retour à l'accueil"} />
 
-      <div className="flex-1 page-container py-10 sm:py-16">
-        <div className="w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-20"
-          >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#050FA0]/10 to-[#E4220F]/10 px-6 py-3 rounded-full mb-6 border border-[#050FA0]/20">
-              <Rocket className="h-5 w-5 text-[#E4220F]" />
-              <span className="font-semibold text-[#050FA0]">Boostez votre carrière dès aujourd'hui</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold mb-6">
-              <span className="text-[#050FA0]">Choisissez votre</span>{" "}
-              <span className="bg-gradient-to-r from-[#E4220F] to-[#F92813] bg-clip-text text-transparent">formule</span>
-            </h1>
-            <p className="text-2xl text-slate-600 max-w-3xl mx-auto">
-              Des solutions adaptées à vos besoins professionnels pour réussir votre carrière en Guinée
-            </p>
-          </motion.div>
+      <main className="flex-1 page-container py-10 sm:py-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
+          <h1 className="text-3xl sm:text-5xl font-bold mb-4">
+            <span className="text-[#050FA0]">Des tarifs</span>{" "}
+            <span className="text-[#E4220F]">simples</span>
+          </h1>
+          <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
+            Commencez gratuitement. Passez au Premium quand vous en avez besoin, sans engagement.
+          </p>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-4 gap-6 mb-20 max-w-5xl mx-auto"
-          >
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 + i * 0.1 }}
-                className="text-center bg-white rounded-2xl p-6 border-2 border-slate-100 shadow-lg"
+        {/* Choix du public et de la période */}
+        <div className="flex flex-col items-center gap-4 mb-10">
+          <div className="inline-flex rounded-2xl border-2 border-slate-200 bg-white p-1" role="tablist" aria-label="Formules pour">
+            {([["candidate", "Candidats", Users], ["company", "Entreprises", Briefcase]] as const).map(([a, label, Icon]) => (
+              <button
+                key={a}
+                role="tab"
+                aria-selected={audience === a}
+                onClick={() => setParams(a === "company" ? { pour: "entreprises" } : { pour: "candidats" }, { replace: true })}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold ${audience === a ? "bg-[#050FA0] text-white" : "text-slate-600 hover:text-slate-900"}`}
               >
-                <div className="text-2xl sm:text-3xl font-bold font-display text-brand mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-slate-600">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 max-w-6xl mx-auto mb-16 sm:mb-20">
-            {plans.map((plan, i) => (
-              <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.15 }}
-                whileHover={{ y: -8 }}
-                className="relative"
-              >
-                {plan.popular && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white px-8 py-3 rounded-full text-sm font-bold flex items-center gap-2 shadow-xl z-10">
-                    <Sparkles className="h-5 w-5" />
-                    Le plus populaire
-                  </div>
-                )}
-
-                <div
-                  className={`bg-white rounded-3xl p-10 h-full flex flex-col relative overflow-hidden ${
-                    plan.popular
-                      ? "border-2 border-[#E4220F] shadow-2xl shadow-[#E4220F]/30"
-                      : "border-2 border-slate-200 shadow-xl"
-                  }`}
-                >
-                  <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-br ${plan.gradient} opacity-5 rounded-full blur-3xl`} />
-
-                  <div className="relative mb-8">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${plan.gradient} mb-4 shadow-lg`}>
-                      {plan.popular ? (
-                        <TrendingUp className="h-8 w-8 text-white" />
-                      ) : (
-                        <Users className="h-8 w-8 text-white" />
-                      )}
-                    </div>
-                    <h2 className="text-4xl font-bold text-[#050FA0] mb-3">
-                      {plan.name}
-                    </h2>
-                    <p className="text-lg text-slate-600 mb-8">{plan.description}</p>
-                    <div className="flex items-end gap-3 mb-2">
-                      {plan.price === "0" ? (
-                        <span className="text-6xl font-bold bg-gradient-to-r from-[#050FA0] to-[#1A27C2] bg-clip-text text-transparent">
-                          Gratuit
-                        </span>
-                      ) : (
-                        <>
-                          <span className="text-6xl font-bold bg-gradient-to-r from-[#E4220F] to-[#F92813] bg-clip-text text-transparent">
-                            {plan.price}
-                          </span>
-                          <span className="text-xl text-slate-600 mb-3 font-medium">GNF / mois</span>
-                        </>
-                      )}
-                    </div>
-                    {plan.popular && (
-                      <p className="text-sm text-[#E4220F] font-semibold">Économisez 30% avec l'abonnement annuel</p>
-                    )}
-                  </div>
-
-                  <div className="flex-1 mb-8 relative">
-                    <div className="border-t-2 border-slate-100 pt-6 mb-6">
-                      <p className="text-sm font-bold text-[#050FA0] mb-4">Fonctionnalités incluses :</p>
-                    </div>
-                    <ul className="space-y-4">
-                      {plan.features.map((feature, idx) => (
-                        <motion.li
-                          key={feature}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.8 + idx * 0.05 }}
-                          className="flex items-start gap-3"
-                        >
-                          <div
-                            className={`mt-0.5 h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md ${
-                              plan.popular
-                                ? "bg-gradient-to-br from-[#E4220F] to-[#F92813]"
-                                : "bg-gradient-to-br from-[#050FA0] to-[#1A27C2]"
-                            }`}
-                          >
-                            <Check className="h-5 w-5 text-white stroke-[3]" />
-                          </div>
-                          <span className="text-slate-700 text-lg leading-relaxed">{feature}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <Link
-                    to="/profile-choice"
-                    className={`relative block text-center px-8 py-5 rounded-2xl font-bold text-lg transition-all group overflow-hidden ${
-                      plan.buttonVariant === "solid"
-                        ? "bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white shadow-xl shadow-[#E4220F]/40 hover:shadow-2xl hover:shadow-[#E4220F]/50 hover:scale-[1.02]"
-                        : "border-2 border-[#050FA0] text-[#050FA0] hover:bg-[#050FA0] hover:text-white shadow-lg hover:shadow-xl"
-                    }`}
-                  >
-                    <span className="relative z-10">{plan.buttonText}</span>
-                    {plan.popular && (
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-[#F92813] to-[#E4220F]"
-                        initial={{ x: "100%" }}
-                        whileHover={{ x: 0 }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    )}
-                  </Link>
-                </div>
-              </motion.div>
+                <Icon className="h-4 w-4" /> {label}
+              </button>
             ))}
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-            className="mb-20"
-          >
-            <h2 className="text-4xl font-bold text-center mb-4">
-              <span className="text-[#050FA0]">Pourquoi choisir</span>{" "}
-              <span className="text-[#E4220F]">ProJob AI ?</span>
-            </h2>
-            <p className="text-center text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
-              Découvrez les avantages qui font de ProJob AI votre meilleur allié professionnel
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {benefits.map((benefit, i) => (
-                <motion.div
-                  key={benefit.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 + i * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl p-6 border-2 border-slate-100 shadow-lg hover:shadow-2xl hover:border-[#050FA0]/30 transition-all group"
-                >
-                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#050FA0] to-[#1A27C2] flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                    <benefit.icon className="h-7 w-7 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold text-[#050FA0] mb-2">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {benefit.description}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="text-center"
-          >
-            <div className="relative bg-gradient-to-br from-[#050FA0] to-[#1A27C2] rounded-3xl p-12 shadow-2xl max-w-4xl mx-auto overflow-hidden">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#E4220F]/20 to-transparent rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-3xl" />
-
-              <div className="relative z-10">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-6">
-                  <Clock className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-4xl font-bold text-white mb-4">
-                  Des questions sur nos offres ?
-                </h3>
-                <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                  Notre équipe est disponible pour vous aider à choisir la formule qui vous convient le mieux.
-                  Contactez-nous dès maintenant !
-                </p>
-                <a
-                  href="mailto:contact@pjob.nassouba.com"
-                  className="inline-flex items-center gap-3 bg-white text-[#050FA0] px-10 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
-                >
-                  <span>Nous contacter</span>
-                  <ArrowLeft className="h-5 w-5 rotate-180" />
-                </a>
-              </div>
-            </div>
-          </motion.div>
+          <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 p-1" role="group" aria-label="Période de paiement">
+            {(["month", "year"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                aria-pressed={period === p}
+                onClick={() => setPeriod(p)}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold ${period === p ? "bg-white shadow text-slate-900" : "text-slate-600"}`}
+              >
+                {p === "month" ? "Mensuel" : "Annuel"}
+                {p === "year" && saving > 0 && <span className="ml-1.5 text-xs font-bold text-emerald-700">−{gnf(saving)}</span>}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto mb-14">
+          {shown.map((p, i) => {
+            const paid = p.price_month_gnf > 0;
+            const price = period === "year" ? p.price_year_gnf : p.price_month_gnf;
+            const cta = ctaFor(p);
+            return (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.1 }}
+                className={`relative rounded-3xl bg-white p-7 sm:p-9 flex flex-col ${paid ? "border-2 border-[#E4220F] shadow-2xl shadow-[#E4220F]/15" : "border-2 border-slate-200 shadow-lg"}`}
+              >
+                {paid && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#E4220F] to-[#F92813] px-5 py-1.5 text-sm font-bold text-white shadow-lg">
+                    <Crown className="h-4 w-4" /> 7 jours d&apos;essai gratuit
+                  </span>
+                )}
+                <h2 className="text-2xl font-bold text-[#050FA0]">{p.name}</h2>
+                {p.tagline && <p className="text-slate-600 mt-1">{p.tagline}</p>}
+                <div className="mt-6 mb-1 flex items-end gap-2">
+                  {paid ? (
+                    <>
+                      <span className="text-4xl sm:text-5xl font-bold text-slate-900 tabular-nums">{Math.round(price).toLocaleString("fr-FR")}</span>
+                      <span className="text-lg text-slate-600 mb-1.5 font-medium">GNF / {period === "year" ? "an" : "mois"}</span>
+                    </>
+                  ) : (
+                    <span className="text-4xl sm:text-5xl font-bold text-slate-900">0 GNF</span>
+                  )}
+                </div>
+                <p className="text-sm text-slate-500 h-5">
+                  {paid && period === "year" ? `Soit ${gnf(Math.round(p.price_year_gnf / 12))} par mois` : paid ? "Sans engagement" : "Pour toujours"}
+                </p>
+
+                <ul className="mt-6 space-y-3 flex-1">
+                  {p.perks.map((perk) => (
+                    <li key={perk} className="flex items-start gap-3">
+                      <span className={`mt-0.5 h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${paid ? "bg-[#E4220F]" : "bg-[#050FA0]"}`}>
+                        <Check className="h-4 w-4 text-white stroke-[3]" />
+                      </span>
+                      <span className={`text-slate-700 ${perk.startsWith("Tout le") ? "font-semibold" : ""}`}>{perk}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {cta ? (
+                  <Link
+                    to={cta.to}
+                    className={`mt-8 block text-center px-6 py-4 rounded-2xl font-bold transition-all ${paid ? "bg-gradient-to-r from-[#E4220F] to-[#F92813] text-white shadow-xl shadow-[#E4220F]/30 hover:scale-[1.02]" : "border-2 border-[#050FA0] text-[#050FA0] hover:bg-[#050FA0] hover:text-white"}`}
+                  >
+                    {cta.label}
+                  </Link>
+                ) : (
+                  <p className="mt-8 text-center text-sm text-slate-500">Formule réservée aux comptes {audience === "company" ? "entreprise" : "candidat"}.</p>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Comparatif */}
+        <section className="max-w-4xl mx-auto mb-14 bg-white rounded-3xl border-2 border-slate-100 p-5 sm:p-8 overflow-x-auto" aria-labelledby="comparatif">
+          <h2 id="comparatif" className="text-2xl font-bold text-slate-900 mb-5">Comparer les formules</h2>
+          <table className="w-full text-sm sm:text-base min-w-[420px]">
+            <thead>
+              <tr className="border-b text-left">
+                <th className="py-3 pr-3 font-semibold text-slate-500">Fonctionnalité</th>
+                <th className="py-3 px-3 font-bold text-[#050FA0] text-center w-24">Gratuit</th>
+                <th className="py-3 pl-3 font-bold text-[#E4220F] text-center w-24">Premium</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARE[audience].map((row) => (
+                <tr key={row.label} className="border-b last:border-0">
+                  <td className="py-3 pr-3 text-slate-700">{row.label}</td>
+                  <td className="py-3 px-3 text-center">
+                    {row.free ? <Check className="h-5 w-5 text-emerald-600 inline" aria-label="Inclus" /> : <Minus className="h-5 w-5 text-slate-300 inline" aria-label="Non inclus" />}
+                  </td>
+                  <td className="py-3 pl-3 text-center"><Check className="h-5 w-5 text-emerald-600 inline" aria-label="Inclus" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Questions fréquentes */}
+        <section className="max-w-4xl mx-auto grid sm:grid-cols-3 gap-4 mb-14">
+          {[
+            { icon: Smartphone, title: "Paiement mobile", text: "Orange Money, MTN MoMo ou carte bancaire, via la plateforme sécurisée Djomy." },
+            { icon: CalendarClock, title: "Sans engagement", text: "Pas de renouvellement automatique : vous payez un mois ou un an, puis vous choisissez de renouveler." },
+            { icon: ShieldCheck, title: "7 jours d'essai", text: "Chaque nouveau compte profite gratuitement du Premium pendant 7 jours, sans moyen de paiement." },
+          ].map((f) => (
+            <div key={f.title} className="bg-white rounded-2xl border-2 border-slate-100 p-5">
+              <f.icon className="h-6 w-6 text-[#050FA0] mb-3" />
+              <h3 className="font-bold text-slate-900">{f.title}</h3>
+              <p className="text-sm text-slate-600 mt-1">{f.text}</p>
+            </div>
+          ))}
+        </section>
+
+        <p className="text-center text-slate-600">
+          Une question ? Écrivez-nous à{" "}
+          <a href="mailto:contact@pjob.nassouba.com" className="font-semibold text-[#050FA0] hover:underline">contact@pjob.nassouba.com</a>
+        </p>
+      </main>
 
       <Footer />
     </div>

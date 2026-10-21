@@ -58,6 +58,8 @@ export function aiErrorMessage(e: unknown): string {
   switch (reason) {
     case "ai_not_configured":
       return "L'assistant IA n'est pas encore activé. La version standard a été utilisée.";
+    case "premium_required":
+      return "Cette fonction fait partie de la formule Premium. Passez au Premium pour l'utiliser.";
     case "rate_limited":
       return "Trop de demandes à l'IA pour le moment. Réessayez dans une minute.";
     default:

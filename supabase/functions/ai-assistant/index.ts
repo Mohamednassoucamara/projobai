@@ -185,6 +185,35 @@ function json(body: unknown, status: number, origin: string | null) {
   });
 }
 
+const PREMIUM_FEATURE: Partial<Record<Action, string>> = {
+  improve_cv: "ai_cv",
+  tailor_cv: "ai_cv",
+  career_orientation: "career_coach",
+  career_chat: "career_coach",
+  interview_questions: "interview_coach",
+  interview_feedback: "interview_coach",
+  interview_summary: "interview_coach",
+};
+
+/** Vérifie la formule de l'utilisateur (fonction check_feature, avec son propre jeton). */
+async function hasFeature(req: Request, feature: string): Promise<boolean> {
+  const url = Deno.env.get("SUPABASE_URL");
+  const anon = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!url || !anon) return true;
+  try {
+    const res = await fetch(`${url}/rest/v1/rpc/check_feature`, {
+      method: "POST",
+      headers: { apikey: anon, Authorization: req.headers.get("Authorization") || "", "Content-Type": "application/json" },
+      body: JSON.stringify({ p_feature: feature }),
+    });
+    if (res.status === 404) return true; // migration 012 pas encore appliquée
+    if (!res.ok) return false;
+    return (await res.json()) === true;
+  } catch {
+    return false;
+  }
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(origin) });
@@ -211,6 +240,12 @@ Deno.serve(async (req) => {
     "tailor_cv",
   ];
   if (!body.action || !allowed.includes(body.action)) return json({ error: "unknown_action" }, 400, origin);
+
+  // Fonctions réservées au Premium (migration 012)
+  const feature = PREMIUM_FEATURE[body.action];
+  if (feature && !(await hasFeature(req, feature))) {
+    return json({ error: "premium_required", feature }, 402, origin);
+  }
 
   const { prompt, maxTokens, messages, text: wantsText } = buildPrompt(body.action, body.payload || {});
   if (messages && !messages.length) return json({ error: "invalid_body" }, 400, origin);

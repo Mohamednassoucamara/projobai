@@ -125,6 +125,9 @@ Deno.serve(async (req) => {
   // 1. Rappels d'entretien (24 h avant)
   const { data: reminders, error: remErr } = await supabase.rpc("queue_interview_reminders");
   if (remErr) console.error("reminders", remErr.message);
+  // Rappels de fin d'abonnement et de fin d'essai (migration 012)
+  const { error: subErr } = await supabase.rpc("queue_subscription_reminders");
+  if (subErr && !/does not exist|schema cache/i.test(subErr.message)) console.error("subscription_reminders", subErr.message);
 
   // 2. Notifications pas encore envoyées (moins de 48 h)
   const since = new Date(Date.now() - 48 * 3600_000).toISOString();

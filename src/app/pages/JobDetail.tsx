@@ -11,6 +11,8 @@ import { useCVData } from "../contexts/CVDataContext";
 import { matchJob, matchTone, hasMatchableCV } from "../../lib/matching";
 import { rememberSource } from "../../lib/ats";
 import MatchExplanation from "../components/MatchExplanation";
+import { PremiumBadge } from "../components/PremiumGate";
+import { usePlan } from "../contexts/PlanContext";
 
 
 function timeAgo(dateStr: string) {
@@ -41,6 +43,7 @@ export default function JobDetail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [otherJobs, setOtherJobs] = useState<any[]>([]);
+  const { can } = usePlan();
 
   // Provenance du lien (WhatsApp, Facebook…) : enregistrée avec la candidature pour les statistiques RH.
   useEffect(() => {
@@ -181,6 +184,7 @@ export default function JobDetail() {
                 <div className="mt-3 flex flex-wrap gap-3">
                   <Link to={`/cv-adapt/${job.id}`} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#050FA0] text-white text-sm font-bold hover:bg-[#060C6E]">
                     <Wand2 className="h-4 w-4" /> Adapter mon CV à cette offre
+                    {!can("ai_cv") && <PremiumBadge />}
                   </Link>
                   <Link to="/cv-edit" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-300 text-sm font-bold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0]">
                     Mettre à jour mon CV

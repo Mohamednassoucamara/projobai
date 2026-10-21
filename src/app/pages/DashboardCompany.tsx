@@ -5,6 +5,8 @@ import { matchJob, MATCH_DISCLAIMER, type MatchResult } from "../../lib/matching
 import { PIPELINE } from "../../lib/ats";
 import { atsService } from "../../services/ats.service";
 import ShareJobMenu from "../components/ShareJobMenu";
+import { PremiumBadge, PremiumUpsell } from "../components/PremiumGate";
+import { usePlan } from "../contexts/PlanContext";
 import CompanyApplicationItem, { type CompanyApplicationData } from "../components/CompanyApplicationItem";
 import DashboardHeader from "../components/DashboardHeader";
 import { motion } from "motion/react";
@@ -28,6 +30,7 @@ export default function DashboardCompany() {
   const [jobFilter, setJobFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"score" | "date">("score");
   const [shareJob, setShareJob] = useState<string | null>(null);
+  const { can } = usePlan();
 
   const flash = (ok: boolean, text: string) => {
     setActionMsg({ ok, text });
@@ -69,7 +72,8 @@ export default function DashboardCompany() {
         if (!authUser) return;
 
         // CV structurés des candidats (migration 011) : sans eux, pas de score, mais le reste fonctionne.
-        atsService.getApplicantCVs().then(setApplicantCVs, () => setApplicantCVs({}));
+        // Formule gratuite : pas de classement IA (PREMIUM_REQUIRED) → aucun score affiché
+        atsService.getApplicantCVs().then(setApplicantCVs, (e) => setApplicantCVs(/PREMIUM_REQUIRED/.test(String(e?.message)) ? null : {}));
 
         const [jobsData, applicationsData, favCount] = await Promise.all([
           companyService.getJobs(authUser.id),
@@ -265,14 +269,14 @@ export default function DashboardCompany() {
             <Link to="/company/interviews" className="flex items-center gap-4 p-5 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-violet-400 transition-colors">
               <span className="h-12 w-12 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><CalendarDays className="h-6 w-6" /></span>
               <span>
-                <span className="block text-lg font-bold">Agenda des entretiens</span>
+                <span className="flex items-center gap-2 text-lg font-bold">Agenda des entretiens {!can("interviews") && <PremiumBadge />}</span>
                 <span className="block text-sm text-slate-600">Planification, liens visio, évaluations</span>
               </span>
             </Link>
             <Link to="/company/stats" className="flex items-center gap-4 p-5 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-[#050FA0] transition-colors">
               <span className="h-12 w-12 rounded-xl bg-[#050FA0]/10 text-[#050FA0] flex items-center justify-center shrink-0"><BarChart3 className="h-6 w-6" /></span>
               <span>
-                <span className="block text-lg font-bold">Statistiques RH</span>
+                <span className="flex items-center gap-2 text-lg font-bold">Statistiques RH {!can("hr_stats") && <PremiumBadge />}</span>
                 <span className="block text-sm text-slate-600">Conversion, délais, coûts, sources</span>
               </span>
             </Link>
@@ -348,7 +352,9 @@ export default function DashboardCompany() {
                     </label>
                   </div>
                 </div>
-                {sortBy === "score" && (
+                {!can("ai_ranking") ? (
+                  <div className="mb-4"><PremiumUpsell feature="ai_ranking" compact description="l'IA lit les CV et classe automatiquement les meilleurs profils pour chaque offre" /></div>
+                ) : sortBy === "score" && (
                   <p className="mb-4 text-xs text-slate-500">{MATCH_DISCLAIMER}</p>
                 )}
                 {visibleApplications.length === 0 ? (
@@ -438,7 +444,7 @@ export default function DashboardCompany() {
                         )}
                         {offer.is_active && (
                           <button type="button" onClick={() => setShareJob(shareJob === offer.id ? null : offer.id)} aria-expanded={shareJob === offer.id} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0]">
-                            <Share2 className="h-4 w-4" /> Partager
+                            <Share2 className="h-4 w-4" /> Partager {!can("share_links") && <PremiumBadge />}
                           </button>
                         )}
                         <button type="button" disabled={busyJob === offer.id} onClick={() => setConfirmDelete(offer.id)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 sm:ml-auto">
@@ -446,7 +452,9 @@ export default function DashboardCompany() {
                         </button>
                       </div>
 
-                      {shareJob === offer.id && <ShareJobMenu jobId={offer.id} title={offer.title} />}
+                      {shareJob === offer.id && (can("share_links")
+                        ? <ShareJobMenu jobId={offer.id} title={offer.title} />
+                        : <div className="mx-6 mb-5"><PremiumUpsell feature="share_links" compact description="partagez l'offre sur WhatsApp, Facebook ou LinkedIn et voyez d'où viennent vos candidats" /></div>)}
 
                       {confirmDelete === offer.id && (
                         <div role="alertdialog" aria-labelledby={`del-${offer.id}`} className="mx-6 mb-5 rounded-xl border-2 border-red-200 bg-red-50 p-4">

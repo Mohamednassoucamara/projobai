@@ -7,6 +7,8 @@ import {
 import AppNavHeader from "../components/AppNavHeader";
 import Footer from "../components/Footer";
 import MatchExplanation from "../components/MatchExplanation";
+import { PremiumUpsell } from "../components/PremiumGate";
+import { usePlan } from "../contexts/PlanContext";
 import InterviewForm, { type InterviewDraft } from "../components/InterviewForm";
 import InterviewEvaluationForm from "../components/InterviewEvaluationForm";
 import { DocumentLink } from "../components/CompanyApplicationItem";
@@ -58,6 +60,7 @@ export default function ApplicationDossier() {
   const [evaluating, setEvaluating] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const { can } = usePlan();
 
   const flash = (ok: boolean, text: string) => {
     setNotice({ ok, text });
@@ -77,7 +80,8 @@ export default function ApplicationDossier() {
         if (results[0].status === "fulfilled") setCv((results[0].value[id] as CV) || null);
         if (results[1].status === "fulfilled") setEvents(results[1].value);
         if (results[2].status === "fulfilled") setInterviews(results[2].value);
-        if (results.some((r) => r.status === "rejected")) setAtsReady(false);
+        // Fonction Premium non incluse ≠ migration manquante
+        if (results.some((r) => r.status === "rejected" && !/PREMIUM_REQUIRED/.test(String((r.reason as { message?: string })?.message || r.reason)))) setAtsReady(false);
       } catch {
         if (!cancelled) setError("Le dossier n'a pas pu être chargé. Vérifiez votre connexion.");
       } finally {
@@ -297,13 +301,16 @@ export default function ApplicationDossier() {
             <section id="entretien" className="bg-white rounded-2xl sm:rounded-3xl border p-5 sm:p-8 scroll-mt-24">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <h2 className="text-xl font-bold flex items-center gap-2"><CalendarDays className="h-5 w-5 text-violet-700" /> Entretiens</h2>
-                {!planning && atsReady && (
+                {!planning && atsReady && can("interviews") && (
                   <button type="button" onClick={() => setPlanning(true)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-700 text-white text-sm font-bold hover:bg-violet-800">
                     <CalendarPlus className="h-4 w-4" /> Planifier un entretien
                   </button>
                 )}
               </div>
 
+              {!can("interviews") ? (
+                <PremiumUpsell feature="interviews" compact description="planifiez la visio ou le rendez-vous, le candidat est convoqué et rappelé automatiquement" />
+              ) : (<>
               {planning && (
                 <div className="mb-6 rounded-2xl border-2 border-violet-200 bg-violet-50/40 p-4 sm:p-5">
                   <h3 className="font-bold mb-3">Nouvel entretien avec {name}</h3>
@@ -394,12 +401,16 @@ export default function ApplicationDossier() {
                   );
                 })}
               </ul>
+              </>)}
             </section>
 
             {/* Historique et commentaires */}
             <section className="bg-white rounded-2xl sm:rounded-3xl border p-5 sm:p-8">
               <h2 className="text-xl font-bold flex items-center gap-2 mb-1"><History className="h-5 w-5 text-[#050FA0]" /> Historique et commentaires</h2>
               <p className="text-sm text-slate-500 mb-5">Les commentaires restent internes à votre entreprise.</p>
+              {!can("ats_history") ? (
+                <PremiumUpsell feature="ats_history" compact description="gardez la trace de chaque étape et partagez vos notes sur le candidat" />
+              ) : (<>
 
               <form onSubmit={addComment} className="mb-6">
                 <label htmlFor="comment" className="sr-only">Ajouter un commentaire</label>
@@ -447,10 +458,14 @@ export default function ApplicationDossier() {
                   ))}
                 </ol>
               )}
+              </>)}
             </section>
           </div>
 
           <aside className="lg:col-span-2 space-y-6">
+            {!can("ai_ranking") ? (
+              <PremiumUpsell feature="ai_ranking" compact description="l'IA lit le CV du candidat, calcule son score et l'explique critère par critère" />
+            ) : (<>
             {match ? (
               <MatchExplanation match={match} audience="company" />
             ) : (
@@ -501,6 +516,7 @@ export default function ApplicationDossier() {
                 )}
               </section>
             )}
+            </>)}
 
             <Link to="/company/interviews" className="flex items-center gap-2 text-sm font-bold text-[#050FA0] hover:underline">
               <CalendarDays className="h-4 w-4" /> Voir l&apos;agenda de tous les entretiens

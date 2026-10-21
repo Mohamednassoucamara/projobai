@@ -22,6 +22,9 @@ import ApplicationDossier from "./pages/ApplicationDossier";
 import CompanyInterviews from "./pages/CompanyInterviews";
 import CompanyStats from "./pages/CompanyStats";
 import CVAdapt from "./pages/CVAdapt";
+import Subscription from "./pages/Subscription";
+import PaymentReturn from "./pages/PaymentReturn";
+import { PremiumPage } from "./components/PremiumGate";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
@@ -92,7 +95,7 @@ export const router = createBrowserRouter([
         path: "/interview-prep",
         element: (
           <ProtectedRoute type="candidate">
-            <InterviewPrep />
+            <PremiumPage feature="interview_coach" description="Entraînez-vous sur des questions adaptées au poste : l'IA note chaque réponse et vous conseille."><InterviewPrep /></PremiumPage>
           </ProtectedRoute>
         ),
       },
@@ -100,7 +103,7 @@ export const router = createBrowserRouter([
         path: "/orientation",
         element: (
           <ProtectedRoute type="candidate">
-            <CareerOrientation />
+            <PremiumPage feature="career_coach" description="Analyse de votre profil, métiers recommandés sur le marché guinéen et conseiller IA pour bâtir votre plan de carrière."><CareerOrientation /></PremiumPage>
           </ProtectedRoute>
         ),
       },
@@ -139,6 +142,22 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "/abonnement",
+        element: (
+          <ProtectedRoute>
+            <Subscription />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/abonnement/retour",
+        element: (
+          <ProtectedRoute>
+            <PaymentReturn />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "/company/applications/:id",
         element: (
           <ProtectedRoute type="company">
@@ -150,7 +169,7 @@ export const router = createBrowserRouter([
         path: "/company/interviews",
         element: (
           <ProtectedRoute type="company">
-            <CompanyInterviews />
+            <PremiumPage feature="interviews" description="Planifiez les entretiens (visio, présentiel, téléphone), suivez l'agenda et évaluez les candidats."><CompanyInterviews /></PremiumPage>
           </ProtectedRoute>
         ),
       },
@@ -158,7 +177,7 @@ export const router = createBrowserRouter([
         path: "/company/stats",
         element: (
           <ProtectedRoute type="company">
-            <CompanyStats />
+            <PremiumPage feature="hr_stats" description="Conversion par étape, délais de recrutement, coût par recrutement et sources des candidatures."><CompanyStats /></PremiumPage>
           </ProtectedRoute>
         ),
       },
@@ -166,7 +185,7 @@ export const router = createBrowserRouter([
         path: "/cv-adapt/:id",
         element: (
           <ProtectedRoute type="candidate">
-            <CVAdapt />
+            <PremiumPage feature="ai_cv" description="L'IA adapte votre profil, vos compétences et vos missions à chaque offre, sans rien inventer."><CVAdapt /></PremiumPage>
           </ProtectedRoute>
         ),
       },

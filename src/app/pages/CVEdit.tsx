@@ -5,6 +5,8 @@ import { motion } from "motion/react";
 import Footer from "../components/Footer";
 import CVPhotoField from "../components/CVPhotoField";
 import CVImport from "../components/CVImport";
+import { PremiumUpsell, PremiumBadge } from "../components/PremiumGate";
+import { usePlan } from "../contexts/PlanContext";
 import { useCVData, type CVData } from "../contexts/CVDataContext";
 import { aiService, aiErrorMessage } from "../../services/ai.service";
 
@@ -40,6 +42,8 @@ export default function CVEdit() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<CVData>(cvData);
   const [aiBusy, setAiBusy] = useState(false);
+  const { can } = usePlan();
+  const [showUpsell, setShowUpsell] = useState(false);
   const [aiNote, setAiNote] = useState<{ text: string; tips?: string[]; ok: boolean } | null>(null);
   const [undo, setUndo] = useState<CVData | null>(null);
   const [skillsText, setSkillsText] = useState(cvData.skills.join(", "));
@@ -85,6 +89,7 @@ export default function CVEdit() {
   };
 
   const handleOptimize = async () => {
+    if (!can("ai_cv")) { setShowUpsell(true); return; }
     setAiBusy(true);
     setAiNote(null);
     try {
@@ -148,6 +153,7 @@ export default function CVEdit() {
               >
                 {aiBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 <span>{aiBusy ? "Optimisation…" : "Optimiser avec l'IA"}</span>
+                {!can("ai_cv") && <PremiumBadge />}
               </button>
               <button
                 type="button"
@@ -163,6 +169,11 @@ export default function CVEdit() {
       </header>
 
       <div className="flex-1 mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 sm:py-12">
+        {showUpsell && (
+          <div className="mb-6">
+            <PremiumUpsell feature="ai_cv" compact description="l'IA réécrit votre profil et vos missions avec les mots attendus par les recruteurs" />
+          </div>
+        )}
         {aiNote && (
           <div
             className={`mb-6 rounded-2xl p-4 sm:p-5 border-2 ${aiNote.ok ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}

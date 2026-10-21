@@ -408,3 +408,7 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # Envoi des notifications e-mail / WhatsApp : appelée par pg_cron avec l'en-tête x-cron-secret.
 [functions.notify-dispatch]
 verify_jwt = false
+
+# Notifications de paiement Djomy : authentifiées par signature HMAC, pas par JWT.
+[functions.djomy-webhook]
+verify_jwt = false
