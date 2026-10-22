@@ -11,6 +11,7 @@
 //   WHATSAPP_PHONE_NUMBER_ID    identifiant du numéro WhatsApp Business
 //   WHATSAPP_TEMPLATE           nom du modèle approuvé (défaut : projob_notification)
 //   WHATSAPP_TEMPLATE_LANG      langue du modèle (défaut : fr)
+//   WHATSAPP_PARAM_NAMES        si le modèle utilise des variables nommées, ex. "titre,message"
 //   SITE_URL                    défaut : https://projobai.com
 //
 // Déploiement : supabase functions deploy notify-dispatch --no-verify-jwt
@@ -79,6 +80,8 @@ function waNumber(phone: string | null) {
   return d;
 }
 
+const PARAM_NAMES = (Deno.env.get("WHATSAPP_PARAM_NAMES") || "").split(",").map((x) => x.trim()).filter(Boolean);
+
 // Les paramètres d'un modèle WhatsApp n'acceptent ni retour à la ligne ni tabulation.
 const waText = (s: string, max = 900) => s.replace(/[\n\t]+/g, " ").replace(/ {4,}/g, "   ").slice(0, max);
 
@@ -101,15 +104,17 @@ async function sendWhatsApp(r: Row, url: string) {
         language: { code: Deno.env.get("WHATSAPP_TEMPLATE_LANG") || "fr" },
         components: [{
           type: "body",
-          parameters: [
-            { type: "text", text: waText(r.title, 120) },
-            { type: "text", text: waText(`${r.message} ${url}`) },
-          ],
+          // Modèle à variables numérotées {{1}} {{2}} (par défaut) ou nommées (WHATSAPP_PARAM_NAMES=titre,message)
+          parameters: [waText(r.title, 120), waText(`${r.message} ${url}`)].map((text, i) =>
+            PARAM_NAMES[i] ? { type: "text", parameter_name: PARAM_NAMES[i], text } : { type: "text", text }),
         }],
       },
     }),
   });
-  return res.ok ? "envoyé" : `erreur ${res.status}: ${(await res.text()).slice(0, 200)}`;
+  if (res.ok) return "envoyé";
+  const detail = await res.text();
+  console.error("whatsapp_error", res.status, detail);
+  return `erreur ${res.status}: ${detail.slice(0, 800)}`;
 }
 
 Deno.serve(async (req) => {
