@@ -39,7 +39,7 @@ function emailHtml(r: Row, url: string) {
   return `<!doctype html><html lang="fr"><body style="margin:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden">
-<tr><td style="background:#050FA0;padding:20px 28px;color:#ffffff;font-size:20px;font-weight:bold">ProJob <span style="color:#FF8A7A">AI</span></td></tr>
+<tr><td style="background:#050FA0;padding:18px 28px;color:#ffffff;font-size:20px;font-weight:bold"><a href="${SITE}" style="text-decoration:none;color:#ffffff"><img src="${SITE}/email/projob-logo.png" width="180" height="55" alt="ProJob AI" style="display:block;border:0;outline:none;width:180px;height:55px;color:#ffffff;font-size:20px;font-weight:bold"></a></td></tr>
 <tr><td style="padding:28px">
 <p style="margin:0 0 12px;font-size:15px">Bonjour${first ? " " + esc(first) : ""},</p>
 <h1 style="margin:0 0 12px;font-size:20px;color:#050FA0">${esc(r.title)}</h1>
