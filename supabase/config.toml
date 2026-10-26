@@ -412,3 +412,7 @@ verify_jwt = false
 # Notifications de paiement Djomy : authentifiées par signature HMAC, pas par JWT.
 [functions.djomy-webhook]
 verify_jwt = false
+
+# API du bot Botpress : authentifiée par l'en-tête x-bot-secret, pas par JWT.
+[functions.bot-api]
+verify_jwt = false
