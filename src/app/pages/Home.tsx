@@ -1,3 +1,4 @@
+import { botWhatsAppUrl } from "../../lib/whatsapp";
 import { Link, Navigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import {
@@ -152,7 +153,7 @@ const SERVICES = [
   { to: "/interview-prep", icon: MessageSquare, title: "Coach entretien", desc: "Des questions de vrais recruteurs, une note sur 10 et des conseils après chaque réponse.", tone: "blue" },
   { to: "/orientation", icon: Compass, title: "Orientation", desc: "Trois métiers qui vous correspondent sur le marché guinéen, avec un plan d'action.", tone: "red" },
   { to: "/jobs", icon: Briefcase, title: "Offres et matching", desc: "Chaque offre affiche votre taux de compatibilité avec votre CV.", tone: "blue" },
-  { to: "/profile-choice", icon: Smartphone, title: "Aussi sur WhatsApp", desc: "Les mêmes services depuis votre téléphone, sans application à installer.", tone: "red" },
+  { to: "/profile-choice", href: botWhatsAppUrl(), icon: Smartphone, title: "Aussi sur WhatsApp", desc: "Offres, CV en PDF, candidatures et suivi depuis WhatsApp, sans application à installer.", tone: "red" },
 ] as const;
 
 const STEPS_CANDIDATE = [
@@ -291,18 +292,26 @@ export default function Home() {
             <p className="mt-3 text-lg text-slate-600">De la première ligne du CV jusqu&apos;à l&apos;entretien, ProJob AI vous accompagne à chaque étape.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {SERVICES.map((s) => (
-              <Link key={s.title} to={s.to} className="group flex flex-col rounded-2xl bg-white border border-slate-200/80 p-6 sm:p-7 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/5 transition-all">
+            {SERVICES.map((s) => {
+              const cls = "group flex flex-col rounded-2xl bg-white border border-slate-200/80 p-6 sm:p-7 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/5 transition-all";
+              const body = (
+                <>
                 <span className={`h-12 w-12 rounded-xl grid place-items-center ${s.tone === "red" ? "bg-accent-red-soft text-accent-red-strong" : "bg-brand-soft text-brand"}`}>
                   <s.icon className="h-6 w-6" />
                 </span>
                 <h3 className="mt-5 text-xl font-bold text-ink">{s.title}</h3>
                 <p className="mt-2 text-slate-600 leading-relaxed">{s.desc}</p>
                 <span className="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-bold text-brand">
-                  Découvrir <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  {"href" in s ? "Écrire au bot" : "Découvrir"} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
-              </Link>
-            ))}
+                </>
+              );
+              return "href" in s ? (
+                <a key={s.title} href={s.href} target="_blank" rel="noopener noreferrer" className={cls}>{body}</a>
+              ) : (
+                <Link key={s.title} to={s.to} className={cls}>{body}</Link>
+              );
+            })}
           </div>
         </div>
       </section>

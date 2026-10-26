@@ -1,20 +1,10 @@
 import { Link } from "react-router";
 import { Facebook, Linkedin, Mail } from "lucide-react";
 import AppLogo from "./AppLogo";
-import { useAuth } from "../contexts/AuthContext";
+import { botWhatsAppUrl } from "../../lib/whatsapp";
 
 export default function Footer() {
-  const { isAuthenticated } = useAuth();
-  const phoneNumber = "224622775088";
-  const message = "Bonjour ProJob AI, j'aimerais en savoir plus sur vos services";
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-  const handleWhatsAppClick = (e: React.MouseEvent) => {
-    if (!isAuthenticated) {
-      e.preventDefault();
-      window.location.href = "/login";
-    }
-  };
+  const whatsappUrl = botWhatsAppUrl();
 
   return (
     <footer className="bg-brand-strong text-white">
@@ -69,7 +59,6 @@ export default function Footer() {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={handleWhatsAppClick}
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -114,7 +103,8 @@ export default function Footer() {
                     <Linkedin className="h-5 w-5" />
                   </a>
                   <a
-                    href="https://wa.me"
+                    href={whatsappUrl}
+                    aria-label="ProJob AI sur WhatsApp"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E4220F] transition-all hover:scale-110"
