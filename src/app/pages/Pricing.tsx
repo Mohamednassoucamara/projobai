@@ -7,28 +7,33 @@ import AppNavHeader from "../components/AppNavHeader";
 import { useAuth } from "../contexts/AuthContext";
 import { DEFAULT_PLANS, fetchPlans, gnf, type Audience, type Period, type Plan } from "../../lib/billing";
 
-const COMPARE: Record<Audience, { label: string; free: boolean }[]> = {
+// tier = formule minimale qui inclut la fonctionnalité (0 = Gratuit, 1 = Premium, 2 = ProJob+)
+const COMPARE: Record<Audience, { label: string; tier: number }[]> = {
   candidate: [
-    { label: "CV professionnel (PDF, photo, couleurs, modèles par métier)", free: true },
-    { label: "Import de votre CV existant (PDF ou Word)", free: true },
-    { label: "Lettre de motivation", free: true },
-    { label: "Offres d'emploi, candidatures et score de compatibilité", free: true },
-    { label: "Suivi des candidatures et convocations aux entretiens", free: true },
-    { label: "CV optimisé par l'IA", free: false },
-    { label: "CV adapté à chaque offre", free: false },
-    { label: "Coaching carrière (orientation professionnelle)", free: false },
-    { label: "Coach d'entretien IA", free: false },
+    { label: "CV professionnel (PDF, photo, couleurs, modèles par métier)", tier: 0 },
+    { label: "Import de votre CV existant (PDF ou Word)", tier: 0 },
+    { label: "Lettre de motivation", tier: 0 },
+    { label: "Offres d'emploi, candidatures et score de compatibilité", tier: 0 },
+    { label: "Suivi des candidatures et convocations aux entretiens", tier: 0 },
+    { label: "CV optimisé par l'IA", tier: 1 },
+    { label: "CV adapté à chaque offre", tier: 1 },
+    { label: "Coaching carrière (orientation professionnelle)", tier: 1 },
+    { label: "Coach d'entretien IA", tier: 1 },
   ],
   company: [
-    { label: "Publication d'offres d'emploi", free: true },
-    { label: "Réception et suivi des candidatures par étape", free: true },
-    { label: "Notifications automatiques aux candidats", free: true },
-    { label: "CVthèque", free: true },
-    { label: "IA : extraction des CV et classement des meilleurs profils", free: false },
-    { label: "Entretiens : planification, visio, agenda, évaluation", free: false },
-    { label: "Statistiques RH", free: false },
-    { label: "Partage des offres avec suivi des sources", free: false },
-    { label: "Historique et commentaires internes", free: false },
+    { label: "Publication d'offres d'emploi", tier: 0 },
+    { label: "Réception et suivi des candidatures par étape", tier: 0 },
+    { label: "Notifications automatiques aux candidats", tier: 0 },
+    { label: "CVthèque", tier: 0 },
+    { label: "IA : extraction des CV et classement des meilleurs profils", tier: 1 },
+    { label: "Entretiens : planification, visio, agenda, évaluation", tier: 1 },
+    { label: "Statistiques RH", tier: 1 },
+    { label: "Partage des offres avec suivi des sources", tier: 1 },
+    { label: "Historique et commentaires internes", tier: 1 },
+    { label: "Dossiers employés, contrats et organigramme", tier: 2 },
+    { label: "Congés et absences avec validation en deux niveaux", tier: 2 },
+    { label: "Espace employé (web et WhatsApp)", tier: 2 },
+    { label: "Embauche en un clic depuis une candidature", tier: 2 },
   ],
 };
 
@@ -42,7 +47,7 @@ export default function Pricing() {
   useEffect(() => { fetchPlans().then(setPlans, () => undefined); }, []);
 
   const shown = useMemo(() => plans.filter((p) => p.audience === audience).sort((a, b) => a.rank - b.rank), [plans, audience]);
-  const premium = shown.find((p) => p.price_month_gnf > 0);
+  const premium = shown.find((p) => p.price_month_gnf > 0 && p.rank <= 10) || shown.find((p) => p.price_month_gnf > 0);
   const saving = premium ? premium.price_month_gnf * 12 - premium.price_year_gnf : 0;
 
   const signup = audience === "company" ? "/signup-company" : "/signup-candidate";
@@ -53,7 +58,9 @@ export default function Pricing() {
     const paid = p.price_month_gnf > 0;
     if (!user) return { to: signup, label: paid ? "Essayer 7 jours gratuitement" : "Créer mon compte gratuit" };
     if (!sameType) return null;
-    return paid ? { to: `/abonnement?periode=${period}`, label: "Passer au Premium" } : { to: dashboard, label: "Mon tableau de bord" };
+    return paid
+      ? { to: `/abonnement?formule=${p.id}&periode=${period}`, label: p.name === "Premium" ? "Passer au Premium" : `Passer à ${p.name}` }
+      : { to: dashboard, label: "Mon tableau de bord" };
   };
 
   return (
@@ -102,7 +109,7 @@ export default function Pricing() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto mb-14">
+        <div className={`grid grid-cols-1 gap-6 sm:gap-8 mx-auto mb-14 ${shown.length > 2 ? "md:grid-cols-2 lg:grid-cols-3 max-w-6xl" : "md:grid-cols-2 max-w-4xl"}`}>
           {shown.map((p, i) => {
             const paid = p.price_month_gnf > 0;
             const price = period === "year" ? p.price_year_gnf : p.price_month_gnf;
@@ -163,24 +170,26 @@ export default function Pricing() {
         </div>
 
         {/* Comparatif */}
-        <section className="max-w-4xl mx-auto mb-14 bg-white rounded-3xl border-2 border-slate-100 p-5 sm:p-8 overflow-x-auto" aria-labelledby="comparatif">
+        <section className={`mx-auto mb-14 bg-white rounded-3xl border-2 border-slate-100 p-5 sm:p-8 overflow-x-auto ${shown.length > 2 ? "max-w-5xl" : "max-w-4xl"}`} aria-labelledby="comparatif">
           <h2 id="comparatif" className="text-2xl font-bold text-slate-900 mb-5">Comparer les formules</h2>
           <table className="w-full text-sm sm:text-base min-w-[420px]">
             <thead>
               <tr className="border-b text-left">
                 <th className="py-3 pr-3 font-semibold text-slate-500">Fonctionnalité</th>
-                <th className="py-3 px-3 font-bold text-[#050FA0] text-center w-24">Gratuit</th>
-                <th className="py-3 pl-3 font-bold text-[#E4220F] text-center w-24">Premium</th>
+                {shown.map((p, i) => (
+                  <th key={p.id} className={`py-3 px-3 font-bold text-center w-24 ${i === 0 ? "text-[#050FA0]" : "text-[#E4220F]"}`}>{p.name}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {COMPARE[audience].map((row) => (
                 <tr key={row.label} className="border-b last:border-0">
                   <td className="py-3 pr-3 text-slate-700">{row.label}</td>
-                  <td className="py-3 px-3 text-center">
-                    {row.free ? <Check className="h-5 w-5 text-emerald-600 inline" aria-label="Inclus" /> : <Minus className="h-5 w-5 text-slate-300 inline" aria-label="Non inclus" />}
-                  </td>
-                  <td className="py-3 pl-3 text-center"><Check className="h-5 w-5 text-emerald-600 inline" aria-label="Inclus" /></td>
+                  {shown.map((p, i) => (
+                    <td key={p.id} className="py-3 px-3 text-center">
+                      {row.tier <= i ? <Check className="h-5 w-5 text-emerald-600 inline" aria-label="Inclus" /> : <Minus className="h-5 w-5 text-slate-300 inline" aria-label="Non inclus" />}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>

@@ -48,6 +48,7 @@ z.object({
     "status", "link_start", "link_verify", "unlink",
     "search_jobs", "job", "get_cv", "save_cv", "cv_pdf",
     "apply", "my_applications",
+    "hr_summary", "hr_request_leave", "hr_decide", "hr_cancel",
   ]).describe("Opération ProJob à effectuer"),
   query: z.string().optional().describe("search_jobs : métier ou mots-clés, ex. comptable"),
   location: z.string().optional().describe("search_jobs : ville, ex. Conakry"),
@@ -56,6 +57,14 @@ z.object({
   full_name: z.string().optional().describe("link_start : prénom et nom, si aucun compte n'existe"),
   code: z.string().optional().describe("link_verify : code à 6 chiffres reçu par e-mail"),
   message: z.string().optional().describe("apply : court message de motivation"),
+  company_id: z.string().optional().describe("hr_* : entreprise (company_id de hr_summary), seulement si la personne travaille dans plusieurs"),
+  leave_type: z.string().optional().describe("hr_request_leave : code du type de congé (leave_types de hr_summary), ex. annuel, maladie"),
+  start_date: z.string().optional().describe("hr_request_leave : premier jour, AAAA-MM-JJ"),
+  end_date: z.string().optional().describe("hr_request_leave : dernier jour inclus, AAAA-MM-JJ"),
+  reason: z.string().optional().describe("hr_request_leave : motif court"),
+  request_id: z.string().optional().describe("hr_decide / hr_cancel : identifiant de la demande (request_id de hr_summary)"),
+  approve: z.boolean().optional().describe("hr_decide : true pour approuver, false pour refuser"),
+  note: z.string().optional().describe("hr_decide : motif du refus ou commentaire"),
   cv_json: z.string().optional().describe(
     "save_cv : JSON des champs à enregistrer : fullName, jobTitle, phone, email, location, profile, " +
     "experiences [{title, company, period, description[]}], education [{degree, institution, period}], " +
@@ -90,9 +99,11 @@ if (!phone) {
 }
 
 const body = { action: input.action, phone }
-for (const k of ['query', 'location', 'job_id', 'email', 'full_name', 'code', 'message']) {
+for (const k of ['query', 'location', 'job_id', 'email', 'full_name', 'code', 'message',
+                 'company_id', 'leave_type', 'start_date', 'end_date', 'reason', 'request_id', 'note']) {
   if (input[k]) body[k] = input[k]
 }
+if (typeof input.approve === 'boolean') body.approve = input.approve
 if (input.cv_json) {
   try {
     body.cv = JSON.parse(input.cv_json)
@@ -195,7 +206,18 @@ un statut ou un lien. Si l'action renvoie ok=false, explique le message simpleme
   tu peux donner des conseils d'entretien et d'orientation.
 - Sinon, propose l'abonnement : https://projobai.com/abonnement
 
-7. AUTRES
+7. CONGÉS (ProJob+ RH, pour les employés d'une entreprise cliente)
+- « mon solde », « je veux un congé », « mes congés » : appelle projob action=hr_summary.
+  Si companies est vide : la personne n'est reliée à aucune entreprise ProJob+ ; elle doit demander à ses RH de créer sa fiche avec l'e-mail de son compte.
+- Pour une demande : récupère le type (code dans leave_types), la date de début et la date de fin (format AAAA-MM-JJ ; aujourd'hui = date du jour), le motif.
+  Récapitule et demande confirmation, puis appelle projob action=hr_request_leave avec leave_type, start_date, end_date, reason.
+  Donne le nombre de jours ouvrés et dis qui a été prévenu (champ next).
+- Responsable ou RH : présente to_decide (employé, type, période, jours, motif) et demande « Valider » ou « Refuser » pour chacune.
+  Appelle projob action=hr_decide avec request_id et approve=true/false (note si refus).
+- Annulation : projob action=hr_cancel avec request_id, après confirmation.
+- Le détail complet est sur https://projobai.com/mon-espace-rh
+
+8. AUTRES
 - Désactiver le lien WhatsApp ↔ compte : projob action=unlink (après confirmation).
 - Ne demande jamais de mot de passe. Pour se connecter au site : https://projobai.com/login
 - Pour toute autre question sur ProJob AI, utilise la base de connaissances (projobai.com).
@@ -215,3 +237,5 @@ un statut ou un lien. Si l'action renvoie ok=false, explique le message simpleme
 | `no_phone` | test hors WhatsApp sans `PROJOB_TEST_PHONE` |
 | `not_linked` | la personne n'a pas encore relié son compte (étape 1) |
 | `cv_incomplete` | champs manquants : continuer l'étape 3 |
+| `hr_unavailable` | migration 014 non exécutée ou bot-api pas redéployée |
+| `insufficient_balance` | solde de congé insuffisant (le message donne le solde) |

@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp, Pencil, Trash2, PauseCircle, PlayCircle, AlertTriangle, Eye, CalendarDays, BarChart3, Share2, ArrowDownWideNarrow } from "lucide-react";
+import { Plus, Users, Briefcase, Star, Loader2, ChevronDown, ChevronUp, Pencil, Trash2, PauseCircle, PlayCircle, AlertTriangle, Eye, CalendarDays, BarChart3, Share2, ArrowDownWideNarrow, Building2 } from "lucide-react";
 import { matchJob, MATCH_DISCLAIMER, type MatchResult } from "../../lib/matching";
 import { PIPELINE } from "../../lib/ats";
 import { atsService } from "../../services/ats.service";
@@ -265,7 +265,14 @@ export default function DashboardCompany() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 -mt-4 mb-10 sm:mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 -mt-4 mb-10 sm:mb-12">
+            <Link to="/rh" className="flex items-center gap-4 p-5 sm:p-6 rounded-2xl bg-white border-2 border-[#E4220F]/30 hover:border-[#E4220F] transition-colors sm:col-span-2 lg:col-span-1">
+              <span className="h-12 w-12 rounded-xl bg-[#E4220F]/10 text-[#E4220F] flex items-center justify-center shrink-0"><Building2 className="h-6 w-6" /></span>
+              <span>
+                <span className="flex items-center gap-2 text-lg font-bold">ProJob+ RH {!can("sirh") && <span className="inline-flex items-center rounded-full bg-[#E4220F]/10 text-[#E4220F] px-2 py-0.5 text-[11px] font-bold">Nouveau</span>}</span>
+                <span className="block text-sm text-slate-600">Employés, contrats, congés</span>
+              </span>
+            </Link>
             <Link to="/company/interviews" className="flex items-center gap-4 p-5 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 hover:border-violet-400 transition-colors">
               <span className="h-12 w-12 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><CalendarDays className="h-6 w-6" /></span>
               <span>

@@ -24,6 +24,13 @@ import CompanyStats from "./pages/CompanyStats";
 import CVAdapt from "./pages/CVAdapt";
 import Subscription from "./pages/Subscription";
 import PaymentReturn from "./pages/PaymentReturn";
+import HrDashboard from "./pages/rh/HrDashboard";
+import HrEmployees from "./pages/rh/HrEmployees";
+import HrEmployeeDetail from "./pages/rh/HrEmployeeDetail";
+import HrLeaves from "./pages/rh/HrLeaves";
+import HrOrgChart from "./pages/rh/HrOrgChart";
+import HrSettings from "./pages/rh/HrSettings";
+import MyHrSpace from "./pages/rh/MyHrSpace";
 import { PremiumPage } from "./components/PremiumGate";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
@@ -141,6 +148,14 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      // ProJob+ RH : le rôle (entreprise, gestionnaire RH, employé) est contrôlé dans les pages et dans la base
+      { path: "/rh", element: <ProtectedRoute><HrDashboard /></ProtectedRoute> },
+      { path: "/rh/employes", element: <ProtectedRoute><HrEmployees /></ProtectedRoute> },
+      { path: "/rh/employes/:id", element: <ProtectedRoute><HrEmployeeDetail /></ProtectedRoute> },
+      { path: "/rh/conges", element: <ProtectedRoute><HrLeaves /></ProtectedRoute> },
+      { path: "/rh/organigramme", element: <ProtectedRoute><HrOrgChart /></ProtectedRoute> },
+      { path: "/rh/parametres", element: <ProtectedRoute><HrSettings /></ProtectedRoute> },
+      { path: "/mon-espace-rh", element: <ProtectedRoute><MyHrSpace /></ProtectedRoute> },
       {
         path: "/abonnement",
         element: (

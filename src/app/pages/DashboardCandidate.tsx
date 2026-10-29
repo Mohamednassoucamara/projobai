@@ -10,6 +10,7 @@ import { matchJob, hasMatchableCV } from "../../lib/matching";
 import DashboardHeader from "../components/DashboardHeader";
 import Footer from "../components/Footer";
 import CandidateInterviews from "../components/CandidateInterviews";
+import EmployeeSpaceBanner from "../components/EmployeeSpaceBanner";
 import { PremiumBadge } from "../components/PremiumGate";
 import { usePlan } from "../contexts/PlanContext";
 import CandidateApplicationItem, { type CandidateApplicationData } from "../components/CandidateApplicationItem";
@@ -149,6 +150,8 @@ export default function DashboardCandidate() {
               </div>
             </div>
           </motion.div>
+
+          <EmployeeSpaceBanner />
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mb-12 sm:mb-16">

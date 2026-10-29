@@ -12,6 +12,7 @@ import { usePlan } from "../contexts/PlanContext";
 import InterviewForm, { type InterviewDraft } from "../components/InterviewForm";
 import InterviewEvaluationForm from "../components/InterviewEvaluationForm";
 import { DocumentLink } from "../components/CompanyApplicationItem";
+import HireCard from "../components/HireCard";
 import { matchJob } from "../../lib/matching";
 import {
   PIPELINE, STATUS_LABELS, STATUS_STYLES, STAGE_RANK, SOURCES, MODE_LABELS, formatWhen, downloadIcs, googleCalendarLink,
@@ -463,6 +464,7 @@ export default function ApplicationDossier() {
           </div>
 
           <aside className="lg:col-span-2 space-y-6">
+            <HireCard applicationId={app.id} candidateName={name} status={app.status} onHired={() => setApp({ ...app, status: "accepted" })} />
             {!can("ai_ranking") ? (
               <PremiumUpsell feature="ai_ranking" compact description="l'IA lit le CV du candidat, calcule son score et l'explique critère par critère" />
             ) : (<>

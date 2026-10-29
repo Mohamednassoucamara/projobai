@@ -28,7 +28,7 @@ export default function DashboardHeader() {
   const planLabel = !entitlements
     ? null
     : entitlements.source === "abonnement"
-      ? "Premium"
+      ? entitlements.plan_name
       : entitlements.source === "essai"
         ? `Essai · ${left} j`
         : "Passer au Premium";

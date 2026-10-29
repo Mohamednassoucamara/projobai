@@ -9,7 +9,8 @@ export type Period = "month" | "year";
 
 export type Feature =
   | "ai_cv" | "career_coach" | "interview_coach"
-  | "interviews" | "hr_stats" | "share_links" | "ats_history" | "ai_ranking";
+  | "interviews" | "hr_stats" | "share_links" | "ats_history" | "ai_ranking"
+  | "sirh";
 
 export const FEATURE_LABELS: Record<Feature, string> = {
   ai_cv: "CV optimisé par l'IA",
@@ -20,7 +21,15 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   share_links: "Partage des offres avec suivi des sources",
   ats_history: "Historique et commentaires internes",
   ai_ranking: "Extraction IA des CV et classement des profils",
+  sirh: "ProJob+ : gestion RH",
 };
+
+/** Formule la moins chère qui débloque la fonctionnalité. */
+export function planForFeature(feature: Feature, plans: Plan[] = DEFAULT_PLANS): Plan | undefined {
+  return plans
+    .filter((p) => p.price_month_gnf > 0 && p.features.includes(feature))
+    .sort((a, b) => a.rank - b.rank)[0];
+}
 
 export interface Plan {
   id: string;
@@ -64,6 +73,11 @@ export const DEFAULT_PLANS: Plan[] = [
     id: "entreprise_premium", audience: "company", name: "Premium", tagline: "Pour recruter mieux et plus vite",
     price_month_gnf: 50000, price_year_gnf: 500000, rank: 10, features: ["interviews", "hr_stats", "share_links", "ats_history", "ai_ranking"],
     perks: ["Tout le Gratuit", "IA : extraction des CV et classement des meilleurs profils", "Entretiens : planification, agenda, évaluation", "Statistiques RH", "Partage des offres (WhatsApp, Facebook, LinkedIn…) avec suivi des sources", "Historique et commentaires internes"],
+  },
+  {
+    id: "entreprise_plus", audience: "company", name: "ProJob+", tagline: "Recrutement et gestion RH dans un seul outil",
+    price_month_gnf: 150000, price_year_gnf: 1500000, rank: 20, features: ["interviews", "hr_stats", "share_links", "ats_history", "ai_ranking", "sirh"],
+    perks: ["Tout le Premium", "Dossiers employés et contrats", "Organigramme par service", "Congés et absences avec validation en deux niveaux", "Espace employé et demandes par WhatsApp", "Embauche en un clic depuis une candidature", "Jusqu'à 10 employés inclus (au-delà : nous contacter)"],
   },
 ];
 

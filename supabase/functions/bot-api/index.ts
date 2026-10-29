@@ -171,6 +171,62 @@ async function plan(db: SupabaseClient, userId: string) {
 
 // ---------------------------------------------------------------------------
 
+
+// ---------------------------------------------------------------------------
+// ProJob+ RH (congés) : fonctions SQL hr_bot_* (mêmes règles que le site)
+
+const HR_STATUS_FR: Record<string, string> = {
+  en_attente: "En attente du responsable", validee_responsable: "En attente des RH",
+  approuvee: "Approuvé", refusee: "Refusé", annulee: "Annulé",
+};
+const HR_ERRORS: Record<string, string> = {
+  not_allowed: "Action non autorisée pour ce compte.",
+  sirh_disabled: "L'espace RH ProJob+ de l'entreprise n'est pas actif.",
+  employee_not_found: "Aucune fiche employé reliée à ce compte dans cette entreprise.",
+  employee_left: "Cette fiche employé est clôturée.",
+  leave_type_not_found: "Type de congé inconnu : utiliser un code de leave_types (ex. annuel, maladie).",
+  invalid_dates: "La date de fin doit être après la date de début.",
+  too_long: "Une demande ne peut pas dépasser un an.",
+  too_old: "Congé passé de plus de 60 jours : il faut contacter les RH.",
+  no_working_day: "Aucun jour ouvré sur cette période (week-end ou jours fériés).",
+  overlap: "Une autre demande couvre déjà une partie de ces dates.",
+  request_not_found: "Demande introuvable.",
+  already_closed: "Cette demande est déjà clôturée.",
+};
+function hrError(e: unknown): never {
+  const msg = (e as { message?: string })?.message || String(e);
+  const bal = msg.match(/insufficient_balance:([-\d.]+)/);
+  if (bal) throw new BotError("insufficient_balance", `Solde insuffisant : ${Number(bal[1])} jour(s) disponible(s).`);
+  for (const [code, text] of Object.entries(HR_ERRORS)) if (msg.includes(code)) throw new BotError(code, text);
+  throw e;
+}
+const isoDate = (v: unknown) => {
+  const s = String(v ?? "").trim();
+  const fr = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/);
+  const d = fr ? `${fr[3]}-${fr[2].padStart(2, "0")}-${fr[1].padStart(2, "0")}` : s.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || Number.isNaN(Date.parse(d))) throw new BotError("invalid_date", "Date invalide : utiliser le format AAAA-MM-JJ.");
+  return d;
+};
+async function hrWorkspaces(db: SupabaseClient, userId: string) {
+  const { data, error } = await db.rpc("hr_bot_summary", { p_user: userId });
+  if (error) {
+    if (/hr_bot_summary/.test(error.message)) throw new BotError("hr_unavailable", "ProJob+ RH n'est pas encore installé.", 503);
+    throw error;
+  }
+  return (data || []) as { company_id: string; company_name: string; role: string; leave_types: { code: string; name: string }[] }[];
+}
+async function pickCompany(db: SupabaseClient, userId: string, wanted: unknown) {
+  const list = await hrWorkspaces(db, userId);
+  if (!list.length) throw new BotError("no_company", "Ce compte n'est relié à aucune entreprise ProJob+.", 404);
+  const w = String(wanted || "").trim();
+  if (w) {
+    const hit = list.find((x) => x.company_id === w || x.company_name.toLowerCase() === w.toLowerCase());
+    if (hit) return hit;
+  }
+  if (list.length > 1) throw new BotError("choose_company", `Préciser l'entreprise (company_id) : ${list.map((x) => `${x.company_name} = ${x.company_id}`).join(" ; ")}.`);
+  return list[0];
+}
+
 const handlers: Record<string, (db: SupabaseClient, b: Body, phone: string) => Promise<unknown>> = {
   /** Qui écrit ? Compte relié, formule, CV complet ou non. */
   async status(db, _b, phone) {
@@ -355,6 +411,58 @@ const handlers: Record<string, (db: SupabaseClient, b: Body, phone: string) => P
     });
     if (error) throw new BotError("apply_failed", "La candidature n'a pas pu être envoyée : " + error.message, 500);
     return { applied: true, job: job.title, company: (job as any).company_profiles?.company_name, track_url: `${SITE}/dashboard#mes-candidatures` };
+  },
+
+  /** ProJob+ : soldes de congés, demandes en cours, demandes de l'équipe à valider. */
+  async hr_summary(db, _b, phone) {
+    const u = await linkedUser(db, phone);
+    if (!u) throw new BotError("not_linked", "Ce numéro n'est pas encore relié à un compte ProJob.", 401);
+    const list = await hrWorkspaces(db, u.id);
+    if (!list.length) return { companies: [], message: "Aucune entreprise ProJob+ reliée à ce compte. L'entreprise doit créer la fiche employé avec l'e-mail de ce compte." };
+    const fr = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("fr-FR");
+    return {
+      companies: (list as Record<string, any>[]).map((w) => ({
+        ...w,
+        my_requests: (w.my_requests || []).map((r: Record<string, any>) => ({ ...r, status: HR_STATUS_FR[r.status] || r.status, period: r.start === r.end ? fr(r.start) : `${fr(r.start)} → ${fr(r.end)}` })),
+        to_decide: (w.to_decide || []).map((r: Record<string, any>) => ({ ...r, status: HR_STATUS_FR[r.status] || r.status, period: r.start === r.end ? fr(r.start) : `${fr(r.start)} → ${fr(r.end)}` })),
+      })),
+      web_url: `${SITE}/mon-espace-rh`,
+    };
+  },
+
+  /** ProJob+ : demande de congé de l'employé (passe par son responsable puis les RH). */
+  async hr_request_leave(db, b, phone) {
+    const u = await linkedUser(db, phone);
+    if (!u) throw new BotError("not_linked", "Ce numéro n'est pas encore relié à un compte ProJob.", 401);
+    const w = await pickCompany(db, u.id, b.company_id);
+    const start = isoDate(b.start_date), end = isoDate(b.end_date || b.start_date);
+    const { data, error } = await db.rpc("hr_bot_request_leave", {
+      p_user: u.id, p_company: w.company_id, p_type_code: str(b.leave_type || "annuel", 60), p_start: start, p_end: end, p_reason: str(b.reason, 500) || null,
+    });
+    if (error) hrError(error);
+    const r = data as { id: string; status: string; days: number };
+    return { request_id: r.id, days: r.days, status: HR_STATUS_FR[r.status] || r.status, company: w.company_name,
+      next: r.status === "en_attente" ? "Le responsable direct a été prévenu." : "Les RH ont été prévenus." };
+  },
+
+  /** ProJob+ : décision d'un responsable ou des RH sur une demande (request_id venant de hr_summary.to_decide). */
+  async hr_decide(db, b, phone) {
+    const u = await linkedUser(db, phone);
+    if (!u) throw new BotError("not_linked", "Ce numéro n'est pas encore relié à un compte ProJob.", 401);
+    const approve = b.approve === true || b.approve === "true" || b.decision === "approve";
+    const { data, error } = await db.rpc("hr_bot_decide", { p_user: u.id, p_request: str(b.request_id, 40), p_approve: approve, p_note: str(b.note, 300) || null });
+    if (error) hrError(error);
+    const r = data as { status: string };
+    return { status: HR_STATUS_FR[r.status] || r.status };
+  },
+
+  /** ProJob+ : annulation d'une demande par l'employé. */
+  async hr_cancel(db, b, phone) {
+    const u = await linkedUser(db, phone);
+    if (!u) throw new BotError("not_linked", "Ce numéro n'est pas encore relié à un compte ProJob.", 401);
+    const { error } = await db.rpc("hr_bot_cancel", { p_user: u.id, p_request: str(b.request_id, 40) });
+    if (error) hrError(error);
+    return { status: HR_STATUS_FR.annulee };
   },
 
   async my_applications(db, _b, phone) {

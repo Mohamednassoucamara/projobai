@@ -42,7 +42,15 @@ export default function Subscription() {
   }, [refresh]);
 
   const audience = user?.type === "company" ? "company" : "candidate";
-  const premium = useMemo(() => plans.find((p) => p.audience === audience && p.price_month_gnf > 0), [plans, audience]);
+  const paidPlans = useMemo(
+    () => plans.filter((p) => p.audience === audience && p.price_month_gnf > 0).sort((a, b) => a.rank - b.rank),
+    [plans, audience],
+  );
+  const [planId, setPlanId] = useState<string | null>(params.get("formule"));
+  const premium = useMemo(
+    () => paidPlans.find((p) => p.id === planId) || paidPlans.find((p) => p.id === entitlements?.plan_id) || paidPlans[0],
+    [paidPlans, planId, entitlements?.plan_id],
+  );
   const cancelled = params.get("annule");
 
   if (!premium) return null;
@@ -91,7 +99,7 @@ export default function Subscription() {
               <>
                 <p className="mt-2 text-3xl font-bold text-slate-900 flex items-center gap-2">
                   {source !== "gratuit" && <Crown className="h-7 w-7 text-amber-500" />}
-                  {source === "essai" ? "Essai Premium" : entitlements.plan_name}
+                  {source === "essai" ? `Essai ${entitlements.plan_name}` : entitlements.plan_name}
                 </p>
                 {source === "essai" && left !== null && (
                   <p className="mt-2 text-slate-700">Il vous reste <span className="font-bold">{left} jour{left > 1 ? "s" : ""}</span> d&apos;essai gratuit (jusqu&apos;au {fmtDate(entitlements.ends_at!)}).</p>
@@ -115,11 +123,30 @@ export default function Subscription() {
           {/* Paiement */}
           <section className="lg:col-span-3 bg-white rounded-3xl border-2 border-[#E4220F]/30 p-6 sm:p-8 shadow-xl shadow-[#E4220F]/5">
             <h2 className="text-xl font-bold text-slate-900">
-              {source === "abonnement" ? "Prolonger mon Premium" : "Passer au Premium"}
+              {source === "abonnement" && entitlements?.plan_id === premium.id ? `Prolonger ${premium.name}` : premium.name === "Premium" ? "Passer au Premium" : `Passer à ${premium.name}`}
             </h2>
-            {source === "abonnement" && <p className="text-sm text-slate-600 mt-1">La durée payée s&apos;ajoute à la date de fin actuelle.</p>}
+            {source === "abonnement" && entitlements?.plan_id === premium.id && <p className="text-sm text-slate-600 mt-1">La durée payée s&apos;ajoute à la date de fin actuelle.</p>}
 
             <form onSubmit={pay} className="mt-6 space-y-5">
+              {paidPlans.length > 1 && (
+                <fieldset>
+                  <legend className="text-sm font-semibold text-slate-700 mb-2">Formule</legend>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {paidPlans.map((p) => {
+                      const on = p.id === premium.id;
+                      return (
+                        <label key={p.id} className={`cursor-pointer rounded-2xl border-2 p-4 ${on ? "border-[#050FA0] bg-[#050FA0]/5" : "border-slate-200 hover:border-slate-300"}`}>
+                          <input type="radio" name="plan" value={p.id} checked={on} onChange={() => setPlanId(p.id)} className="sr-only" />
+                          <span className="block font-bold text-slate-900">{p.name}</span>
+                          <span className="block text-sm text-slate-600">{p.tagline}</span>
+                          <span className="block text-sm font-semibold text-slate-900 mt-1 tabular-nums">{gnf(p.price_month_gnf)} / mois</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+
               <fieldset>
                 <legend className="text-sm font-semibold text-slate-700 mb-2">Durée</legend>
                 <div className="grid sm:grid-cols-2 gap-3">
