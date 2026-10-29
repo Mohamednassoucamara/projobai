@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Home, LogOut } from "lucide-react";
+import { Home, LogOut, Building2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import AppLogo from "./AppLogo";
 import NotificationBell from "./NotificationBell";
@@ -50,6 +50,15 @@ export default function DashboardHeader() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {isCompany && (
+              <Link
+                to="/rh"
+                title="ProJob+ : gestion RH"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border-2 border-[#050FA0] text-[#050FA0] hover:bg-[#050FA0] hover:text-white transition-colors"
+              >
+                <Building2 className="h-3.5 w-3.5" /> <span>ProJob+</span>
+              </Link>
+            )}
             {planLabel && (
               <Link
                 to="/abonnement"
