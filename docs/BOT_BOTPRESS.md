@@ -38,7 +38,7 @@ Botpress Studio → **Bot Settings** (roue dentée) → **Configuration variable
 Studio → **Actions** → **Create Action**. Nom : `projob`.
 Description :
 
-> Accès aux données ProJob AI de la personne qui écrit : compte, offres d'emploi, CV, candidatures.
+> Accès aux données ProJob AI de la personne qui écrit : compte, offres d'emploi, CV, candidatures, congés et bulletins de paie ProJob+.
 
 ### Input Schema
 
@@ -48,7 +48,7 @@ z.object({
     "status", "link_start", "link_verify", "unlink",
     "search_jobs", "job", "get_cv", "save_cv", "cv_pdf",
     "apply", "my_applications",
-    "hr_summary", "hr_request_leave", "hr_decide", "hr_cancel",
+    "hr_summary", "hr_request_leave", "hr_decide", "hr_cancel", "hr_payslip",
   ]).describe("Opération ProJob à effectuer"),
   query: z.string().optional().describe("search_jobs : métier ou mots-clés, ex. comptable"),
   location: z.string().optional().describe("search_jobs : ville, ex. Conakry"),
@@ -65,6 +65,7 @@ z.object({
   request_id: z.string().optional().describe("hr_decide / hr_cancel : identifiant de la demande (request_id de hr_summary)"),
   approve: z.boolean().optional().describe("hr_decide : true pour approuver, false pour refuser"),
   note: z.string().optional().describe("hr_decide : motif du refus ou commentaire"),
+  period: z.string().optional().describe("hr_payslip : mois du bulletin, ex. octobre 2026 ou 2026-10 (vide = dernier bulletin)"),
   cv_json: z.string().optional().describe(
     "save_cv : JSON des champs à enregistrer : fullName, jobTitle, phone, email, location, profile, " +
     "experiences [{title, company, period, description[]}], education [{degree, institution, period}], " +
@@ -100,7 +101,7 @@ if (!phone) {
 
 const body = { action: input.action, phone }
 for (const k of ['query', 'location', 'job_id', 'email', 'full_name', 'code', 'message',
-                 'company_id', 'leave_type', 'start_date', 'end_date', 'reason', 'request_id', 'note']) {
+                 'company_id', 'leave_type', 'start_date', 'end_date', 'reason', 'request_id', 'note', 'period']) {
   if (input[k]) body[k] = input[k]
 }
 if (typeof input.approve === 'boolean') body.approve = input.approve
@@ -123,15 +124,15 @@ if (res.status >= 400 || out.ok === false) {
 }
 const data = out.data !== undefined ? out.data : out
 
-// CV : on envoie le PDF directement comme document WhatsApp
-if (input.action === 'cv_pdf' && data && data.pdf_url) {
+// CV et bulletin de paie : on envoie le PDF directement comme document WhatsApp
+if ((input.action === 'cv_pdf' || input.action === 'hr_payslip') && data && data.pdf_url) {
   try {
     await client.createMessage({
       conversationId: event.conversationId,
       userId: event.botId,
       tags: {},
       type: 'file',
-      payload: { fileUrl: data.pdf_url, title: data.file_name || 'CV.pdf' },
+      payload: { fileUrl: data.pdf_url, title: data.file_name || 'Document.pdf' },
     })
     data.sent_as_file = true
   } catch (e) {
@@ -206,7 +207,7 @@ un statut ou un lien. Si l'action renvoie ok=false, explique le message simpleme
   tu peux donner des conseils d'entretien et d'orientation.
 - Sinon, propose l'abonnement : https://projobai.com/abonnement
 
-7. CONGÉS (ProJob+ RH, pour les employés d'une entreprise cliente)
+7. CONGÉS ET BULLETINS DE PAIE (ProJob+ RH, pour les employés d'une entreprise cliente)
 - « mon solde », « je veux un congé », « mes congés » : appelle projob action=hr_summary.
   Si companies est vide : la personne n'est reliée à aucune entreprise ProJob+ ; elle doit demander à ses RH de créer sa fiche avec l'e-mail de son compte.
 - Pour une demande : récupère le type (code dans leave_types), la date de début et la date de fin (format AAAA-MM-JJ ; aujourd'hui = date du jour), le motif.
@@ -215,6 +216,11 @@ un statut ou un lien. Si l'action renvoie ok=false, explique le message simpleme
 - Responsable ou RH : présente to_decide (employé, type, période, jours, motif) et demande « Valider » ou « Refuser » pour chacune.
   Appelle projob action=hr_decide avec request_id et approve=true/false (note si refus).
 - Annulation : projob action=hr_cancel avec request_id, après confirmation.
+- « mon bulletin », « ma fiche de paie », « mon salaire d'octobre » : appelle projob action=hr_payslip
+  (period = le mois demandé, vide pour le dernier). Si sent_as_file=true, le PDF est déjà envoyé :
+  résume en une ligne (mois, net à payer) sans lister les autres montants sauf si on te les demande.
+  Sinon, donne le lien pdf_url (valable 7 jours). available_periods liste les autres mois disponibles.
+  Ne donne jamais le bulletin d'une autre personne.
 - Le détail complet est sur https://projobai.com/mon-espace-rh
 
 8. AUTRES

@@ -13,6 +13,7 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { buildCvPdf } from "../_shared/cv/cvPdf.ts";
 import type { CVData } from "../_shared/cv/types.ts";
 import { matchJob, hasMatchableCV } from "../_shared/matching.ts";
+import { drawPayslips, monthLabel, money, type PayslipPdfData } from "../_shared/payslipPdf.ts";
 
 const SITE = (Deno.env.get("SITE_URL") || "https://projobai.com").replace(/\/$/, "");
 const FROM = Deno.env.get("NOTIFY_FROM") || "ProJob AI <notifications@projobai.com>";
@@ -225,6 +226,25 @@ async function pickCompany(db: SupabaseClient, userId: string, wanted: unknown) 
   }
   if (list.length > 1) throw new BotError("choose_company", `Préciser l'entreprise (company_id) : ${list.map((x) => `${x.company_name} = ${x.company_id}`).join(" ; ")}.`);
   return list[0];
+}
+
+
+const MONTHS_FR = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
+/** « 2026-10 », « 10/2026 », « octobre 2026 », « octobre » → « 2026-10 » (année en cours ou précédente par défaut). */
+function parsePeriod(v: unknown): string | null {
+  const s = String(v ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  if (!s) return null;
+  let m = s.match(/^(\d{4})-(\d{1,2})/);
+  if (m) return `${m[1]}-${m[2].padStart(2, "0")}`;
+  m = s.match(/^(\d{1,2})[/.-](\d{4})$/);
+  if (m) return `${m[2]}-${m[1].padStart(2, "0")}`;
+  const idx = MONTHS_FR.findIndex((name) => s.includes(name));
+  if (idx < 0) throw new BotError("invalid_period", "Mois invalide : utiliser par exemple « octobre 2026 » ou 2026-10.");
+  const y = s.match(/\d{4}/)?.[0];
+  if (y) return `${y}-${String(idx + 1).padStart(2, "0")}`;
+  const now = new Date();
+  const year = idx > now.getMonth() ? now.getFullYear() - 1 : now.getFullYear();
+  return `${year}-${String(idx + 1).padStart(2, "0")}`;
 }
 
 const handlers: Record<string, (db: SupabaseClient, b: Body, phone: string) => Promise<unknown>> = {
@@ -463,6 +483,45 @@ const handlers: Record<string, (db: SupabaseClient, b: Body, phone: string) => P
     const { error } = await db.rpc("hr_bot_cancel", { p_user: u.id, p_request: str(b.request_id, 40) });
     if (error) hrError(error);
     return { status: HR_STATUS_FR.annulee };
+  },
+
+  /** ProJob+ : bulletin de paie de l'employé (paies clôturées), envoyé en PDF. period facultatif (dernier par défaut). */
+  async hr_payslip(db, b, phone) {
+    const u = await linkedUser(db, phone);
+    if (!u) throw new BotError("not_linked", "Ce numéro n'est pas encore relié à un compte ProJob.", 401);
+    const w = await pickCompany(db, u.id, b.company_id);
+    const { data: emp } = await db.from("hr_employees").select("id").eq("company_id", w.company_id).eq("user_id", u.id).maybeSingle();
+    if (!emp) throw new BotError("employee_not_found", HR_ERRORS.employee_not_found, 404);
+    const { data: rows, error } = await db.from("payslips")
+      .select("*, payroll_runs!inner(period, status, settings)")
+      .eq("employee_id", emp.id).eq("payroll_runs.status", "cloturee");
+    if (error) {
+      if (/payslips|payroll_runs/.test(error.message)) throw new BotError("payroll_unavailable", "La paie ProJob+ n'est pas encore installée.", 503);
+      throw error;
+    }
+    const list = ((rows || []) as Record<string, any>[]).sort((a, b2) => String(b2.payroll_runs.period).localeCompare(String(a.payroll_runs.period)));
+    if (!list.length) throw new BotError("no_payslip", "Aucun bulletin de paie disponible pour l'instant (il apparaît quand les RH clôturent la paie du mois).", 404);
+    const wanted = parsePeriod(b.period);
+    const slip = wanted ? list.find((r) => String(r.payroll_runs.period).startsWith(wanted)) : list[0];
+    const available = list.slice(0, 12).map((r) => monthLabel(r.payroll_runs.period));
+    if (!slip) throw new BotError("payslip_not_found", `Pas de bulletin pour ce mois. Bulletins disponibles : ${available.join(", ")}.`, 404);
+
+    const period = String(slip.payroll_runs.period);
+    const mod = await import("npm:jspdf@4.2.1");
+    const pdf = new mod.jsPDF({ unit: "mm", format: "a4", compress: true });
+    drawPayslips(pdf, { name: w.company_name }, period, [slip as unknown as PayslipPdfData], slip.payroll_runs.settings);
+    const path = `${u.id}/bulletins/${w.company_id}/${period.slice(0, 7)}-${Date.now()}.pdf`;
+    const up = await db.storage.from("cvs").upload(path, new Uint8Array(pdf.output("arraybuffer")), { contentType: "application/pdf", upsert: true });
+    if (up.error) throw new BotError("storage_error", "Le PDF n'a pas pu être préparé.", 500);
+    const { data: signed } = await db.storage.from("cvs").createSignedUrl(path, 7 * 86400);
+    return {
+      company: w.company_name,
+      period: monthLabel(period),
+      gross: money(slip.gross), cnss: money(slip.cnss_employee), rts: money(slip.rts),
+      deductions: money(slip.deductions_total), net: money(slip.net),
+      pdf_url: signed?.signedUrl, file_name: `Bulletin_${period.slice(0, 7)}.pdf`, expires_in_days: 7,
+      available_periods: available, web_url: `${SITE}/mon-espace-rh`,
+    };
   },
 
   async my_applications(db, _b, phone) {

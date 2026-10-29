@@ -102,3 +102,30 @@ git push origin main
 5. Seul le compte entreprise peut **rouvrir** une paie clôturée.
 
 À faire valider par un comptable guinéen avant la commercialisation.
+
+## 5. Bulletins sur WhatsApp
+
+L'employé écrit au bot « mon bulletin » (ou « ma fiche de paie d'octobre ») : le bot lui envoie
+son bulletin en PDF, directement dans WhatsApp. Seuls ses propres bulletins de paies clôturées
+sont accessibles. Action `hr_payslip` de `bot-api` (voir `docs/BOT_BOTPRESS.md`).
+
+Mise en service :
+
+```bash
+npx supabase functions deploy bot-api --no-verify-jwt
+```
+
+Puis publier le bot dans Botpress Studio.
+
+### Envoi automatique à la clôture (à venir)
+
+WhatsApp n'autorise un message à l'initiative de l'entreprise que via un **modèle approuvé par Meta**.
+Modèle à créer dans WhatsApp Manager → Modèles de message :
+
+- Nom : `bulletin_disponible` · Catégorie : **Utilité** · Langue : français
+- Corps : `Bonjour {{1}}, votre bulletin de paie de {{2}} chez {{3}} est disponible. Répondez « mon bulletin » pour le recevoir ici en PDF.`
+- Exemple : `Fatou` · `octobre 2026` · `Kaloum Distribution`
+- Bouton de réponse rapide : `Mon bulletin`
+
+Une fois le modèle approuvé, la clôture de la paie pourra déclencher ce message pour chaque employé
+dont le numéro WhatsApp est relié à son compte.
