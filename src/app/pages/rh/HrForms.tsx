@@ -38,6 +38,9 @@ export function EmployeeForm({
     exit_reason: initial?.exit_reason || "",
     emergency_contact: initial?.emergency_contact || "",
     notes: initial?.notes || "",
+    cnss_number: initial?.cnss_number || "",
+    payment_method: initial?.payment_method || "",
+    payment_account: initial?.payment_account || "",
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -69,6 +72,10 @@ export function EmployeeForm({
       exit_reason: f.status === "sorti" ? clean(f.exit_reason) : null,
       emergency_contact: clean(f.emergency_contact),
       notes: clean(f.notes),
+      // Champs de paie (migration 015) : envoyés seulement s'ils existent déjà ou sont remplis
+      ...((initial && "cnss_number" in initial) || f.cnss_number || f.payment_method || f.payment_account
+        ? { cnss_number: clean(f.cnss_number), payment_method: clean(f.payment_method), payment_account: clean(f.payment_account) }
+        : {}),
     };
     try {
       const saved = initial ? await hr.updateEmployee(initial.id, row) : await hr.createEmployee({ ...row, company_id: companyId });
@@ -136,6 +143,14 @@ export function EmployeeForm({
       <fieldset className="grid sm:grid-cols-2 gap-4 border-t pt-5">
         <legend className="sr-only">Autres informations</legend>
         <Label text="Personne à prévenir"><input value={f.emergency_contact} onChange={set("emergency_contact")} className={field} placeholder="Nom, lien, téléphone" /></Label>
+        <Label text="N° CNSS de l'employé"><input value={f.cnss_number} onChange={set("cnss_number")} className={field} /></Label>
+        <Label text="Mode de paiement du salaire">
+          <select value={f.payment_method} onChange={set("payment_method")} className={field}>
+            <option value="">—</option>
+            {["Virement bancaire", "Orange Money", "MTN Mobile Money", "Chèque", "Espèces"].map((m) => <option key={m}>{m}</option>)}
+          </select>
+        </Label>
+        <Label text="Compte ou numéro de paiement" hint="RIB, ou numéro Orange Money / MTN"><input value={f.payment_account} onChange={set("payment_account")} className={field} /></Label>
         <div className="sm:col-span-2"><Label text="Notes internes"><textarea value={f.notes} onChange={set("notes")} rows={3} className={field} /></Label></div>
       </fieldset>
 

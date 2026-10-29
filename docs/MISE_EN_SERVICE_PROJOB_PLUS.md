@@ -59,3 +59,46 @@ candidat ProJob, que le compte existe déjà ou qu'il soit créé plus tard.
 
 Actions ajoutées à `bot-api` : `hr_summary`, `hr_request_leave`, `hr_decide`, `hr_cancel`.
 Botpress : voir `docs/BOT_BOTPRESS.md` (schéma de l'action `projob` et section 7 des instructions).
+
+---
+
+# Étape 2 : la paie
+
+Onglet **Paie** (`/rh/paie`) : une paie par mois, un bulletin par employé actif, états CNSS et RTS,
+bulletins PDF, et bulletins consultables par l'employé dans `/mon-espace-rh` après la clôture.
+
+## 1. Base de données
+
+Supabase → SQL Editor : exécuter `supabase/migrations/015_projob_plus_paie.sql` (après la 014).
+Le script peut être relancé sans risque. Il ajoute la fonctionnalité `payroll` à la formule ProJob+.
+
+## 2. Site
+
+```bash
+git push origin main
+```
+
+## 3. Paramètres par défaut (modifiables dans Paie → Paramètres de paie)
+
+| Élément | Valeur |
+|---|---|
+| CNSS part salariale | 5 % |
+| CNSS part patronale | 18 % |
+| Assiette CNSS | plancher 550 000 GNF (SMIG), plafond 2 500 000 GNF |
+| RTS (barème mensuel) | 0 % jusqu'à 1 M · 5 % jusqu'à 5 M · 10 % jusqu'à 10 M · 15 % jusqu'à 20 M · 20 % au-delà |
+| Base imposable RTS | brut imposable − part salariale CNSS |
+| Taxe d'apprentissage | 2 % du brut (employeur) |
+| Heures supplémentaires | +15 % semaine, +25 % dimanche et nuit, +50 % jour férié ; base 173,33 h/mois |
+
+## 4. Déroulement d'une paie
+
+1. **Préparer la paie** : un bulletin par employé actif, avec le salaire du contrat en cours et les
+   jours de congé sans solde approuvés du mois.
+2. Ouvrir chaque bulletin pour ajouter primes (imposables ou non, soumises CNSS ou non), heures
+   supplémentaires, absences et retenues (avances, prêts). Les montants sont recalculés par la base.
+3. **Clôturer** : bloquée si un salaire de base est à 0 ou si un net est négatif. Les taux sont figés
+   et les employés reliés à leur compte sont prévenus.
+4. Télécharger les bulletins PDF, le livre de paie, l'état CNSS et l'état RTS (CSV pour Excel).
+5. Seul le compte entreprise peut **rouvrir** une paie clôturée.
+
+À faire valider par un comptable guinéen avant la commercialisation.

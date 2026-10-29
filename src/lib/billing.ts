@@ -10,7 +10,7 @@ export type Period = "month" | "year";
 export type Feature =
   | "ai_cv" | "career_coach" | "interview_coach"
   | "interviews" | "hr_stats" | "share_links" | "ats_history" | "ai_ranking"
-  | "sirh";
+  | "sirh" | "payroll";
 
 export const FEATURE_LABELS: Record<Feature, string> = {
   ai_cv: "CV optimisé par l'IA",
@@ -22,6 +22,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   ats_history: "Historique et commentaires internes",
   ai_ranking: "Extraction IA des CV et classement des profils",
   sirh: "ProJob+ : gestion RH",
+  payroll: "ProJob+ : paie",
 };
 
 /** Formule la moins chère qui débloque la fonctionnalité. */
@@ -76,8 +77,8 @@ export const DEFAULT_PLANS: Plan[] = [
   },
   {
     id: "entreprise_plus", audience: "company", name: "ProJob+", tagline: "Recrutement et gestion RH dans un seul outil",
-    price_month_gnf: 150000, price_year_gnf: 1500000, rank: 20, features: ["interviews", "hr_stats", "share_links", "ats_history", "ai_ranking", "sirh"],
-    perks: ["Tout le Premium", "Dossiers employés et contrats", "Organigramme par service", "Congés et absences avec validation en deux niveaux", "Espace employé et demandes par WhatsApp", "Embauche en un clic depuis une candidature", "Jusqu'à 10 employés inclus (au-delà : nous contacter)"],
+    price_month_gnf: 150000, price_year_gnf: 1500000, rank: 20, features: ["interviews", "hr_stats", "share_links", "ats_history", "ai_ranking", "sirh", "payroll"],
+    perks: ["Tout le Premium", "Dossiers employés et contrats", "Organigramme par service", "Congés et absences avec validation en deux niveaux", "Espace employé et demandes par WhatsApp", "Embauche en un clic depuis une candidature", "Paie : bulletins, CNSS, retenue sur salaire, états mensuels", "Jusqu'à 10 employés inclus (au-delà : nous contacter)"],
   },
 ];
 

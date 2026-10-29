@@ -42,6 +42,9 @@ export interface Employee {
   exit_reason: string | null;
   emergency_contact: string | null;
   notes: string | null;
+  cnss_number?: string | null;
+  payment_method?: string | null;
+  payment_account?: string | null;
   created_at: string;
 }
 

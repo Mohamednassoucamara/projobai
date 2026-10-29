@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Loader2, CalendarPlus, Briefcase, Building2, Users, MessageCircle, ArrowRight, Inbox } from "lucide-react";
+import { Loader2, CalendarPlus, Briefcase, Building2, Users, MessageCircle, ArrowRight, Inbox, FileText, Download } from "lucide-react";
 import DashboardHeader from "../../components/DashboardHeader";
 import Footer from "../../components/Footer";
 import { card, btnPrimary, btnAccent, Modal, Pill } from "./HrShell";
@@ -10,6 +10,40 @@ import {
   hr, hrErrorMessage, fmtDate, fmtDays, fmtPeriod, fullName, LEAVE_STATUS, ROLE_LABELS, today,
   type Contract, type Employee, type LeaveBalance, type LeaveRequest, type LeaveType, type Workspace,
 } from "../../../lib/hr";
+import { payroll, payslipsPdf, monthLabel, money, type Payslip } from "../../../lib/payroll";
+
+/** Bulletins de paie clôturés de l'employé (masqué tant qu'aucun bulletin n'existe). */
+function MyPayslips({ ws }: { ws: Workspace }) {
+  const [rows, setRows] = useState<Payslip[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+  useEffect(() => {
+    if (ws.employee_id) payroll.myPayslips(ws.employee_id).then(setRows, () => setRows([]));
+  }, [ws.employee_id]);
+  if (rows.length === 0) return null;
+  const pdf = async (p: Payslip) => {
+    setBusy(p.id);
+    try {
+      const period = p.payroll_runs?.period || "";
+      await payslipsPdf({ name: ws.company_name }, period, [p], p.payroll_runs?.settings, `bulletin-${period.slice(0, 7)}.pdf`);
+    } finally { setBusy(null); }
+  };
+  return (
+    <div className={`${card} p-5`}>
+      <h3 className="font-bold text-slate-900 flex items-center gap-2"><FileText className="h-5 w-5 text-[#050FA0]" /> Mes bulletins de paie</h3>
+      <ul className="mt-3 divide-y">
+        {rows.map((p) => (
+          <li key={p.id} className="py-3 flex items-center justify-between gap-3 text-sm">
+            <span><span className="font-semibold text-slate-900 capitalize">{monthLabel(p.payroll_runs?.period || "")}</span>
+              <span className="block text-slate-600">Net payé : <span className="font-semibold tabular-nums">{money(p.net)}</span></span></span>
+            <button type="button" onClick={() => void pdf(p)} disabled={busy === p.id} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-slate-200 font-bold text-slate-700 hover:border-[#050FA0] hover:text-[#050FA0] disabled:opacity-60">
+              {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PDF
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 /** Espace d'un employé dans une entreprise : ses congés, son contrat, et l'équipe s'il est responsable. */
 function CompanySpace({ ws }: { ws: Workspace }) {
@@ -144,6 +178,8 @@ function CompanySpace({ ws }: { ws: Workspace }) {
           </ul>
         )}
       </div>
+
+      <MyPayslips ws={ws} />
 
       {open && (
         <Modal title="Demander un congé" onClose={() => setOpen(false)}>

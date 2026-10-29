@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink } from "react-router";
-import { Loader2, LayoutDashboard, Users, CalendarDays, Network, Settings, X, Building2, AlertCircle } from "lucide-react";
+import { Loader2, LayoutDashboard, Users, CalendarDays, Network, Settings, Wallet, X, Building2, AlertCircle } from "lucide-react";
 import DashboardHeader from "../../components/DashboardHeader";
 import Footer from "../../components/Footer";
 import { PremiumUpsell } from "../../components/PremiumGate";
@@ -36,6 +36,7 @@ const TABS = [
   { to: "/rh", label: "Tableau de bord", icon: LayoutDashboard, end: true },
   { to: "/rh/employes", label: "Employés", icon: Users },
   { to: "/rh/conges", label: "Congés", icon: CalendarDays },
+  { to: "/rh/paie", label: "Paie", icon: Wallet },
   { to: "/rh/organigramme", label: "Organigramme", icon: Network },
   { to: "/rh/parametres", label: "Paramètres", icon: Settings },
 ];
